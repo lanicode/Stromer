@@ -51,6 +51,36 @@ final class ScannerServiceTests: XCTestCase {
         XCTAssertNil(service.lastError)
     }
 
+    func testAdvertisementAlsoUpdatesDiscoveryStoreWithoutRegisteredKey() async throws {
+        let scanner = MockBLEScanner()
+        let registry = DeviceRegistry()
+        let store = VictronStore()
+        let discoveryStore = DiscoveryStore(now: { referenceDate })
+        let service = ScannerService(
+            scanner: scanner,
+            registry: registry,
+            store: store,
+            discoveryStore: discoveryStore
+        )
+
+        await service.start()
+        scanner.emitAdvertisement(RawAdvertisement(
+            peripheralID: UUID(uuidString: "99999999-9999-9999-9999-999999999999")!,
+            localName: "SmartShunt HT",
+            manufacturerData: batteryAdvertisementWithCompanyID,
+            rssi: -68,
+            timestamp: referenceDate
+        ))
+
+        for _ in 0..<20 where discoveryStore.currentDevices().isEmpty {
+            try await Task.sleep(nanoseconds: 25_000_000)
+        }
+
+        XCTAssertEqual(discoveryStore.currentDevices().first?.productID, 0xA389)
+        XCTAssertEqual(discoveryStore.currentDevices().first?.supportStatus, .supported)
+        XCTAssertTrue(store.latestReadings.isEmpty)
+    }
+
     func testStateUpdatesFlowThroughService() async throws {
         let scanner = MockBLEScanner()
         let service = ScannerService(

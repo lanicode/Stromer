@@ -23,7 +23,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Stromer scannt nach BLE-Advertisements deiner Victron-Geräte (z.B. SmartShunt, MPPT), um Live-Werte anzuzeigen. Es wird keine Verbindung zu den Geräten aufgebaut.</string>
+	<string>Stromer scannt nach Victron-Geräten in der Nähe, um Solardaten und Batterie-Status anzuzeigen und neue Geräte beim Hinzufügen vorzuschlagen.</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
 	<key>UIBackgroundModes</key>

@@ -3,6 +3,7 @@ import CoreBluetooth
 import Foundation
 import Observation
 import StromerScanner
+import VictronParser
 import WidgetKit
 
 enum BluetoothAuthorizationStatus: Equatable {
@@ -87,8 +88,10 @@ final class StromerAppViewModel {
     private(set) var bluetoothAuthorization: BluetoothAuthorizationStatus = .current
     private(set) var lastErrorMessage: String?
     private(set) var activeLiveActivityDeviceIDs: Set<UUID> = []
+    private(set) var discoveredDevices: [DiscoveredDevice] = []
 
     @ObservationIgnored private let registry: DeviceRegistry
+    @ObservationIgnored private let discoveryStore: DiscoveryStore
     @ObservationIgnored private let keychainStore: any KeychainStoring
     @ObservationIgnored private let scannerService: ScannerService
     @ObservationIgnored private let liveActivityService: LiveActivityService<ActivityKitActivityClient>
@@ -103,6 +106,7 @@ final class StromerAppViewModel {
         registry: DeviceRegistry,
         store: VictronStore,
         scanner: any BLEScanning,
+        discoveryStore: DiscoveryStore,
         keychainStore: any KeychainStoring,
         liveActivityService: LiveActivityService<ActivityKitActivityClient>,
         deviceSnapshotStore: (any RegisteredDeviceSnapshotStoring)?,
@@ -111,6 +115,7 @@ final class StromerAppViewModel {
     ) {
         self.registry = registry
         self.store = store
+        self.discoveryStore = discoveryStore
         self.keychainStore = keychainStore
         self.liveActivityService = liveActivityService
         self.deviceSnapshotStore = deviceSnapshotStore
@@ -118,7 +123,8 @@ final class StromerAppViewModel {
         self.scannerService = ScannerService(
             scanner: scanner,
             registry: registry,
-            store: store
+            store: store,
+            discoveryStore: discoveryStore
         )
         self.lastErrorMessage = initialErrorMessage
     }
@@ -144,6 +150,7 @@ final class StromerAppViewModel {
         }
 
         let registry = DeviceRegistry()
+        let discoveryStore = DiscoveryStore(registeredDevices: { registry.devices })
         let scanner = CoreBluetoothScanner()
         let keychainStore = KeychainStore(
             service: StromerIdentifiers.keychainService,
@@ -161,6 +168,7 @@ final class StromerAppViewModel {
             registry: registry,
             store: store,
             scanner: scanner,
+            discoveryStore: discoveryStore,
             keychainStore: keychainStore,
             liveActivityService: liveActivityService,
             deviceSnapshotStore: deviceSnapshotStore,
@@ -219,6 +227,66 @@ final class StromerAppViewModel {
         refreshRuntimeState()
     }
 
+    func registerDiscoveredDevice(
+        _ discoveredDevice: DiscoveredDevice,
+        name: String,
+        advertisementKeyHex: String
+    ) throws {
+        guard discoveredDevice.supportStatus != .outOfScope else {
+            throw AppViewModelError.unsupportedDiscoveryDevice
+        }
+
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty else {
+            throw AppViewModelError.invalidName
+        }
+
+        guard let key = Data(hexString: advertisementKeyHex), key.count == 16 else {
+            throw AppViewModelError.invalidKey
+        }
+
+        guard let header = DiscoveryHeaderParser.parseHeader(
+            manufacturerData: discoveredDevice.manufacturerData
+        ),
+        header.productID == discoveredDevice.productID,
+        header.recordType == discoveredDevice.recordType else {
+            throw AppViewModelError.discoveredAdvertisementExpired
+        }
+
+        if discoveredDevice.supportStatus == .supported {
+            guard key.first == discoveredDevice.keyCheckByte else {
+                throw AppViewModelError.wrongAdvertisementKey
+            }
+
+            guard case .success = parseVictronAdvertisement(
+                manufacturerData: discoveredDevice.manufacturerData,
+                key: key
+            ) else {
+                throw AppViewModelError.wrongAdvertisementKey
+            }
+        }
+
+        let id = UUID()
+        try keychainStore.saveKey(key, for: id.uuidString)
+
+        var device = try registry.register(
+            id: id,
+            name: trimmedName,
+            advertisementKey: key
+        )
+        device.peripheralID = discoveredDevice.peripheralID
+        device.localName = discoveredDevice.localName
+        device.productID = discoveredDevice.productID
+        device.recordType = discoveredDevice.recordType
+        device.lastSeenAt = discoveredDevice.lastSeenAt
+        device.lastRSSI = discoveredDevice.rssi
+        registry.upsert(device)
+        registeredDevices = registry.devices
+        persistRegisteredDevices()
+        refreshDiscovery()
+        refreshRuntimeState()
+    }
+
     func deleteDevice(id: UUID) {
         registry.replaceDevices(registry.devices.filter { $0.id != id })
         try? keychainStore.deleteKey(for: id.uuidString)
@@ -241,6 +309,7 @@ final class StromerAppViewModel {
         bluetoothAuthorization = .current
         scannerState = scannerService.state
         refreshLiveActivityState()
+        refreshDiscovery()
 
         if let lastError = scannerService.lastError {
             lastErrorMessage = message(for: lastError)
@@ -253,6 +322,22 @@ final class StromerAppViewModel {
         }
 
         try? store.recalculateFreshness()
+    }
+
+    var canUseDiscovery: Bool {
+        bluetoothAuthorization == .allowed
+            && scannerState != .unauthorized
+            && scannerState != .off
+            && scannerState != .unsupported
+    }
+
+    func refreshDiscovery() {
+        discoveredDevices = discoveryStore.currentDevices()
+    }
+
+    func clearDiscovery() {
+        discoveryStore.removeAll()
+        discoveredDevices = []
     }
 
     func isLiveActivityActive(for deviceID: UUID) -> Bool {
@@ -399,6 +484,9 @@ private enum AppViewModelError: LocalizedError {
     case deviceMissing
     case noReading
     case liveActivitiesDisabled
+    case wrongAdvertisementKey
+    case discoveredAdvertisementExpired
+    case unsupportedDiscoveryDevice
 
     var errorDescription: String? {
         switch self {
@@ -412,6 +500,12 @@ private enum AppViewModelError: LocalizedError {
             return "Für dieses Gerät gibt es noch keinen Live-Wert."
         case .liveActivitiesDisabled:
             return "Live Activities sind auf diesem iPhone deaktiviert."
+        case .wrongAdvertisementKey:
+            return "Dieser Advertisement Key passt nicht zum zuletzt empfangenen Gerät."
+        case .discoveredAdvertisementExpired:
+            return "Das zuletzt empfangene Advertisement ist nicht mehr verfügbar. Bitte starte die Suche erneut."
+        case .unsupportedDiscoveryDevice:
+            return "Dieses Gerät wird derzeit nicht unterstützt."
         }
     }
 }

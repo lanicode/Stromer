@@ -8,6 +8,7 @@ public final class ScannerService {
     private let scanner: any BLEScanning
     private let registry: DeviceRegistry
     private let store: VictronStore
+    private let discoveryStore: DiscoveryStore?
     private let onReadingUpdated: (@MainActor @Sendable (DeviceReading) -> Void)?
     private var tasks: [Task<Void, Never>] = []
 
@@ -15,11 +16,13 @@ public final class ScannerService {
         scanner: any BLEScanning,
         registry: DeviceRegistry,
         store: VictronStore,
+        discoveryStore: DiscoveryStore? = nil,
         onReadingUpdated: (@MainActor @Sendable (DeviceReading) -> Void)? = nil
     ) {
         self.scanner = scanner
         self.registry = registry
         self.store = store
+        self.discoveryStore = discoveryStore
         self.onReadingUpdated = onReadingUpdated
     }
 
@@ -42,6 +45,8 @@ public final class ScannerService {
         guard Self.isVictronInstantReadout(advertisement.manufacturerData) else {
             return .noMatch
         }
+
+        discoveryStore?.update(rawAdvertisement: advertisement)
 
         let result = registry.match(advertisement)
         switch result {
