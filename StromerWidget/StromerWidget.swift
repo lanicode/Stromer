@@ -3,31 +3,36 @@ import StromerScanner
 import SwiftUI
 import WidgetKit
 
-struct StromerDeviceEntity: AppEntity, Identifiable {
-    static var typeDisplayRepresentation = TypeDisplayRepresentation(name: "Gerät")
-    static var defaultQuery = StromerDeviceQuery()
+public struct StromerDeviceEntity: AppEntity, Identifiable {
+    public static var typeDisplayRepresentation = TypeDisplayRepresentation(name: "Gerät")
+    public static var defaultQuery = StromerDeviceQuery()
 
-    let id: String
-    let name: String
+    public let id: String
+    public let name: String
 
-    var uuid: UUID? {
+    public init(id: String, name: String) {
+        self.id = id
+        self.name = name
+    }
+
+    public var uuid: UUID? {
         UUID(uuidString: id)
     }
 
-    var displayRepresentation: DisplayRepresentation {
+    public var displayRepresentation: DisplayRepresentation {
         DisplayRepresentation(title: "\(name)")
     }
 }
 
-struct StromerDeviceQuery: EntityQuery {
-    init() {}
+public struct StromerDeviceQuery: EntityQuery {
+    public init() {}
 
-    func entities(for identifiers: [String]) async throws -> [StromerDeviceEntity] {
+    public func entities(for identifiers: [String]) async throws -> [StromerDeviceEntity] {
         let entities = loadEntities()
         return entities.filter { identifiers.contains($0.id) }
     }
 
-    func suggestedEntities() async throws -> [StromerDeviceEntity] {
+    public func suggestedEntities() async throws -> [StromerDeviceEntity] {
         loadEntities()
     }
 
@@ -43,12 +48,14 @@ struct StromerDeviceQuery: EntityQuery {
     }
 }
 
-struct StromerWidgetConfigurationIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = "Stromer Gerät"
-    static var description = IntentDescription("Wähle ein registriertes Victron-Gerät für das Widget.")
+public struct StromerWidgetConfigurationIntent: WidgetConfigurationIntent {
+    public static var title: LocalizedStringResource = "Stromer Gerät"
+    public static var description = IntentDescription("Wähle ein registriertes Victron-Gerät für das Widget.")
 
     @Parameter(title: "Gerät")
-    var device: StromerDeviceEntity?
+    public var device: StromerDeviceEntity?
+
+    public init() {}
 }
 
 struct StromerWidgetEntry: TimelineEntry {
