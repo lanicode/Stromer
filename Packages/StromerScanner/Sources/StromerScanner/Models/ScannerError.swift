@@ -16,4 +16,5 @@ public enum StromerIdentifiers {
     public static let keychainService = "com.lanicode.stromer.victron-advertisement-key"
     public static let scannerRestoreIdentifier = "com.lanicode.stromer.scanner"
     public static let latestReadingsStoreKey = "com.lanicode.stromer.latest-readings"
+    public static let registeredDevicesStoreKey = "com.lanicode.stromer.registered-devices"
 }
