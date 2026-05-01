@@ -124,7 +124,10 @@ final class StromerAppViewModel {
             scanner: scanner,
             registry: registry,
             store: store,
-            discoveryStore: discoveryStore
+            discoveryStore: discoveryStore,
+            onReadingUpdated: { _ in
+                WidgetCenter.shared.reloadAllTimelines()
+            }
         )
         self.lastErrorMessage = initialErrorMessage
     }
@@ -194,6 +197,19 @@ final class StromerAppViewModel {
     func restartScanner() async {
         await scannerService.stop()
         try? await Task.sleep(for: .milliseconds(350))
+        await scannerService.start()
+        refreshRuntimeState()
+    }
+
+    func resumeForeground() async {
+        do {
+            try store.loadPersistedReadings()
+        } catch {
+            lastErrorMessage = "Letzte Live-Werte konnten nicht geladen werden."
+        }
+
+        await scannerService.stop()
+        try? await Task.sleep(for: .milliseconds(150))
         await scannerService.start()
         refreshRuntimeState()
     }
