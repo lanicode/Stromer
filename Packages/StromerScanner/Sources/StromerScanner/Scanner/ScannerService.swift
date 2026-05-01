@@ -8,16 +8,19 @@ public final class ScannerService {
     private let scanner: any BLEScanning
     private let registry: DeviceRegistry
     private let store: VictronStore
+    private let onReadingUpdated: (@MainActor @Sendable (DeviceReading) -> Void)?
     private var tasks: [Task<Void, Never>] = []
 
     public init(
         scanner: any BLEScanning,
         registry: DeviceRegistry,
-        store: VictronStore
+        store: VictronStore,
+        onReadingUpdated: (@MainActor @Sendable (DeviceReading) -> Void)? = nil
     ) {
         self.scanner = scanner
         self.registry = registry
         self.store = store
+        self.onReadingUpdated = onReadingUpdated
     }
 
     public func start() async {
@@ -44,11 +47,12 @@ public final class ScannerService {
         switch result {
         case let .matched(match):
             do {
-                try store.update(
+                let reading = try store.update(
                     device: match.device,
                     record: match.record,
                     advertisement: match.advertisement
                 )
+                onReadingUpdated?(reading)
                 lastError = nil
             } catch {
                 lastError = .persistenceFailed(String(describing: error))

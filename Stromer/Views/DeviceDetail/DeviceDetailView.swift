@@ -8,6 +8,7 @@ struct DeviceDetailView: View {
     let deviceID: UUID
 
     @State private var isConfirmingDelete = false
+    @State private var liveActivityNotice: LiveActivityNotice?
 
     var body: some View {
         if let device = appModel.device(id: deviceID) {
@@ -49,6 +50,7 @@ struct DeviceDetailView: View {
                 }
 
                 liveDataSection(reading: reading)
+                liveActivitySection(reading: reading)
 
                 Section("Gerät") {
                     LabeledContent("Name", value: device.name)
@@ -82,12 +84,84 @@ struct DeviceDetailView: View {
             } message: {
                 Text("Der gespeicherte Advertisement Key wird aus dem Keychain entfernt.")
             }
+            .sheet(item: $liveActivityNotice) { notice in
+                NavigationStack {
+                    VStack(alignment: .leading, spacing: 16) {
+                        Image(systemName: "rectangle.on.rectangle.slash")
+                            .font(.system(size: 44, weight: .semibold))
+                            .foregroundStyle(.secondary)
+
+                        Text(notice.title)
+                            .font(.title2.bold())
+
+                        Text(notice.message)
+                            .foregroundStyle(.secondary)
+
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
+                    .navigationTitle("Live-Anzeige")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button("Fertig") {
+                                liveActivityNotice = nil
+                            }
+                        }
+                    }
+                }
+                .presentationDetents([.medium])
+            }
         } else {
             ContentUnavailableView(
                 "Gerät nicht gefunden",
                 systemImage: "questionmark.circle",
                 description: Text("Dieses Gerät ist nicht mehr registriert.")
             )
+        }
+    }
+
+    @ViewBuilder
+    private func liveActivitySection(reading: DeviceReading?) -> some View {
+        Section("Live-Anzeige") {
+            if let reading {
+                let isActive = appModel.isLiveActivityActive(for: deviceID)
+
+                Button {
+                    Task {
+                        if isActive {
+                            await appModel.endLiveActivity(for: deviceID)
+                        } else {
+                            do {
+                                try await appModel.startLiveActivity(for: deviceID)
+                            } catch {
+                                liveActivityNotice = LiveActivityNotice(
+                                    title: "Live-Anzeige nicht verfügbar",
+                                    message: error.localizedDescription
+                                )
+                            }
+                        }
+                    }
+                } label: {
+                    Label(
+                        isActive ? "Live-Anzeige beenden" : "Live-Anzeige starten",
+                        systemImage: isActive ? "xmark.circle" : "square.and.arrow.up.on.square"
+                    )
+                }
+
+                Text("Aktualisiert wird lokal, wenn Stromer im Vordergrund neue Werte empfängt. Im Hintergrund bleibt die letzte Live-Anzeige sichtbar.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+
+                LabeledContent("Aktueller Stand", value: DevicePresentation.relativeTime(reading.timestamp))
+            } else {
+                ContentUnavailableView(
+                    "Noch kein Live-Wert",
+                    systemImage: "rectangle.on.rectangle.slash",
+                    description: Text("Die Live-Anzeige kann gestartet werden, sobald ein erstes Advertisement empfangen wurde.")
+                )
+            }
         }
     }
 
@@ -268,4 +342,10 @@ struct DeviceDetailView: View {
         }
         return "\(rssi) dBm"
     }
+}
+
+private struct LiveActivityNotice: Identifiable {
+    let id = UUID()
+    let title: String
+    let message: String
 }
