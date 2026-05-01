@@ -1,5 +1,6 @@
 import AppIntents
 import Foundation
+import StromerScanner
 
 public struct StromerDeviceEntity: AppEntity, Identifiable {
     public static let typeDisplayRepresentation = TypeDisplayRepresentation(name: "Gerät")
@@ -53,9 +54,5 @@ public struct StromerWidgetConfigurationIntent: WidgetConfigurationIntent {
     @Parameter(title: "Gerät")
     public var device: StromerDeviceEntity?
 
-    public init() {}
-}
-
-public struct StromerScannerAppIntentsPackage: AppIntentsPackage {
     public init() {}
 }

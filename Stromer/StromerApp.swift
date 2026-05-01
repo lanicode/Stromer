@@ -1,4 +1,3 @@
-import AppIntents
 import SwiftUI
 import StromerScanner
 
@@ -15,11 +14,5 @@ struct StromerApp: App {
                     await appModel.start()
                 }
         }
-    }
-}
-
-struct StromerAppIntentsPackage: AppIntentsPackage {
-    static var includedPackages: [any AppIntentsPackage.Type] {
-        [StromerScannerAppIntentsPackage.self]
     }
 }
