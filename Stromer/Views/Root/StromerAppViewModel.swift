@@ -3,6 +3,7 @@ import CoreBluetooth
 import Foundation
 import Observation
 import StromerScanner
+import WidgetKit
 
 enum BluetoothAuthorizationStatus: Equatable {
     case allowed
@@ -91,10 +92,12 @@ final class StromerAppViewModel {
     @ObservationIgnored private let keychainStore: any KeychainStoring
     @ObservationIgnored private let scannerService: ScannerService
     @ObservationIgnored private let liveActivityService: LiveActivityService<ActivityKitActivityClient>
+    @ObservationIgnored private let deviceSnapshotStore: (any RegisteredDeviceSnapshotStoring)?
     @ObservationIgnored private let metadataDefaults: UserDefaults
     @ObservationIgnored private var monitorTask: Task<Void, Never>?
     @ObservationIgnored private var liveActivityUpdateTokensByDeviceID: [UUID: LiveActivityUpdateToken] = [:]
-    @ObservationIgnored private let metadataKey = "com.lanicode.StromerApp.registered-devices"
+    @ObservationIgnored private let metadataKey = "com.lanicode.StromerApp.registered-devices.metadata"
+    @ObservationIgnored private let legacyMetadataKey = StromerIdentifiers.registeredDevicesStoreKey
 
     private init(
         registry: DeviceRegistry,
@@ -102,6 +105,7 @@ final class StromerAppViewModel {
         scanner: any BLEScanning,
         keychainStore: any KeychainStoring,
         liveActivityService: LiveActivityService<ActivityKitActivityClient>,
+        deviceSnapshotStore: (any RegisteredDeviceSnapshotStoring)?,
         metadataDefaults: UserDefaults,
         initialErrorMessage: String? = nil
     ) {
@@ -109,6 +113,7 @@ final class StromerAppViewModel {
         self.store = store
         self.keychainStore = keychainStore
         self.liveActivityService = liveActivityService
+        self.deviceSnapshotStore = deviceSnapshotStore
         self.metadataDefaults = metadataDefaults
         self.scannerService = ScannerService(
             scanner: scanner,
@@ -147,6 +152,9 @@ final class StromerAppViewModel {
         let liveActivityService = LiveActivityService(
             client: ActivityKitActivityClient()
         )
+        let deviceSnapshotStore = try? AppGroupDeviceSnapshotStore(
+            suiteName: StromerIdentifiers.appGroup
+        )
         let defaults = UserDefaults(suiteName: StromerIdentifiers.appGroup) ?? .standard
 
         let model = StromerAppViewModel(
@@ -155,6 +163,7 @@ final class StromerAppViewModel {
             scanner: scanner,
             keychainStore: keychainStore,
             liveActivityService: liveActivityService,
+            deviceSnapshotStore: deviceSnapshotStore,
             metadataDefaults: defaults,
             initialErrorMessage: initialError
         )
@@ -311,7 +320,22 @@ final class StromerAppViewModel {
     }
 
     private func loadRegisteredDevices() {
-        guard let data = metadataDefaults.data(forKey: metadataKey) else {
+        if let deviceSnapshotStore,
+           let snapshots = try? deviceSnapshotStore.loadDeviceSnapshots(),
+           !snapshots.isEmpty {
+            let devices = snapshots.compactMap { item -> RegisteredDevice? in
+                guard let key = try? keychainStore.loadKey(for: item.id.uuidString) else {
+                    return nil
+                }
+                return item.registeredDevice(advertisementKey: key)
+            }
+            registry.replaceDevices(devices)
+            registeredDevices = devices
+            return
+        }
+
+        guard let data = metadataDefaults.data(forKey: metadataKey)
+            ?? metadataDefaults.data(forKey: legacyMetadataKey) else {
             registeredDevices = []
             return
         }
@@ -329,6 +353,7 @@ final class StromerAppViewModel {
             }
             registry.replaceDevices(devices)
             registeredDevices = devices
+            persistRegisteredDevices()
         } catch {
             lastErrorMessage = "Registrierte Geräte konnten nicht geladen werden."
         }
@@ -336,9 +361,15 @@ final class StromerAppViewModel {
 
     private func persistRegisteredDevices() {
         do {
-            let metadata = registry.devices.map(RegisteredDeviceMetadata.init)
-            let data = try JSONEncoder().encode(metadata)
-            metadataDefaults.set(data, forKey: metadataKey)
+            let snapshots = registry.devices.map(RegisteredDeviceSnapshot.init)
+            if let deviceSnapshotStore {
+                try deviceSnapshotStore.saveDeviceSnapshots(snapshots)
+            } else {
+                let metadata = registry.devices.map(RegisteredDeviceMetadata.init)
+                let data = try JSONEncoder().encode(metadata)
+                metadataDefaults.set(data, forKey: metadataKey)
+            }
+            WidgetCenter.shared.reloadAllTimelines()
         } catch {
             lastErrorMessage = "Registrierte Geräte konnten nicht gespeichert werden."
         }

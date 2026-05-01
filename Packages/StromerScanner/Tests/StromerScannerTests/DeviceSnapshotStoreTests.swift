@@ -22,6 +22,23 @@ final class DeviceSnapshotStoreTests: XCTestCase {
         XCTAssertEqual(try store.loadDeviceSnapshots(), [snapshot])
     }
 
+    func testLoadsLegacyNumericDateEncoding() throws {
+        let backing = DeviceSnapshotKeyValueStore()
+        let store = AppGroupDeviceSnapshotStore(backing: backing)
+        let snapshot = RegisteredDeviceSnapshot(
+            id: UUID(uuidString: "11111111-2222-3333-4444-555555555555")!,
+            name: "SmartShunt",
+            productID: 0xA389,
+            recordType: 0x02,
+            lastSeenAt: Date(timeIntervalSince1970: 1_700_000_000),
+            lastRSSI: -68
+        )
+        let legacyData = try JSONEncoder().encode([snapshot])
+        backing.set(legacyData, forKey: StromerIdentifiers.registeredDevicesStoreKey)
+
+        XCTAssertEqual(try store.loadDeviceSnapshots(), [snapshot])
+    }
+
     func testDeletesSingleDeviceSnapshot() throws {
         let backing = DeviceSnapshotKeyValueStore()
         let store = AppGroupDeviceSnapshotStore(backing: backing)

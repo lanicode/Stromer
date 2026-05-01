@@ -3,50 +3,6 @@ import StromerScanner
 import SwiftUI
 import WidgetKit
 
-struct StromerDeviceEntity: AppEntity, Identifiable {
-    static var typeDisplayRepresentation = TypeDisplayRepresentation(name: "Gerät")
-    static var defaultQuery = StromerDeviceQuery()
-
-    let id: String
-    let name: String
-
-    var uuid: UUID? {
-        UUID(uuidString: id)
-    }
-
-    var displayRepresentation: DisplayRepresentation {
-        DisplayRepresentation(title: "\(name)")
-    }
-}
-
-struct StromerDeviceQuery: EntityQuery {
-    init() {}
-
-    func entities(for identifiers: [String]) async throws -> [StromerDeviceEntity] {
-        let entities = try loadEntities()
-        return entities.filter { identifiers.contains($0.id) }
-    }
-
-    func suggestedEntities() async throws -> [StromerDeviceEntity] {
-        try loadEntities()
-    }
-
-    private func loadEntities() throws -> [StromerDeviceEntity] {
-        let provider = try StromerWidgetSnapshotProvider.appGroup()
-        return try provider.deviceOptions().map {
-            StromerDeviceEntity(id: $0.id.uuidString, name: $0.name)
-        }
-    }
-}
-
-struct StromerWidgetConfigurationIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = "Stromer Gerät"
-    static var description = IntentDescription("Wähle ein registriertes Victron-Gerät für das Widget.")
-
-    @Parameter(title: "Gerät")
-    var device: StromerDeviceEntity?
-}
-
 struct StromerWidgetEntry: TimelineEntry {
     let date: Date
     let snapshot: StromerWidgetSnapshot

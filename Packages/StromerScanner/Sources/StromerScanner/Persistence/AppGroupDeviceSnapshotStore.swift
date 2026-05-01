@@ -89,7 +89,7 @@ public final class AppGroupDeviceSnapshotStore: RegisteredDeviceSnapshotStoring,
         self.encoder = JSONEncoder()
         self.decoder = JSONDecoder()
         self.encoder.dateEncodingStrategy = .iso8601
-        self.decoder.dateDecodingStrategy = .iso8601
+        self.decoder.dateDecodingStrategy = .stromerFlexible
     }
 
     public func saveDeviceSnapshots(_ snapshots: [RegisteredDeviceSnapshot]) throws {
@@ -109,5 +109,32 @@ public final class AppGroupDeviceSnapshotStore: RegisteredDeviceSnapshotStoring,
     public func deleteDeviceSnapshot(id: UUID) throws {
         let remaining = try loadDeviceSnapshots().filter { $0.id != id }
         try saveDeviceSnapshots(remaining)
+    }
+}
+
+private extension JSONDecoder.DateDecodingStrategy {
+    static var stromerFlexible: JSONDecoder.DateDecodingStrategy {
+        .custom { decoder in
+            let container = try decoder.singleValueContainer()
+
+            if let string = try? container.decode(String.self) {
+                let formatter = ISO8601DateFormatter()
+                if let date = formatter.date(from: string) {
+                    return date
+                }
+            }
+
+            if let seconds = try? container.decode(Double.self) {
+                if seconds > 1_000_000_000 {
+                    return Date(timeIntervalSince1970: seconds)
+                }
+                return Date(timeIntervalSinceReferenceDate: seconds)
+            }
+
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Expected ISO8601 string or numeric date."
+            )
+        }
     }
 }
