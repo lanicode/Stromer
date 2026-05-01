@@ -98,6 +98,7 @@ final class StromerAppViewModel {
     @ObservationIgnored private let deviceSnapshotStore: (any RegisteredDeviceSnapshotStoring)?
     @ObservationIgnored private let metadataDefaults: UserDefaults
     @ObservationIgnored private var monitorTask: Task<Void, Never>?
+    @ObservationIgnored private var lastScanRecoveryAt: Date?
     @ObservationIgnored private var liveActivityUpdateTokensByDeviceID: [UUID: LiveActivityUpdateToken] = [:]
     @ObservationIgnored private let metadataKey = "com.lanicode.StromerApp.registered-devices.metadata"
     @ObservationIgnored private let legacyMetadataKey = StromerIdentifiers.registeredDevicesStoreKey
@@ -195,9 +196,7 @@ final class StromerAppViewModel {
     }
 
     func restartScanner() async {
-        await scannerService.stop()
-        try? await Task.sleep(for: .milliseconds(350))
-        await scannerService.start()
+        await scannerService.restartScan()
         refreshRuntimeState()
     }
 
@@ -208,9 +207,8 @@ final class StromerAppViewModel {
             lastErrorMessage = "Letzte Live-Werte konnten nicht geladen werden."
         }
 
-        await scannerService.stop()
-        try? await Task.sleep(for: .milliseconds(150))
-        await scannerService.start()
+        lastScanRecoveryAt = Date()
+        await scannerService.restartScan(delay: .milliseconds(150))
         refreshRuntimeState()
     }
 
@@ -392,10 +390,37 @@ final class StromerAppViewModel {
         monitorTask = Task { @MainActor [weak self] in
             while !Task.isCancelled {
                 self?.refreshRuntimeState()
+                await self?.recoverScannerIfNeeded()
                 await self?.updateActiveLiveActivitiesIfNeeded()
                 try? await Task.sleep(for: .seconds(30))
             }
         }
+    }
+
+    private func recoverScannerIfNeeded() async {
+        guard scannerState == .scanning, !registeredDevices.isEmpty else {
+            return
+        }
+
+        let now = Date()
+        if let lastScanRecoveryAt,
+           now.timeIntervalSince(lastScanRecoveryAt) < 90 {
+            return
+        }
+
+        let latestActivityDates = registeredDevices.compactMap { device in
+            store.reading(for: device.id)?.timestamp ?? device.lastSeenAt
+        }
+
+        guard !latestActivityDates.contains(where: {
+            now.timeIntervalSince($0) < DeviceFreshness.freshUpperBound
+        }) else {
+            return
+        }
+
+        lastScanRecoveryAt = now
+        await scannerService.restartScan(delay: .milliseconds(150))
+        refreshRuntimeState()
     }
 
     private func updateActiveLiveActivitiesIfNeeded() async {

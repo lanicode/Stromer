@@ -40,6 +40,13 @@ public final class ScannerService {
         state = .idle
     }
 
+    public func restartScan(delay: Duration = .milliseconds(350)) async {
+        startObservingIfNeeded()
+        await scanner.stopScan()
+        try? await Task.sleep(for: delay)
+        await scanner.startScan()
+    }
+
     @discardableResult
     func handleAdvertisement(_ advertisement: RawAdvertisement) -> DeviceRegistryMatchResult {
         guard Self.isVictronInstantReadout(advertisement.manufacturerData) else {

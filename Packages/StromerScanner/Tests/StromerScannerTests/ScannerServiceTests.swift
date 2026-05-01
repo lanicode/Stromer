@@ -95,6 +95,30 @@ final class ScannerServiceTests: XCTestCase {
 
         XCTAssertEqual(service.state, .off)
     }
+
+    func testRestartScanKeepsAdvertisementObservationAlive() async throws {
+        let scanner = MockBLEScanner()
+        let registry = DeviceRegistry()
+        let store = VictronStore()
+        let service = ScannerService(scanner: scanner, registry: registry, store: store)
+        try registry.register(name: "SmartShunt", advertisementKey: batteryKey)
+
+        await service.start()
+        await service.restartScan(delay: .milliseconds(1))
+        scanner.emitAdvertisement(RawAdvertisement(
+            peripheralID: UUID(uuidString: "12121212-1212-1212-1212-121212121212")!,
+            localName: "SmartShunt HT",
+            manufacturerData: batteryAdvertisementWithCompanyID,
+            rssi: -68,
+            timestamp: referenceDate
+        ))
+
+        try await waitForStoreUpdate(store)
+
+        XCTAssertEqual(scanner.startCount, 2)
+        XCTAssertEqual(scanner.stopCount, 1)
+        XCTAssertEqual(store.latestReadings.count, 1)
+    }
 }
 
 private let referenceDate = Date(timeIntervalSince1970: 1_700_000_000)
