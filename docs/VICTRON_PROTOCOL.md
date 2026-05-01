@@ -54,7 +54,7 @@ Offsets below exclude the 2-byte Company Identifier.
 | Offset | Size | Meaning | Endian / value |
 | --- | ---: | --- | --- |
 | 0 | 1 | Manufacturer Data Record Type | `0x10` = Product Advertisement / Instant Readout |
-| 1 | 1 | Product Advertisement prefix byte | Observed as `0x02` in Python test vectors and community captures |
+| 1 | 1 | Product Advertisement variant byte | Variable; observed as `0x02` for SmartShunt/MPPT, but not a validation field |
 | 2 | 2 | Product ID / model ID | `uint16` little-endian, mapped via `Victron_ProductId_mapping.txt` |
 | 4 | 1 | Extra record type / device type | `0x01` Solar Charger, `0x02` Battery Monitor, etc. |
 | 5 | 2 | Nonce / Data Counter / AES IV seed | `uint16` little-endian |
@@ -67,13 +67,14 @@ Examples from the Python tests:
 | --- | ---: | --- |
 | `10 02 57 A0 01 ...` | `0xA057` | SmartSolar Charger MPPT 100/50 |
 | `10 02 89 A3 02 ...` | `0xA389` | SmartShunt 500A/50mV |
+| `10 xx D0 A3 04 ...` | `0xA3D0` | Orion Smart 12V/12V-30A DC/DC Converter; byte 1 may differ from `0x02` |
 
 OPEN QUESTION: The required sources do not define the semantic name of Victron
-manufacturer payload byte 1. The Python reference folds bytes 0..1 into
-`prefix = 0x0210` and then reads Product ID from bytes 2..3. The community
-example describes bytes 1..2 as model ID, but that does not match the Python
-mapping for known products. Treat byte 1 as a fixed/observed Product
-Advertisement prefix until a primary source names it.
+manufacturer payload byte 1. The Python reference scanner validates only
+payload byte 0 (`0x10`) and `detect_device_type` reads Product ID from bytes
+2..3 plus record type from byte 4, so iOS must not require byte 1 to be
+`0x02`. Treat byte 1 as a variable Product Advertisement variant byte until a
+primary source names it.
 
 ## Device Type Detection
 

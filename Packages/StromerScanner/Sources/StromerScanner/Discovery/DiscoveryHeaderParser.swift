@@ -1,6 +1,7 @@
 import Foundation
 
 public struct DiscoveryHeader: Equatable, Sendable {
+    public let productAdvertisementVariant: UInt8
     public let productID: UInt16
     public let recordType: UInt8
     public let nonce: UInt16
@@ -9,6 +10,7 @@ public struct DiscoveryHeader: Equatable, Sendable {
     public let encryptedPayloadLength: Int
 
     public init(
+        productAdvertisementVariant: UInt8,
         productID: UInt16,
         recordType: UInt8,
         nonce: UInt16,
@@ -16,6 +18,7 @@ public struct DiscoveryHeader: Equatable, Sendable {
         hasCompanyIdentifier: Bool,
         encryptedPayloadLength: Int
     ) {
+        self.productAdvertisementVariant = productAdvertisementVariant
         self.productID = productID
         self.recordType = recordType
         self.nonce = nonce
@@ -46,16 +49,13 @@ public enum DiscoveryHeaderParser {
             return nil
         }
 
-        guard bytes[payloadOffset + 1] == 0x02 else {
-            return nil
-        }
-
         let productID = UInt16(bytes[payloadOffset + 2])
             | (UInt16(bytes[payloadOffset + 3]) << 8)
         let nonce = UInt16(bytes[payloadOffset + 5])
             | (UInt16(bytes[payloadOffset + 6]) << 8)
 
         return DiscoveryHeader(
+            productAdvertisementVariant: bytes[payloadOffset + 1],
             productID: productID,
             recordType: bytes[payloadOffset + 4],
             nonce: nonce,

@@ -8,6 +8,7 @@ final class DiscoveryHeaderParserTests: XCTestCase {
             manufacturerData: data("e102100289a302b040af925d09a4d89aa0128bdef48c6298a9")
         )
 
+        XCTAssertEqual(header?.productAdvertisementVariant, 0x02)
         XCTAssertEqual(header?.productID, 0xA389)
         XCTAssertEqual(header?.recordType, 0x02)
         XCTAssertEqual(header?.nonce, 0x40B0)
@@ -41,12 +42,36 @@ final class DiscoveryHeaderParserTests: XCTestCase {
         )
     }
 
-    func testRejectsWrongVictronPrefixByte() {
-        XCTAssertNil(
-            DiscoveryHeaderParser.parseHeader(
-                manufacturerData: data("e102100189a302b040af")
-            )
+    func testParsesOrionHeaderWithVariant00() {
+        let header = DiscoveryHeaderParser.parseHeader(
+            manufacturerData: orionManufacturerData(variant: 0x00)
         )
+
+        assertOrionHeader(header, variant: 0x00)
+    }
+
+    func testParsesOrionHeaderWithVariant01() {
+        let header = DiscoveryHeaderParser.parseHeader(
+            manufacturerData: orionManufacturerData(variant: 0x01)
+        )
+
+        assertOrionHeader(header, variant: 0x01)
+    }
+
+    func testParsesOrionHeaderWithVariant03() {
+        let header = DiscoveryHeaderParser.parseHeader(
+            manufacturerData: orionManufacturerData(variant: 0x03)
+        )
+
+        assertOrionHeader(header, variant: 0x03)
+    }
+
+    func testParsesOrionHeaderWithVariantFF() {
+        let header = DiscoveryHeaderParser.parseHeader(
+            manufacturerData: orionManufacturerData(variant: 0xFF)
+        )
+
+        assertOrionHeader(header, variant: 0xFF)
     }
 
     func testParsesHeaderWithoutEncryptedPayload() {
@@ -57,6 +82,28 @@ final class DiscoveryHeaderParserTests: XCTestCase {
         XCTAssertEqual(header?.productID, 0xA057)
         XCTAssertEqual(header?.encryptedPayloadLength, 0)
     }
+}
+
+private func orionManufacturerData(variant: UInt8) -> Data {
+    var bytes = data("e10210")
+    bytes.append(variant)
+    bytes.append(data("d0a30434127a000102030405060708090a0b0c0d0e0f"))
+    return bytes
+}
+
+private func assertOrionHeader(
+    _ header: DiscoveryHeader?,
+    variant: UInt8,
+    file: StaticString = #filePath,
+    line: UInt = #line
+) {
+    XCTAssertEqual(header?.productAdvertisementVariant, variant, file: file, line: line)
+    XCTAssertEqual(header?.productID, 0xA3D0, file: file, line: line)
+    XCTAssertEqual(header?.recordType, 0x04, file: file, line: line)
+    XCTAssertEqual(header?.nonce, 0x1234, file: file, line: line)
+    XCTAssertEqual(header?.keyCheckByte, 0x7A, file: file, line: line)
+    XCTAssertEqual(header?.hasCompanyIdentifier, true, file: file, line: line)
+    XCTAssertEqual(header?.encryptedPayloadLength, 16, file: file, line: line)
 }
 
 private func data(_ hex: String) -> Data {
