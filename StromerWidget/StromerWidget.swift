@@ -23,18 +23,22 @@ struct StromerDeviceQuery: EntityQuery {
     init() {}
 
     func entities(for identifiers: [String]) async throws -> [StromerDeviceEntity] {
-        let entities = try loadEntities()
+        let entities = loadEntities()
         return entities.filter { identifiers.contains($0.id) }
     }
 
     func suggestedEntities() async throws -> [StromerDeviceEntity] {
-        try loadEntities()
+        loadEntities()
     }
 
-    private func loadEntities() throws -> [StromerDeviceEntity] {
-        let provider = try StromerWidgetSnapshotProvider.appGroup()
-        return try provider.deviceOptions().map {
-            StromerDeviceEntity(id: $0.id.uuidString, name: $0.name)
+    private func loadEntities() -> [StromerDeviceEntity] {
+        do {
+            let provider = try StromerWidgetSnapshotProvider.appGroup()
+            return try provider.deviceOptions().map {
+                StromerDeviceEntity(id: $0.id.uuidString, name: $0.name)
+            }
+        } catch {
+            return []
         }
     }
 }
