@@ -21,6 +21,7 @@ public final class UserDefaultsKeyValueStore: AppGroupKeyValueStoring, @unchecke
 
     public func set(_ value: Data?, forKey key: String) {
         defaults.set(value, forKey: key)
+        _ = defaults.synchronize()
     }
 }
 

@@ -96,7 +96,8 @@ final class StromerAppViewModel {
     @ObservationIgnored private let metadataDefaults: UserDefaults
     @ObservationIgnored private var monitorTask: Task<Void, Never>?
     @ObservationIgnored private var liveActivityUpdateTokensByDeviceID: [UUID: LiveActivityUpdateToken] = [:]
-    @ObservationIgnored private let metadataKey = "com.lanicode.StromerApp.registered-devices"
+    @ObservationIgnored private let metadataKey = "com.lanicode.StromerApp.registered-devices.metadata"
+    @ObservationIgnored private let legacyMetadataKey = StromerIdentifiers.registeredDevicesStoreKey
 
     private init(
         registry: DeviceRegistry,
@@ -333,7 +334,8 @@ final class StromerAppViewModel {
             return
         }
 
-        guard let data = metadataDefaults.data(forKey: metadataKey) else {
+        guard let data = metadataDefaults.data(forKey: metadataKey)
+            ?? metadataDefaults.data(forKey: legacyMetadataKey) else {
             registeredDevices = []
             return
         }
@@ -351,6 +353,7 @@ final class StromerAppViewModel {
             }
             registry.replaceDevices(devices)
             registeredDevices = devices
+            persistRegisteredDevices()
         } catch {
             lastErrorMessage = "Registrierte Geräte konnten nicht geladen werden."
         }
@@ -359,11 +362,13 @@ final class StromerAppViewModel {
     private func persistRegisteredDevices() {
         do {
             let snapshots = registry.devices.map(RegisteredDeviceSnapshot.init)
-            try deviceSnapshotStore?.saveDeviceSnapshots(snapshots)
-
-            let metadata = registry.devices.map(RegisteredDeviceMetadata.init)
-            let data = try JSONEncoder().encode(metadata)
-            metadataDefaults.set(data, forKey: metadataKey)
+            if let deviceSnapshotStore {
+                try deviceSnapshotStore.saveDeviceSnapshots(snapshots)
+            } else {
+                let metadata = registry.devices.map(RegisteredDeviceMetadata.init)
+                let data = try JSONEncoder().encode(metadata)
+                metadataDefaults.set(data, forKey: metadataKey)
+            }
             WidgetCenter.shared.reloadAllTimelines()
         } catch {
             lastErrorMessage = "Registrierte Geräte konnten nicht gespeichert werden."
