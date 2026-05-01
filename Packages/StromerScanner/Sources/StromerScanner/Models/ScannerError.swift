@@ -11,10 +11,9 @@ public enum ScannerError: Error, Equatable, Sendable {
 
 public enum StromerIdentifiers {
     public static let appName = "stromer"
-    public static let bundleIDPrefix = "com.lanicode.stromer"
-    public static let appGroup = "group.com.lanicode.stromer.shared"
-    public static let keychainService = "com.lanicode.stromer.victron-advertisement-key"
-    public static let scannerRestoreIdentifier = "com.lanicode.stromer.scanner"
-    public static let latestReadingsStoreKey = "com.lanicode.stromer.latest-readings"
-    public static let registeredDevicesStoreKey = "com.lanicode.stromer.registered-devices"
+    public static let bundleIDPrefix = "com.lanicode.StromerApp"
+    public static let appGroup = "group.com.lanicode.Stromer"
+    public static let keychainService = "com.lanicode.StromerApp.victron-advertisement-key"
+    public static let scannerRestoreIdentifier = "com.lanicode.StromerApp.scanner"
+    public static let latestReadingsStoreKey = "com.lanicode.StromerApp.latest-readings"
 }

@@ -4,11 +4,11 @@
 <dict>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.com.lanicode.stromer.shared</string>
+		<string>group.com.lanicode.Stromer</string>
 	</array>
 	<key>keychain-access-groups</key>
 	<array>
-		<string>$(AppIdentifierPrefix)com.lanicode.stromer</string>
+		<string>$(AppIdentifierPrefix)com.lanicode.StromerApp</string>
 	</array>
 </dict>
 </plist>
