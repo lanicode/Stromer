@@ -1,0 +1,13 @@
+.DS_Store
+*.xcuserstate
+xcuserdata/
+DerivedData/
+build/
+.build/
+.swiftpm/
+Package.resolved
+.codex/
+.cursor/
+*.env
+secrets.plist
+victron-keys.json
