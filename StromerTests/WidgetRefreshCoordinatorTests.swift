@@ -16,7 +16,7 @@ final class WidgetRefreshCoordinatorTests: XCTestCase {
         XCTAssertEqual(reloadCount, 1)
     }
 
-    func testSecondReadingWithinDebounceIsSuppressed() {
+    func testSecondReadingWithinDebounceIsDeferred() {
         var now = Date(timeIntervalSince1970: 0)
         var reloadCount = 0
         let coordinator = WidgetRefreshCoordinator(
@@ -29,6 +29,25 @@ final class WidgetRefreshCoordinatorTests: XCTestCase {
         coordinator.requestReload(reason: .reading)
 
         XCTAssertEqual(reloadCount, 1)
+    }
+
+    func testReadingInsideDebounceSchedulesTrailingReload() async {
+        var now = Date(timeIntervalSince1970: 0)
+        var reloadCount = 0
+        let coordinator = WidgetRefreshCoordinator(
+            nowProvider: { now },
+            reloadHandler: { reloadCount += 1 }
+        )
+
+        coordinator.requestReload(reason: .reading)
+        now = Date(timeIntervalSince1970: 29.99)
+        coordinator.requestReload(reason: .reading)
+
+        XCTAssertEqual(reloadCount, 1)
+
+        try? await Task.sleep(for: .milliseconds(80))
+
+        XCTAssertEqual(reloadCount, 2)
     }
 
     func testReadingAfterDebounceReloads() {

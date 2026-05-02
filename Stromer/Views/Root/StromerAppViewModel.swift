@@ -213,6 +213,7 @@ final class StromerAppViewModel {
         lastScanRecoveryAt = Date()
         await scannerService.restartScan(delay: .milliseconds(150))
         refreshRuntimeState()
+        widgetRefreshCoordinator.requestReload(reason: .foreground)
     }
 
     func registerDevice(
