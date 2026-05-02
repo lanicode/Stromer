@@ -98,6 +98,8 @@ final class StromerAppViewModel {
     @ObservationIgnored let notificationCoordinator: NotificationCoordinator
     @ObservationIgnored let sunsetService: SunsetService
     @ObservationIgnored let dailyInsightScheduler: DailyInsightScheduler?
+    @ObservationIgnored let dashboardViewModel: DashboardViewModel
+    @ObservationIgnored let historyViewModel: HistoryViewModel
     @ObservationIgnored private let liveActivityService: LiveActivityService<ActivityKitActivityClient>
     @ObservationIgnored let widgetRefreshCoordinator: WidgetRefreshCoordinator
     @ObservationIgnored private let deviceSnapshotStore: (any RegisteredDeviceSnapshotStoring)?
@@ -119,6 +121,8 @@ final class StromerAppViewModel {
         notificationCoordinator: NotificationCoordinator,
         sunsetService: SunsetService,
         dailyInsightScheduler: DailyInsightScheduler?,
+        dashboardViewModel: DashboardViewModel,
+        historyViewModel: HistoryViewModel,
         liveActivityService: LiveActivityService<ActivityKitActivityClient>,
         widgetRefreshCoordinator: WidgetRefreshCoordinator? = nil,
         deviceSnapshotStore: (any RegisteredDeviceSnapshotStoring)?,
@@ -135,6 +139,8 @@ final class StromerAppViewModel {
         self.notificationCoordinator = notificationCoordinator
         self.sunsetService = sunsetService
         self.dailyInsightScheduler = dailyInsightScheduler
+        self.dashboardViewModel = dashboardViewModel
+        self.historyViewModel = historyViewModel
         self.liveActivityService = liveActivityService
         self.widgetRefreshCoordinator = widgetRefreshCoordinator
         self.deviceSnapshotStore = deviceSnapshotStore
@@ -148,6 +154,7 @@ final class StromerAppViewModel {
             readingObserver: { reading in
                 Task { @MainActor in
                     await notificationCoordinator.evaluate(reading: reading)
+                    dashboardViewModel.refreshLiveValues()
                 }
             },
             onReadingUpdated: { _ in
@@ -203,6 +210,16 @@ final class StromerAppViewModel {
                 historyStore: $0
             )
         }
+        let dashboardViewModel = DashboardViewModel(
+            historyStore: historyStore,
+            registeredDevicesProvider: { registry.devices },
+            latestReadingsProvider: { store.latestReadings },
+            sunsetService: sunsetService
+        )
+        let historyViewModel = HistoryViewModel(
+            historyStore: historyStore,
+            registeredDevicesProvider: { registry.devices }
+        )
         let liveActivityService = LiveActivityService(
             client: ActivityKitActivityClient()
         )
@@ -222,6 +239,8 @@ final class StromerAppViewModel {
             notificationCoordinator: notificationCoordinator,
             sunsetService: sunsetService,
             dailyInsightScheduler: dailyInsightScheduler,
+            dashboardViewModel: dashboardViewModel,
+            historyViewModel: historyViewModel,
             liveActivityService: liveActivityService,
             deviceSnapshotStore: deviceSnapshotStore,
             metadataDefaults: defaults,
@@ -231,6 +250,8 @@ final class StromerAppViewModel {
         model.refreshRuntimeState()
         Task { @MainActor in
             await model.dailyInsightScheduler?.reschedule()
+            await model.refreshDashboardData()
+            await model.refreshHistoryData()
         }
         return model
     }
@@ -271,6 +292,14 @@ final class StromerAppViewModel {
 
         await historyStore.aggregateLiveToMinute()
         await historyStore.aggregateMinuteToDaily()
+    }
+
+    func refreshDashboardData() async {
+        await dashboardViewModel.refresh()
+    }
+
+    func refreshHistoryData() async {
+        await historyViewModel.refresh()
     }
 
     var latestReadingTimestamps: [UUID: Date] {
