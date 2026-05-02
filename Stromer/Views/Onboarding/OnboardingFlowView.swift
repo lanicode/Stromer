@@ -28,46 +28,51 @@ struct OnboardingFlowView: View {
             firstDevicePage
                 .tag(5)
         }
-        .tabViewStyle(.page(indexDisplayMode: .always))
-        .background(Color(.systemBackground))
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .background(BoltBackground())
         .animation(.easeInOut(duration: 0.25), value: selectedPage)
     }
 
     private var welcomePage: some View {
         OnboardingPageView(
-            systemImage: "bolt.batteryblock",
-            title: "Stromer",
-            subtitle: "Live-Werte für deine Victron-Geräte. Direkt auf dem iPhone, ohne Cloud.",
-            primaryButtonTitle: "Weiter",
+            pageIndex: 0,
+            eyebrow: "STROMER · IOS",
+            title: "Live-Werte\nohne Cloud.",
+            bodyText: "Victron Instant Readout direkt am iPhone. Kein Cerbo, kein Account, kein Tracking.",
+            primaryButtonTitle: "Loslegen",
+            primaryShowsBolt: true,
             primaryAction: nextPage,
             secondaryButtonTitle: "Später einrichten",
-            secondaryAction: { onComplete(.finish) }
+            secondaryAction: { onComplete(.finish) },
+            hero: {
+                OnboardingWelcomeHero()
+            }
         )
     }
 
     private var explanationPage: some View {
         OnboardingPageView(
-            systemImage: "dot.radiowaves.left.and.right",
-            title: "Was ist Stromer?",
+            pageIndex: 1,
+            eyebrow: "Was ist Stromer",
+            title: "Drei Sätze.",
             primaryButtonTitle: "Weiter",
             primaryAction: nextPage,
+            hero: {
+                OnboardingBandsHero()
+            },
             content: {
-                OnboardingFeatureList(features: [
-                    OnboardingFeature(
-                        systemImage: "antenna.radiowaves.left.and.right",
-                        text: "Empfängt Victron Instant Readout per Bluetooth"
+                OnboardingBulletList(bullets: [
+                    OnboardingBullet(
+                        key: "BLE",
+                        text: "Empfängt Victron Advertisements passiv per Bluetooth."
                     ),
-                    OnboardingFeature(
-                        systemImage: "battery.100",
-                        text: "Zeigt SmartShunt/BMV und MPPT-Livewerte direkt an"
+                    OnboardingBullet(
+                        key: "LIVE",
+                        text: "SmartShunt, BMV und MPPT in Echtzeit."
                     ),
-                    OnboardingFeature(
-                        systemImage: "clock.arrow.circlepath",
-                        text: "Weitere Familien wie Orion Smart folgen"
-                    ),
-                    OnboardingFeature(
-                        systemImage: "icloud.slash",
-                        text: "Kein Cerbo GX und keine Cloud nötig"
+                    OnboardingBullet(
+                        key: "LOKAL",
+                        text: "Keine Cloud. Keine Synchronisierung. Keine Analytics."
                     )
                 ])
             }
@@ -76,49 +81,51 @@ struct OnboardingFlowView: View {
 
     private var privacyPage: some View {
         OnboardingPageView(
-            systemImage: "lock.shield",
-            title: "Privat by Design",
+            pageIndex: 3,
+            eyebrow: "Privatsphäre",
+            title: "Privat by\nDesign.",
             primaryButtonTitle: "Weiter",
             primaryAction: nextPage,
+            hero: {
+                OnboardingShieldHero()
+            },
             content: {
-                OnboardingFeatureList(
-                    features: [
-                        OnboardingFeature(
-                            systemImage: "checkmark.circle.fill",
-                            text: "Passive Victron-BLE-Advertisements"
-                        ),
-                        OnboardingFeature(
-                            systemImage: "checkmark.circle.fill",
-                            text: "Messwerte bleiben lokal auf deinem iPhone"
-                        ),
-                        OnboardingFeature(
-                            systemImage: "checkmark.circle.fill",
-                            text: "Advertisement Keys liegen im iOS-Schlüsselbund"
-                        ),
-                        OnboardingFeature(
-                            systemImage: "checkmark.circle.fill",
-                            text: "Keine Cloud, kein Tracking, keine Analytics"
-                        ),
-                        OnboardingFeature(
-                            systemImage: "checkmark.circle.fill",
-                            text: "Discovery zeigt fremde Victron-Geräte nur als Modell/Typ, Messwerte bleiben verschlüsselt"
-                        )
-                    ],
-                    checkmarkStyle: true
-                )
+                OnboardingBulletList(bullets: [
+                    OnboardingBullet(
+                        key: "01",
+                        text: "Passive BLE-Advertisements - Stromer schreibt nie an Geräte."
+                    ),
+                    OnboardingBullet(
+                        key: "02",
+                        text: "Messwerte bleiben auf diesem iPhone."
+                    ),
+                    OnboardingBullet(
+                        key: "03",
+                        text: "Advertisement Keys liegen im Schlüsselbund."
+                    ),
+                    OnboardingBullet(
+                        key: "04",
+                        text: "Kein Tracking. Keine Analytics. Kein Account."
+                    )
+                ])
             }
         )
     }
 
     private var firstDevicePage: some View {
         OnboardingPageView(
-            systemImage: "plus.circle",
-            title: "Erstes Gerät hinzufügen",
-            subtitle: "Wir suchen jetzt nach Victron-Geräten in deiner Nähe. Du kannst dein Gerät auch später manuell hinzufügen.",
+            pageIndex: 5,
+            eyebrow: "Erstes Gerät",
+            title: "Jetzt geht's\nlos.",
+            bodyText: "Wir suchen jetzt nach Victron-Geräten in deiner Nähe. Du kannst dein Gerät auch später manuell hinzufügen.",
             primaryButtonTitle: "Gerät suchen",
+            primaryShowsBolt: true,
             primaryAction: { onComplete(.addDevice) },
             secondaryButtonTitle: "Onboarding abschließen",
-            secondaryAction: { onComplete(.finish) }
+            secondaryAction: { onComplete(.finish) },
+            hero: {
+                OnboardingAddHero()
+            }
         )
     }
 
