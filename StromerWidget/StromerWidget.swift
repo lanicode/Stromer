@@ -88,7 +88,11 @@ struct StromerWidgetView: View {
     }
 
     private var firstDevice: StromerWidgetDeviceSnapshot? {
-        entry.snapshot.devices.first
+        guard entry.snapshot.status == .ready else {
+            return nil
+        }
+
+        return entry.snapshot.devices.first
     }
 
     @ViewBuilder
@@ -97,15 +101,15 @@ struct StromerWidgetView: View {
             DeviceWidgetTile(device: device, compact: false)
                 .padding()
         } else {
-            PlaceholderWidgetView(message: entry.snapshot.message)
+            WidgetEmptyStateView(status: entry.snapshot.status, compact: false)
                 .padding()
         }
     }
 
     @ViewBuilder
     private var mediumWidget: some View {
-        if entry.snapshot.devices.isEmpty {
-            PlaceholderWidgetView(message: entry.snapshot.message)
+        if entry.snapshot.status != .ready || entry.snapshot.devices.isEmpty {
+            WidgetEmptyStateView(status: entry.snapshot.status, compact: false)
                 .padding()
         } else {
             HStack(spacing: 12) {
@@ -139,7 +143,7 @@ struct StromerWidgetView: View {
         } else {
             ZStack {
                 AccessoryWidgetBackground()
-                Image(systemName: "plus")
+                Image(systemName: WidgetEmptyStateContent(status: entry.snapshot.status).iconSystemName)
             }
         }
     }
@@ -161,7 +165,7 @@ struct StromerWidgetView: View {
             }
             .opacity(device.isDimmed ? 0.55 : 1)
         } else {
-            Text(entry.snapshot.message)
+            WidgetEmptyStateView(status: entry.snapshot.status, compact: true)
         }
     }
 
@@ -170,7 +174,7 @@ struct StromerWidgetView: View {
         if let device = firstDevice {
             Text("\(device.name): \(device.mainValue) \(device.mainUnit)")
         } else {
-            Text("Stromer: Gerät hinzufügen")
+            Text("Stromer: \(WidgetEmptyStateContent(status: entry.snapshot.status).title)")
         }
     }
 }
@@ -241,21 +245,49 @@ private struct DeviceWidgetTile: View {
     }
 }
 
-private struct PlaceholderWidgetView: View {
-    let message: String
+private struct WidgetEmptyStateView: View {
+    let status: StromerWidgetSnapshotStatus
+    let compact: Bool
+
+    private var content: WidgetEmptyStateContent {
+        WidgetEmptyStateContent(status: status)
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Image(systemName: "plus.circle")
-                .font(.title2)
+        VStack(alignment: .leading, spacing: compact ? 3 : 8) {
+            Image(systemName: content.iconSystemName)
+                .font(compact ? .caption : .title2)
                 .foregroundStyle(.tint)
-            Text("Stromer")
-                .font(.headline)
-            Text(message.isEmpty ? "Gerät in Stromer hinzufügen" : message)
-                .font(.caption)
+
+            Text(content.title)
+                .font(compact ? .caption.weight(.semibold) : .headline)
+                .lineLimit(compact ? 1 : 2)
+
+            Text(content.description)
+                .font(compact ? .caption2 : .caption)
                 .foregroundStyle(.secondary)
+                .lineLimit(compact ? 2 : 3)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+    }
+}
+
+private struct WidgetEmptyStateContent {
+    let iconSystemName: String
+    let title: String
+    let description: String
+
+    init(status: StromerWidgetSnapshotStatus) {
+        switch status {
+        case .ready, .noDevices:
+            iconSystemName = "plus.circle"
+            title = "Gerät hinzufügen"
+            description = "Öffne Stromer und registriere ein Victron-Gerät."
+        case .deviceMissing:
+            iconSystemName = "questionmark.circle"
+            title = "Gerät nicht mehr vorhanden"
+            description = "Wähle in der Widget-Konfiguration ein anderes Gerät."
+        }
     }
 }
 

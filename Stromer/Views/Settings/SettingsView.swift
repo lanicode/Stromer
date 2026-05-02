@@ -7,6 +7,7 @@ struct SettingsView: View {
     @Environment(OnboardingState.self) private var onboardingState
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
+    @State private var isShowingAddDevice = false
 
     var body: some View {
         List {
@@ -64,6 +65,21 @@ struct SettingsView: View {
                 }
             }
 
+            Section("Geräte") {
+                if appModel.registeredDevices.isEmpty {
+                    StromerEmptyStateView(
+                        iconSystemName: "gearshape",
+                        title: "Noch nichts eingerichtet",
+                        description: "Bluetooth-Status und Scanner-Steuerung sind bereit. Füge ein Gerät hinzu, um Live-Werte zu sehen.",
+                        action: .init(label: "Gerät hinzufügen") {
+                            isShowingAddDevice = true
+                        }
+                    )
+                } else {
+                    LabeledContent("Registrierte Geräte", value: "\(appModel.registeredDevices.count)")
+                }
+            }
+
             Section("App") {
                 LabeledContent("Version", value: appVersion)
                 LabeledContent("Build", value: buildNumber)
@@ -96,6 +112,11 @@ struct SettingsView: View {
         }
         .onAppear {
             appModel.refreshRuntimeState()
+        }
+        .sheet(isPresented: $isShowingAddDevice) {
+            NavigationStack {
+                AddDeviceView()
+            }
         }
     }
 

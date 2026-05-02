@@ -46,6 +46,14 @@ private enum DiscoverySheet: Identifiable {
     }
 }
 
+private enum DiscoveryEmptyState {
+    case bluetoothOff
+    case bluetoothPermissionDenied
+    case bluetoothUnsupported
+    case searching
+    case noResults
+}
+
 struct AddDeviceView: View {
     @Environment(StromerAppViewModel.self) private var appModel
     @Environment(\.dismiss) private var dismiss
@@ -54,6 +62,8 @@ struct AddDeviceView: View {
     @State private var mode: AddDeviceMode = .nearby
     @State private var didChooseInitialMode = false
     @State private var discoverySheet: DiscoverySheet?
+    @State private var discoveryOpenedAt = Date()
+    @State private var discoveryNow = Date()
 
     var body: some View {
         @Bindable var viewModel = viewModel
@@ -127,14 +137,20 @@ struct AddDeviceView: View {
         .task {
             chooseInitialModeIfNeeded()
             while !Task.isCancelled {
+                discoveryNow = Date()
                 appModel.refreshDiscovery()
                 try? await Task.sleep(for: .seconds(1))
+            }
+        }
+        .onChange(of: mode) { _, newMode in
+            if newMode == .nearby {
+                resetDiscoveryEmptyStateTimer()
             }
         }
         .onChange(of: appModel.canUseDiscovery) { _, canUseDiscovery in
             chooseInitialModeIfNeeded()
             if !canUseDiscovery, mode == .nearby {
-                mode = .manual
+                resetDiscoveryEmptyStateTimer()
             }
         }
         .onDisappear {
@@ -164,24 +180,10 @@ struct AddDeviceView: View {
 
     private var discoveryContent: some View {
         Group {
-            if !appModel.canUseDiscovery {
-                ContentUnavailableView {
-                    Label("Suche nicht möglich", systemImage: "bluetooth.slash")
-                } description: {
-                    Text("Bluetooth ist ausgeschaltet oder Stromer darf nicht scannen. Du kannst das Gerät weiterhin manuell hinzufügen.")
-                } actions: {
-                    if appModel.bluetoothAuthorization.needsSettingsAction {
-                        Button("Einstellungen öffnen") {
-                            openSettings()
-                        }
-                    }
-                }
+            if let emptyState = discoveryEmptyState {
+                discoveryEmptyStateView(emptyState)
             } else if appModel.discoveredDevices.isEmpty {
-                ContentUnavailableView {
-                    Label("Keine Victron-Geräte gefunden", systemImage: "dot.radiowaves.left.and.right")
-                } description: {
-                    Text("Stromer sucht nach Victron-Advertisements in der Nähe. Prüfe, ob Instant Readout in VictronConnect aktiv ist.")
-                }
+                EmptyView()
             } else {
                 List {
                     Section {
@@ -211,6 +213,76 @@ struct AddDeviceView: View {
         }
     }
 
+    private var discoveryEmptyState: DiscoveryEmptyState? {
+        switch appModel.bluetoothAuthorization {
+        case .denied, .restricted:
+            return .bluetoothPermissionDenied
+        case .allowed, .notDetermined, .unknown:
+            break
+        }
+
+        switch appModel.scannerState {
+        case .off:
+            return .bluetoothOff
+        case .unauthorized:
+            return .bluetoothPermissionDenied
+        case .unsupported:
+            return .bluetoothUnsupported
+        case .idle, .scanning, .resetting, .unknown, .failed:
+            break
+        }
+
+        guard appModel.discoveredDevices.isEmpty else {
+            return nil
+        }
+
+        return discoveryNow.timeIntervalSince(discoveryOpenedAt) < 10 ? .searching : .noResults
+    }
+
+    @ViewBuilder
+    private func discoveryEmptyStateView(_ state: DiscoveryEmptyState) -> some View {
+        switch state {
+        case .bluetoothOff:
+            StromerEmptyStateView(
+                iconSystemName: "bluetooth.slash",
+                title: "Bluetooth ist ausgeschaltet",
+                description: "Schalte Bluetooth ein, damit Stromer Geräte in der Nähe finden kann.",
+                action: .init(label: "Einstellungen öffnen", perform: openSettings)
+            )
+        case .bluetoothPermissionDenied:
+            StromerEmptyStateView(
+                iconSystemName: "hand.raised",
+                title: "Bluetooth-Zugriff abgelehnt",
+                description: "Erlaube Bluetooth in den iOS-Einstellungen oder füge das Gerät manuell hinzu.",
+                action: .init(label: "Einstellungen öffnen", perform: openSettings)
+            )
+        case .bluetoothUnsupported:
+            StromerEmptyStateView(
+                iconSystemName: "dot.radiowaves.right",
+                title: "Bluetooth nicht verfügbar",
+                description: "Dieses Gerät unterstützt Bluetooth Low Energy nicht. Du kannst ein Victron-Gerät weiterhin manuell hinzufügen.",
+                action: .init(label: "Manuell hinzufügen") {
+                    mode = .manual
+                }
+            )
+        case .searching:
+            StromerEmptyStateView(
+                iconSystemName: "antenna.radiowaves.left.and.right",
+                title: "Suche läuft",
+                description: "Stromer sucht nach Victron-Geräten mit aktivem Instant Readout."
+            )
+        case .noResults:
+            StromerEmptyStateView(
+                iconSystemName: "magnifyingglass",
+                title: "Keine Victron-Geräte gefunden",
+                description: "Prüfe, ob Bluetooth aktiv ist, das Gerät in Reichweite ist und Instant Readout in VictronConnect eingeschaltet ist.",
+                action: .init(label: "Manuell hinzufügen") {
+                    mode = .manual
+                }
+            )
+        }
+    }
+
     private func save() {
         do {
             try appModel.registerDevice(
@@ -231,7 +303,15 @@ struct AddDeviceView: View {
         }
 
         mode = appModel.canUseDiscovery ? .nearby : .manual
+        if mode == .nearby {
+            resetDiscoveryEmptyStateTimer()
+        }
         didChooseInitialMode = true
+    }
+
+    private func resetDiscoveryEmptyStateTimer() {
+        discoveryOpenedAt = Date()
+        discoveryNow = discoveryOpenedAt
     }
 
     private func handleDiscoveryTap(_ device: DiscoveredDevice) {
