@@ -27,9 +27,14 @@ struct RootView: View {
         .onChange(of: scenePhase) { _, newPhase in
             switch newPhase {
             case .active:
-                break
+                Task {
+                    await appViewModel.runOpportunisticAggregation()
+                }
             case .background:
                 appViewModel.widgetRefreshCoordinator.requestReload(reason: .background)
+                Task {
+                    await appViewModel.runOpportunisticAggregation()
+                }
             case .inactive:
                 break
             @unknown default:
