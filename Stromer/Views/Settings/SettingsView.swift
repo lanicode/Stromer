@@ -25,6 +25,9 @@ struct SettingsView: View {
                         bluetoothSection
                             .padding(.horizontal, 18)
 
+                        notificationsSection
+                            .padding(.horizontal, 18)
+
                         if let lastErrorMessage = appModel.lastErrorMessage {
                             errorSection(lastErrorMessage)
                                 .padding(.horizontal, 18)
@@ -183,6 +186,51 @@ struct SettingsView: View {
                 Image(systemName: "chevron.right")
                     .font(.caption.weight(.bold))
             }
+        }
+    }
+
+    private var notificationsSection: some View {
+        BoltSection(
+            header: "Benachrichtigungen",
+            footer: "Lokale Hinweise, ohne Server-Push und ohne Tracking."
+        ) {
+            NavigationLink {
+                NotificationSettingsView(
+                    settings: appModel.notificationSettings,
+                    sunsetService: appModel.sunsetService,
+                    scheduler: appModel.dailyInsightScheduler,
+                    notificationCoordinator: appModel.notificationCoordinator,
+                    devices: appModel.registeredDevices
+                )
+            } label: {
+                VStack(spacing: 0) {
+                    HStack(spacing: 10) {
+                        Image(systemName: "bell.badge")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(Color.boltTeal)
+                            .frame(width: 20)
+
+                        Text("Smart Notifications")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(Color.boltInk)
+
+                        Spacer(minLength: 12)
+
+                        StatusPill(
+                            title: appModel.notificationSettings.notificationsEnabled ? "Aktiv" : "Aus",
+                            color: appModel.notificationSettings.notificationsEnabled ? .boltTealDeep : .boltInkSoft,
+                            symbol: appModel.notificationSettings.notificationsEnabled ? "diamond.fill" : "pause.fill"
+                        )
+
+                        Image(systemName: "chevron.right")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(Color.boltInkSoft)
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 13)
+                }
+            }
+            .buttonStyle(.plain)
         }
     }
 

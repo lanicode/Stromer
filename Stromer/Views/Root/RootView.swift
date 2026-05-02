@@ -29,6 +29,7 @@ struct RootView: View {
             case .active:
                 Task {
                     await appViewModel.runOpportunisticAggregation()
+                    await appViewModel.checkDeviceLossNotifications()
                 }
             case .background:
                 appViewModel.widgetRefreshCoordinator.requestReload(reason: .background)

@@ -15,6 +15,7 @@ public final class ScannerService {
     private let store: VictronStore
     private let discoveryStore: DiscoveryStore?
     private let historyStore: (any DeviceReadingHistoryStoring)?
+    private let readingObserver: (@MainActor @Sendable (DeviceReading) -> Void)?
     private let onReadingUpdated: (@MainActor @Sendable (DeviceReading) -> Void)?
     private var tasks: [Task<Void, Never>] = []
 
@@ -24,6 +25,7 @@ public final class ScannerService {
         store: VictronStore,
         discoveryStore: DiscoveryStore? = nil,
         historyStore: (any DeviceReadingHistoryStoring)? = nil,
+        readingObserver: (@MainActor @Sendable (DeviceReading) -> Void)? = nil,
         onReadingUpdated: (@MainActor @Sendable (DeviceReading) -> Void)? = nil
     ) {
         self.scanner = scanner
@@ -31,6 +33,7 @@ public final class ScannerService {
         self.store = store
         self.discoveryStore = discoveryStore
         self.historyStore = historyStore
+        self.readingObserver = readingObserver
         self.onReadingUpdated = onReadingUpdated
     }
 
@@ -77,6 +80,7 @@ public final class ScannerService {
                         await historyStore.recordReading(reading)
                     }
                 }
+                readingObserver?(reading)
                 onReadingUpdated?(reading)
                 lastError = nil
             } catch {

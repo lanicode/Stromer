@@ -71,6 +71,17 @@
 		C4B000000000000000000002 /* BatteryChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4F000000000000000000002 /* BatteryChartView.swift */; };
 		C4B000000000000000000003 /* SolarChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4F000000000000000000003 /* SolarChartView.swift */; };
 		C4B000000000000000000004 /* DcDcChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4F000000000000000000004 /* DcDcChartView.swift */; };
+		P5B000000000000000000001 /* NotificationSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = P5F000000000000000000001 /* NotificationSettings.swift */; };
+		P5B000000000000000000002 /* NotificationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = P5F000000000000000000002 /* NotificationCoordinator.swift */; };
+		P5B000000000000000000003 /* SunsetService.swift in Sources */ = {isa = PBXBuildFile; fileRef = P5F000000000000000000003 /* SunsetService.swift */; };
+		P5B000000000000000000004 /* DailyInsightScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = P5F000000000000000000004 /* DailyInsightScheduler.swift */; };
+		P5B000000000000000000005 /* NotificationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = P5F000000000000000000005 /* NotificationSettingsView.swift */; };
+		P5C000000000000000000001 /* NotificationSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = P5F000000000000000000001 /* NotificationSettings.swift */; };
+		P5C000000000000000000002 /* NotificationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = P5F000000000000000000002 /* NotificationCoordinator.swift */; };
+		P5C000000000000000000003 /* SunsetService.swift in Sources */ = {isa = PBXBuildFile; fileRef = P5F000000000000000000003 /* SunsetService.swift */; };
+		P5C000000000000000000004 /* NotificationSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = P5F000000000000000000006 /* NotificationSettingsTests.swift */; };
+		P5C000000000000000000005 /* NotificationCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = P5F000000000000000000007 /* NotificationCoordinatorTests.swift */; };
+		P5C000000000000000000006 /* SunsetServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = P5F000000000000000000008 /* SunsetServiceTests.swift */; };
 		H4C000000000000000000001 /* LiveReading.swift in Sources */ = {isa = PBXBuildFile; fileRef = H4F000000000000000000001 /* LiveReading.swift */; };
 		H4C000000000000000000002 /* MinuteAggregate.swift in Sources */ = {isa = PBXBuildFile; fileRef = H4F000000000000000000002 /* MinuteAggregate.swift */; };
 		H4C000000000000000000003 /* DailyAggregate.swift in Sources */ = {isa = PBXBuildFile; fileRef = H4F000000000000000000003 /* DailyAggregate.swift */; };
@@ -166,6 +177,14 @@
 		C4F000000000000000000003 /* SolarChartView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SolarChartView.swift; sourceTree = "<group>"; };
 		C4F000000000000000000004 /* DcDcChartView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DcDcChartView.swift; sourceTree = "<group>"; };
 		C4F000000000000000000005 /* HistoryQueryTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HistoryQueryTests.swift; sourceTree = "<group>"; };
+		P5F000000000000000000001 /* NotificationSettings.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NotificationSettings.swift; sourceTree = "<group>"; };
+		P5F000000000000000000002 /* NotificationCoordinator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NotificationCoordinator.swift; sourceTree = "<group>"; };
+		P5F000000000000000000003 /* SunsetService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SunsetService.swift; sourceTree = "<group>"; };
+		P5F000000000000000000004 /* DailyInsightScheduler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DailyInsightScheduler.swift; sourceTree = "<group>"; };
+		P5F000000000000000000005 /* NotificationSettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NotificationSettingsView.swift; sourceTree = "<group>"; };
+		P5F000000000000000000006 /* NotificationSettingsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NotificationSettingsTests.swift; sourceTree = "<group>"; };
+		P5F000000000000000000007 /* NotificationCoordinatorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NotificationCoordinatorTests.swift; sourceTree = "<group>"; };
+		P5F000000000000000000008 /* SunsetServiceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SunsetServiceTests.swift; sourceTree = "<group>"; };
 		T4F000000000000000000001 /* LiveReadingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LiveReadingTests.swift; sourceTree = "<group>"; };
 		T4F000000000000000000002 /* HistoryStoreDebounceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HistoryStoreDebounceTests.swift; sourceTree = "<group>"; };
 		T4F000000000000000000003 /* AggregationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AggregationTests.swift; sourceTree = "<group>"; };
@@ -235,6 +254,7 @@
 				563AFAC22DF8F726AD5DBDD8 /* Services */,
 				D1F00000000000000000000C /* DesignSystem */,
 				H4G000000000000000000001 /* History */,
+				P5G000000000000000000001 /* Notifications */,
 			);
 			path = Stromer;
 			sourceTree = "<group>";
@@ -308,6 +328,7 @@
 			isa = PBXGroup;
 			children = (
 				100000000000000000000014 /* SettingsView.swift */,
+				P5F000000000000000000005 /* NotificationSettingsView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -342,6 +363,9 @@
 				T4F000000000000000000003 /* AggregationTests.swift */,
 				T4F000000000000000000004 /* DailyUpsertTests.swift */,
 				C4F000000000000000000005 /* HistoryQueryTests.swift */,
+				P5F000000000000000000006 /* NotificationSettingsTests.swift */,
+				P5F000000000000000000007 /* NotificationCoordinatorTests.swift */,
+				P5F000000000000000000008 /* SunsetServiceTests.swift */,
 			);
 			name = StromerTests;
 			path = StromerTests;
@@ -383,6 +407,17 @@
 				H4G000000000000000000003 /* Storage */,
 			);
 			path = History;
+			sourceTree = "<group>";
+		};
+		P5G000000000000000000001 /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				P5F000000000000000000001 /* NotificationSettings.swift */,
+				P5F000000000000000000002 /* NotificationCoordinator.swift */,
+				P5F000000000000000000003 /* SunsetService.swift */,
+				P5F000000000000000000004 /* DailyInsightScheduler.swift */,
+			);
+			path = Notifications;
 			sourceTree = "<group>";
 		};
 		H4G000000000000000000002 /* Models */ = {
@@ -627,6 +662,11 @@
 				C4B000000000000000000002 /* BatteryChartView.swift in Sources */,
 				C4B000000000000000000003 /* SolarChartView.swift in Sources */,
 				C4B000000000000000000004 /* DcDcChartView.swift in Sources */,
+				P5B000000000000000000001 /* NotificationSettings.swift in Sources */,
+				P5B000000000000000000002 /* NotificationCoordinator.swift in Sources */,
+				P5B000000000000000000003 /* SunsetService.swift in Sources */,
+				P5B000000000000000000004 /* DailyInsightScheduler.swift in Sources */,
+				P5B000000000000000000005 /* NotificationSettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -671,6 +711,12 @@
 				T4B000000000000000000003 /* AggregationTests.swift in Sources */,
 				T4B000000000000000000004 /* DailyUpsertTests.swift in Sources */,
 				C4T000000000000000000001 /* HistoryQueryTests.swift in Sources */,
+				P5C000000000000000000001 /* NotificationSettings.swift in Sources */,
+				P5C000000000000000000002 /* NotificationCoordinator.swift in Sources */,
+				P5C000000000000000000003 /* SunsetService.swift in Sources */,
+				P5C000000000000000000004 /* NotificationSettingsTests.swift in Sources */,
+				P5C000000000000000000005 /* NotificationCoordinatorTests.swift in Sources */,
+				P5C000000000000000000006 /* SunsetServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

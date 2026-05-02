@@ -94,6 +94,10 @@ final class StromerAppViewModel {
     @ObservationIgnored private let keychainStore: any KeychainStoring
     @ObservationIgnored private let scannerService: ScannerService
     @ObservationIgnored let historyStore: (any HistoryStore)?
+    @ObservationIgnored let notificationSettings: NotificationSettings
+    @ObservationIgnored let notificationCoordinator: NotificationCoordinator
+    @ObservationIgnored let sunsetService: SunsetService
+    @ObservationIgnored let dailyInsightScheduler: DailyInsightScheduler?
     @ObservationIgnored private let liveActivityService: LiveActivityService<ActivityKitActivityClient>
     @ObservationIgnored let widgetRefreshCoordinator: WidgetRefreshCoordinator
     @ObservationIgnored private let deviceSnapshotStore: (any RegisteredDeviceSnapshotStoring)?
@@ -111,6 +115,10 @@ final class StromerAppViewModel {
         discoveryStore: DiscoveryStore,
         keychainStore: any KeychainStoring,
         historyStore: (any HistoryStore)?,
+        notificationSettings: NotificationSettings,
+        notificationCoordinator: NotificationCoordinator,
+        sunsetService: SunsetService,
+        dailyInsightScheduler: DailyInsightScheduler?,
         liveActivityService: LiveActivityService<ActivityKitActivityClient>,
         widgetRefreshCoordinator: WidgetRefreshCoordinator? = nil,
         deviceSnapshotStore: (any RegisteredDeviceSnapshotStoring)?,
@@ -123,6 +131,10 @@ final class StromerAppViewModel {
         self.discoveryStore = discoveryStore
         self.keychainStore = keychainStore
         self.historyStore = historyStore
+        self.notificationSettings = notificationSettings
+        self.notificationCoordinator = notificationCoordinator
+        self.sunsetService = sunsetService
+        self.dailyInsightScheduler = dailyInsightScheduler
         self.liveActivityService = liveActivityService
         self.widgetRefreshCoordinator = widgetRefreshCoordinator
         self.deviceSnapshotStore = deviceSnapshotStore
@@ -133,6 +145,11 @@ final class StromerAppViewModel {
             store: store,
             discoveryStore: discoveryStore,
             historyStore: historyStore as? any DeviceReadingHistoryStoring,
+            readingObserver: { reading in
+                Task { @MainActor in
+                    await notificationCoordinator.evaluate(reading: reading)
+                }
+            },
             onReadingUpdated: { _ in
                 widgetRefreshCoordinator.requestReload(reason: .reading)
             }
@@ -174,6 +191,18 @@ final class StromerAppViewModel {
             historyStore = nil
             print("History store init failed: \(error)")
         }
+        let notificationSettings = NotificationSettings()
+        let sunsetService = SunsetService()
+        let notificationCoordinator = NotificationCoordinator(
+            settings: notificationSettings
+        )
+        let dailyInsightScheduler = historyStore.map {
+            DailyInsightScheduler(
+                settings: notificationSettings,
+                sunsetService: sunsetService,
+                historyStore: $0
+            )
+        }
         let liveActivityService = LiveActivityService(
             client: ActivityKitActivityClient()
         )
@@ -189,6 +218,10 @@ final class StromerAppViewModel {
             discoveryStore: discoveryStore,
             keychainStore: keychainStore,
             historyStore: historyStore,
+            notificationSettings: notificationSettings,
+            notificationCoordinator: notificationCoordinator,
+            sunsetService: sunsetService,
+            dailyInsightScheduler: dailyInsightScheduler,
             liveActivityService: liveActivityService,
             deviceSnapshotStore: deviceSnapshotStore,
             metadataDefaults: defaults,
@@ -196,6 +229,9 @@ final class StromerAppViewModel {
         )
         model.loadRegisteredDevices()
         model.refreshRuntimeState()
+        Task { @MainActor in
+            await model.dailyInsightScheduler?.reschedule()
+        }
         return model
     }
 
@@ -235,6 +271,22 @@ final class StromerAppViewModel {
 
         await historyStore.aggregateLiveToMinute()
         await historyStore.aggregateMinuteToDaily()
+    }
+
+    var latestReadingTimestamps: [UUID: Date] {
+        Dictionary(uniqueKeysWithValues: registeredDevices.compactMap { device in
+            guard let timestamp = store.reading(for: device.id)?.timestamp ?? device.lastSeenAt else {
+                return nil
+            }
+            return (device.id, timestamp)
+        })
+    }
+
+    func checkDeviceLossNotifications() async {
+        await notificationCoordinator.checkDeviceLoss(
+            registeredDevices: registeredDevices,
+            latestReadings: latestReadingTimestamps
+        )
     }
 
     func registerDevice(
