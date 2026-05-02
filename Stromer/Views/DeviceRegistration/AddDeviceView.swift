@@ -66,74 +66,27 @@ struct AddDeviceView: View {
     @State private var discoveryNow = Date()
 
     var body: some View {
-        @Bindable var viewModel = viewModel
+        ZStack {
+            BoltBackground()
 
-        VStack(spacing: 0) {
-            Picker("Hinzufügen", selection: $mode) {
-                ForEach(AddDeviceMode.allCases) { mode in
-                    Text(mode.title)
-                        .tag(mode)
-                }
-            }
-            .pickerStyle(.segmented)
-            .padding([.horizontal, .top])
-            .padding(.bottom, 10)
+            VStack(spacing: 0) {
+                addDeviceNavBar
 
-            if mode == .nearby {
-                discoveryContent
-            } else {
-                Form {
-                    Section("Gerät") {
-                        TextField("Name", text: $viewModel.name)
-                            .textInputAutocapitalization(.words)
+                BoltSegmentedControl(selection: $mode)
+                    .padding(.horizontal, 18)
+                    .padding(.top, 4)
+                    .padding(.bottom, 12)
 
-                        Picker("Gerätetyp", selection: $viewModel.kind) {
-                            ForEach(DeviceRegistrationKind.allCases) { kind in
-                                Text(kind.title)
-                                    .tag(kind)
-                            }
-                        }
-                    }
-
-                    Section {
-                        KeyInputField(text: $viewModel.advertisementKey)
-                    } header: {
-                        Text("Advertisement Key")
-                    } footer: {
-                        Text("Der Key bleibt im iOS-Keychain. Widgets lesen später nur entschlüsselte Snapshots aus der App Group.")
-                    }
-
-                    Section("Key in VictronConnect finden") {
-                        KeyHelpText()
-                    }
-
-                    if let errorMessage = viewModel.errorMessage {
-                        Section {
-                            Label(errorMessage, systemImage: "exclamationmark.triangle")
-                                .foregroundStyle(.red)
-                        }
+                Group {
+                    if mode == .nearby {
+                        discoveryContent
+                    } else {
+                        manualContent
                     }
                 }
             }
         }
-        .navigationTitle("Gerät hinzufügen")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button("Abbrechen") {
-                    dismiss()
-                }
-            }
-
-            ToolbarItem(placement: .confirmationAction) {
-                if mode == .manual {
-                    Button("Sichern") {
-                        save()
-                    }
-                    .disabled(!viewModel.canSave)
-                }
-            }
-        }
+        .toolbar(.hidden, for: .navigationBar)
         .task {
             chooseInitialModeIfNeeded()
             while !Task.isCancelled {
@@ -178,38 +131,128 @@ struct AddDeviceView: View {
         .sensoryFeedback(.success, trigger: saveFeedback)
     }
 
+    private var addDeviceNavBar: some View {
+        HStack {
+            Button("ABBRUCH") {
+                dismiss()
+            }
+            .font(.system(size: 12, weight: .bold))
+            .tracking(1.6)
+            .foregroundStyle(Color.boltTeal)
+            .buttonStyle(.plain)
+
+            Spacer()
+
+            HStack(spacing: 7) {
+                BoltSLockup(size: 20)
+                Text("GERÄT HINZUFÜGEN")
+                    .font(.system(size: 13, weight: .bold))
+                    .tracking(2)
+                    .foregroundStyle(Color.boltInk)
+            }
+
+            Spacer()
+
+            Color.clear
+                .frame(width: 72, height: 20)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+    }
+
+    private var manualContent: some View {
+        @Bindable var viewModel = viewModel
+
+        return ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                BoltSection(header: "Gerät") {
+                    VStack(spacing: 0) {
+                        manualNameField(text: $viewModel.name)
+
+                        Rectangle()
+                            .fill(Color.boltHair2)
+                            .frame(height: 1)
+
+                        Picker("Gerätetyp", selection: $viewModel.kind) {
+                            ForEach(DeviceRegistrationKind.allCases) { kind in
+                                Text(kind.title)
+                                    .tag(kind)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .tint(.boltTeal)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 10)
+                    }
+                }
+
+                BoltSection(
+                    header: "Advertisement Key",
+                    footer: "Der Key bleibt im iOS-Keychain. Widgets lesen später nur entschlüsselte Snapshots aus der App Group."
+                ) {
+                    KeyInputField(text: $viewModel.advertisementKey)
+                        .padding(14)
+                }
+
+                BoltSection(header: "Key in VictronConnect finden") {
+                    KeyHelpText()
+                }
+
+                if let errorMessage = viewModel.errorMessage {
+                    ErrorBanner(message: errorMessage)
+                }
+
+                BoltPrimary("Gerät hinzufügen", showsBolt: true) {
+                    save()
+                }
+                .disabled(!viewModel.canSave)
+                .opacity(viewModel.canSave ? 1 : 0.45)
+            }
+            .padding(.horizontal, 18)
+            .padding(.bottom, 28)
+        }
+    }
+
+    private func manualNameField(text: Binding<String>) -> some View {
+        TextField("Name", text: text)
+            .textInputAutocapitalization(.words)
+            .font(.system(size: 15, weight: .semibold))
+            .foregroundStyle(Color.boltInk)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 13)
+    }
+
     private var discoveryContent: some View {
-        Group {
-            if let emptyState = discoveryEmptyState {
-                discoveryEmptyStateView(emptyState)
-            } else if appModel.discoveredDevices.isEmpty {
-                EmptyView()
-            } else {
-                List {
-                    Section {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 14) {
+                ScanningIndicator(isScanning: appModel.scannerState == .scanning)
+                    .padding(.horizontal, 18)
+
+                if let emptyState = discoveryEmptyState {
+                    discoveryEmptyStateView(emptyState)
+                        .padding(.horizontal, 18)
+                } else if !appModel.discoveredDevices.isEmpty {
+                    VStack(spacing: 8) {
                         ForEach(appModel.discoveredDevices) { device in
                             DiscoveryDeviceRow(device: device) {
                                 handleDiscoveryTap(device)
                             }
                         }
-                    } header: {
-                        HStack {
-                            Text("In der Nähe")
-                            Spacer()
-                            if appModel.scannerState == .scanning {
-                                ProgressView()
-                                    .controlSize(.small)
-                            }
-                        }
-                    } footer: {
-                        Text("Die Liste wird nicht gespeichert. Einträge werden nach kurzer Zeit ausgegraut und danach entfernt.")
                     }
-                }
-                .refreshable {
-                    await appModel.restartScanner()
-                    appModel.refreshDiscovery()
+                    .padding(.horizontal, 18)
+
+                    Text("Liste wird nicht gespeichert. Einträge werden nach kurzer Zeit ausgegraut und entfernt.")
+                        .font(.system(size: 11).italic())
+                        .foregroundStyle(Color.boltInkSoft)
+                        .padding(.horizontal, 22)
+                        .padding(.top, 4)
                 }
             }
+            .padding(.bottom, 28)
+        }
+        .refreshable {
+            await appModel.restartScanner()
+            appModel.refreshDiscovery()
         }
     }
 
@@ -336,6 +379,61 @@ struct AddDeviceView: View {
     }
 }
 
+private struct BoltSegmentedControl: View {
+    @Binding var selection: AddDeviceMode
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(AddDeviceMode.allCases) { mode in
+                Button {
+                    selection = mode
+                } label: {
+                    Text(mode.title.uppercased())
+                        .font(.system(size: 13, weight: .bold))
+                        .tracking(1.4)
+                        .foregroundStyle(selection == mode ? Color.boltCream : Color.boltInk)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(selection == mode ? Color.boltInk : Color.clear)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .overlay(Rectangle().stroke(Color.boltInk, lineWidth: 1))
+    }
+}
+
+private struct ScanningIndicator: View {
+    let isScanning: Bool
+    @State private var pulse = false
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Rectangle()
+                .fill(Color.boltTeal)
+                .frame(width: 14, height: 14)
+                .opacity(isScanning ? (pulse ? 1 : 0.4) : 0.35)
+                .animation(
+                    isScanning
+                        ? .easeInOut(duration: 1.5).repeatForever(autoreverses: true)
+                        : .default,
+                    value: pulse
+                )
+
+            Text(isScanning ? "SCANNT · VICTRON INSTANT READOUT" : "SCAN · PAUSIERT")
+                .font(.system(size: 10, weight: .heavy))
+                .tracking(2)
+                .foregroundStyle(Color.boltTealDeep)
+
+            Spacer()
+        }
+        .padding(.vertical, 6)
+        .onAppear {
+            pulse = true
+        }
+    }
+}
+
 private struct DiscoveryRegistrationStepView: View {
     @Environment(\.dismiss) private var dismiss
     let device: DiscoveredDevice
@@ -356,67 +454,96 @@ private struct DiscoveryRegistrationStepView: View {
     var body: some View {
         @Bindable var viewModel = viewModel
 
-        Form {
-            Section("Gerät") {
-                TextField("Name", text: $viewModel.name)
-                    .textInputAutocapitalization(.words)
+        ZStack {
+            BoltBackground()
 
-                LabeledContent("Modell") {
-                    Text(device.estimatedModelName)
+            VStack(spacing: 0) {
+                keyEntryNavBar(canSave: viewModel.canSave)
+
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 18) {
+                        BoltSection(header: "Gerät") {
+                            VStack(spacing: 0) {
+                                TextField("Name", text: $viewModel.name)
+                                    .textInputAutocapitalization(.words)
+                                    .font(.system(size: 15, weight: .semibold))
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 13)
+
+                                BoltInfoRow(title: "Modell", value: device.estimatedModelName)
+                                BoltInfoRow(title: "Typ", value: device.estimatedDeviceType.title)
+                                BoltInfoRow(
+                                    title: "Peripheral-ID",
+                                    value: device.peripheralID.uuidString,
+                                    isMono: true
+                                )
+                            }
+                        }
+
+                        BoltSection(
+                            header: "Advertisement Key",
+                            footer: "Der Key bleibt im iOS-Schlüsselbund. Stromer prüft ihn gegen das zuletzt empfangene Advertisement."
+                        ) {
+                            VStack(alignment: .leading, spacing: 12) {
+                                if device.supportStatus == .plannedPhase37 {
+                                    DiscoveryInfoBox()
+                                }
+
+                                KeyInputField(text: $viewModel.advertisementKey)
+                            }
+                            .padding(14)
+                        }
+
+                        BoltSection(header: "Key in VictronConnect finden") {
+                            KeyHelpText()
+                        }
+
+                        if let errorMessage = viewModel.errorMessage {
+                            ErrorBanner(message: errorMessage)
+                        }
+                    }
+                    .padding(.horizontal, 18)
+                    .padding(.bottom, 28)
                 }
-
-                LabeledContent("Typ") {
-                    Text(device.estimatedDeviceType.title)
-                }
-
-                LabeledContent("Peripheral-ID") {
-                    Text(device.peripheralID.uuidString)
-                        .font(.caption.monospaced())
-                        .foregroundStyle(.secondary)
-                        .textSelection(.enabled)
-                }
-            }
-
-            Section {
-                if device.supportStatus == .plannedPhase37 {
-                    DiscoveryInfoBox()
-                }
-
-                KeyInputField(text: $viewModel.advertisementKey)
-            } header: {
-                Text("Advertisement Key")
-            } footer: {
-                Text("Bei unterstützten Geräten prüft Stromer den Key gegen das zuletzt empfangene Advertisement.")
-            }
-
-            Section("Key in VictronConnect finden") {
-                KeyHelpText()
-            }
-
-            if let errorMessage = viewModel.errorMessage {
-                Section {
-                    Label(errorMessage, systemImage: "exclamationmark.triangle")
-                        .foregroundStyle(.red)
-                }
-            }
-        }
-        .navigationTitle("Key eingeben")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button("Abbrechen") {
-                    dismiss()
-                }
-            }
-
-            ToolbarItem(placement: .confirmationAction) {
-                Button("Sichern") {
-                    save()
-                }
-                .disabled(!viewModel.canSave)
             }
         }
+        .toolbar(.hidden, for: .navigationBar)
         .sensoryFeedback(.success, trigger: saveFeedback)
+    }
+
+    private func keyEntryNavBar(canSave: Bool) -> some View {
+        HStack {
+            Button("ZURÜCK") {
+                dismiss()
+            }
+            .font(.system(size: 12, weight: .bold))
+            .tracking(1.6)
+            .foregroundStyle(Color.boltTeal)
+            .buttonStyle(.plain)
+
+            Spacer()
+
+            HStack(spacing: 7) {
+                BoltSLockup(size: 20)
+                Text("KEY EINGEBEN")
+                    .font(.system(size: 13, weight: .bold))
+                    .tracking(2)
+                    .foregroundStyle(Color.boltInk)
+            }
+
+            Spacer()
+
+            Button("SICHERN") {
+                save()
+            }
+            .font(.system(size: 12, weight: .bold))
+            .tracking(1.6)
+            .foregroundStyle(canSave ? Color.boltTeal : Color.boltInkFaint)
+            .buttonStyle(.plain)
+            .disabled(!canSave)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
     }
 
     private func save() {
@@ -455,70 +582,106 @@ private struct DiscoveryDeviceRow: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: 12) {
-                Image(systemName: device.estimatedDeviceType.systemImageName)
-                    .font(.title3)
-                    .frame(width: 28)
-                    .foregroundStyle(statusColor)
+                kindTile
 
-                VStack(alignment: .leading, spacing: 5) {
-                    HStack(spacing: 6) {
-                        Text(device.estimatedModelName)
-                            .font(.headline)
-                            .foregroundStyle(.primary)
-                            .lineLimit(1)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(device.estimatedModelName)
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(Color.boltInk)
+                        .lineLimit(2)
 
-                        if device.isRegistered {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(.green)
-                        }
-                    }
-
-                    Text("\(device.estimatedDeviceType.title) · RSSI \(device.rssi) dBm · \(lastSeenText)")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                    Text("\(device.estimatedDeviceType.title) · \(device.rssi) dBm · \(lastSeenText)")
+                        .font(.boltMono(11))
+                        .foregroundStyle(Color.boltInkSoft)
                         .lineLimit(1)
+                        .minimumScaleFactor(0.75)
                 }
 
                 Spacer(minLength: 8)
 
                 Text(statusTitle)
-                    .font(.caption.weight(.semibold))
-                    .padding(.horizontal, 9)
-                    .padding(.vertical, 5)
-                    .background(statusColor.opacity(0.12), in: Capsule())
+                    .font(.system(size: 9, weight: .heavy))
+                    .tracking(0.8)
                     .foregroundStyle(statusColor)
-
-                if !device.isRegistered {
-                    Image(systemName: "chevron.right")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.tertiary)
-                }
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 4)
+                    .overlay(Rectangle().stroke(statusColor, lineWidth: 1))
             }
+            .padding(12)
+            .background(Color.boltPaper)
+            .overlay(Rectangle().stroke(Color.boltHair, lineWidth: 1))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .disabled(device.isRegistered)
-        .opacity(device.displayState == .dimmed ? 0.45 : 1)
+        .disabled(device.isRegistered || device.supportStatus == .outOfScope)
+        .opacity(rowOpacity)
         .accessibilityLabel(accessibilityLabel)
     }
 
-    private var statusTitle: String {
-        device.isRegistered ? "Hinzugefügt" : device.supportStatus.title
+    private var kindTile: some View {
+        ZStack {
+            Rectangle()
+                .fill(tileColor)
+                .frame(width: 36, height: 36)
+
+            Image(systemName: device.estimatedDeviceType.systemImageName)
+                .font(.system(size: 18, weight: .bold))
+                .foregroundStyle(tileForeground)
+        }
     }
 
-    private var statusColor: Color {
+    private var tileColor: Color {
+        switch device.estimatedDeviceType {
+        case .batteryMonitor:
+            return .boltTeal
+        case .solarCharger:
+            return .boltYellow
+        case .dcDcConverter:
+            return .boltTeal
+        default:
+            return .boltHair2
+        }
+    }
+
+    private var tileForeground: Color {
+        device.estimatedDeviceType == .solarCharger ? .boltInk : .boltCream
+    }
+
+    private var statusTitle: String {
         if device.isRegistered {
-            return .green
+            return "HINZUGEFÜGT"
         }
 
         switch device.supportStatus {
         case .supported:
-            return .blue
+            return "HINZUFÜGEN"
         case .plannedPhase37:
-            return .orange
+            return "DECODING FOLGT"
         case .outOfScope:
-            return .gray
+            return "NICHT UNTERSTÜTZT"
         }
+    }
+
+    private var statusColor: Color {
+        if device.isRegistered {
+            return .boltTealDeep
+        }
+
+        switch device.supportStatus {
+        case .supported:
+            return .boltTeal
+        case .plannedPhase37:
+            return .boltWarn
+        case .outOfScope:
+            return .boltInkFaint
+        }
+    }
+
+    private var rowOpacity: Double {
+        if device.displayState == .dimmed || device.isRegistered {
+            return 0.55
+        }
+        return 1
     }
 
     private var lastSeenText: String {
@@ -541,32 +704,60 @@ private struct DiscoveryInfoBox: View {
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
             Image(systemName: "clock.arrow.circlepath")
-                .font(.title3)
-                .foregroundStyle(.orange)
+                .font(.system(size: 18, weight: .bold))
+                .foregroundStyle(Color.boltWarn)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text("Daten-Decoding folgt")
-                    .font(.subheadline.weight(.semibold))
+                    .font(.system(size: 14, weight: .heavy))
+                    .foregroundStyle(Color.boltInk)
                 Text("Du kannst dieses Modell jetzt registrieren. Live-Werte erscheinen automatisch nach einem späteren Update der App.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .font(.system(size: 13))
+                    .foregroundStyle(Color.boltInkSoft)
             }
         }
         .padding(12)
-        .background(.orange.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
+        .background(Color.boltYellow.opacity(0.16))
+        .overlay(Rectangle().stroke(Color.boltWarn.opacity(0.45), lineWidth: 1))
     }
 }
 
 private struct KeyHelpText: View {
+    private let steps: [(String, String)] = [
+        ("01", "VictronConnect öffnen und Gerät auswählen."),
+        ("02", "Geräteeinstellungen -> 'Instant Readout'."),
+        ("03", "Advertisement Key anzeigen lassen."),
+        ("04", "Hex-Key kopieren und hier einfügen.")
+    ]
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("1. VictronConnect öffnen und das Gerät auswählen.")
-            Text("2. In den Geräteeinstellungen „Instant Readout“ öffnen.")
-            Text("3. Advertisement Key anzeigen lassen.")
-            Text("4. Den 32-stelligen Hex-Key kopieren und hier einfügen.")
+        VStack(spacing: 0) {
+            ForEach(Array(steps.enumerated()), id: \.element.0) { index, step in
+                HStack(alignment: .top, spacing: 12) {
+                    Text(step.0)
+                        .font(.boltMono(14))
+                        .fontWeight(.heavy)
+                        .foregroundStyle(Color.boltTeal)
+                        .frame(width: 32, alignment: .leading)
+
+                    Text(step.1)
+                        .font(.system(size: 13))
+                        .foregroundStyle(Color.boltInk)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    Spacer(minLength: 0)
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
+
+                if index < steps.count - 1 {
+                    Rectangle()
+                        .fill(Color.boltHair2)
+                        .frame(height: 1)
+                        .padding(.leading, 58)
+                }
+            }
         }
-        .font(.subheadline)
-        .foregroundStyle(.secondary)
     }
 }
 
@@ -576,17 +767,84 @@ private struct UnsupportedDiscoveryDeviceSheet: View {
 
     var body: some View {
         NavigationStack {
-            ContentUnavailableView {
-                Label("Dieses Gerät wird derzeit nicht unterstützt.", systemImage: "exclamationmark.triangle")
-            } description: {
-                Text("\(device.estimatedModelName) sendet Victron-Advertisements, gehört aber zu einer Gerätefamilie außerhalb des aktuellen Stromer-Scopes.")
-            } actions: {
-                Button("OK") {
-                    dismiss()
+            ZStack {
+                BoltBackground()
+
+                VStack(alignment: .leading, spacing: 16) {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.system(size: 46, weight: .bold))
+                        .foregroundStyle(Color.boltWarn)
+
+                    BoltEyebrow("Nicht unterstützt", color: .boltWarn)
+
+                    Text("Dieses Gerät wird derzeit nicht unterstützt.")
+                        .font(.system(size: 30, weight: .heavy))
+                        .foregroundStyle(Color.boltInk)
+
+                    Text("\(device.estimatedModelName) sendet Victron-Advertisements, gehört aber zu einer Gerätefamilie außerhalb des aktuellen Stromer-Scopes.")
+                        .font(.system(size: 15))
+                        .foregroundStyle(Color.boltInkSoft)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    BoltPrimary("OK") {
+                        dismiss()
+                    }
+
+                    Spacer()
                 }
+                .padding(22)
             }
-            .navigationTitle("Nicht unterstützt")
-            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(.hidden, for: .navigationBar)
         }
+    }
+}
+
+private struct BoltInfoRow: View {
+    let title: String
+    let value: String
+    var isMono = false
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
+            Text(title)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(Color.boltInk)
+
+            Spacer()
+
+            Text(value)
+                .font(isMono ? .boltMono(11) : .system(size: 13, weight: .semibold))
+                .foregroundStyle(Color.boltInkSoft)
+                .multilineTextAlignment(.trailing)
+                .lineLimit(isMono ? 2 : 1)
+                .minimumScaleFactor(0.68)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 13)
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(Color.boltHair2)
+                .frame(height: 1)
+        }
+    }
+}
+
+private struct ErrorBanner: View {
+    let message: String
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 16, weight: .bold))
+                .foregroundStyle(Color.boltBad)
+
+            Text(message)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(Color.boltBad)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(12)
+        .background(Color.boltPaper)
+        .overlay(Rectangle().stroke(Color.boltBad.opacity(0.45), lineWidth: 1))
     }
 }

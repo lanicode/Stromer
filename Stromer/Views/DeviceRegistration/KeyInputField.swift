@@ -25,15 +25,16 @@ struct KeyInputField: View {
 
     private var borderColor: Color {
         if normalizedText.isEmpty {
-            return .secondary.opacity(0.35)
+            return .boltHair
         }
-        return isValid ? .green : .red
+        return isValid ? .boltTeal : .boltBad
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 10) {
             TextField("Advertisement Key", text: $text)
-                .font(.body.monospaced())
+                .font(.boltMono(14))
+                .tracking(1)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .textContentType(.oneTimeCode)
@@ -43,26 +44,28 @@ struct KeyInputField: View {
                         text = normalized
                     }
                 }
-                .padding(10)
-                .background {
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(borderColor, lineWidth: 1.2)
-                }
+                .padding(12)
+                .background(Color.boltCream)
+                .overlay(Rectangle().stroke(borderColor, lineWidth: 1.5))
 
             HStack {
-                Label(
-                    isValid ? "Key gültig" : "Exakt 32 Hex-Zeichen",
-                    systemImage: isValid ? "checkmark.circle.fill" : "exclamationmark.circle"
-                )
-                .foregroundStyle(isValid ? .green : .secondary)
+                Rectangle()
+                    .fill(isValid ? Color.boltTeal : Color.boltInkFaint)
+                    .frame(width: 8, height: 8)
+                    .rotationEffect(.degrees(45))
+
+                Text(isValid ? "KEY GÜLTIG" : "EXAKT 32 HEX-ZEICHEN")
+                    .font(.system(size: 12, weight: .heavy))
+                    .tracking(1.1)
+                    .foregroundStyle(isValid ? Color.boltTealDeep : Color.boltInkSoft)
 
                 Spacer()
 
                 Text("\(normalizedText.count)/32")
+                    .font(.boltMono(12))
                     .monospacedDigit()
-                    .foregroundStyle(isValid ? .green : .secondary)
+                    .foregroundStyle(isValid ? Color.boltTealDeep : Color.boltInkSoft)
             }
-            .font(.caption)
         }
     }
 }
