@@ -11,12 +11,15 @@ public enum VictronParseResult: Equatable, Sendable {
 public enum VictronRecord: Equatable, Sendable {
     case solarCharger(SolarChargerRecord)
     case batteryMonitor(BatteryMonitorRecord)
+    case dcDcConverter(DcDcConverterRecord)
 
     public var productID: ProductID {
         switch self {
         case let .solarCharger(record):
             return record.productID
         case let .batteryMonitor(record):
+            return record.productID
+        case let .dcDcConverter(record):
             return record.productID
         }
     }
@@ -79,6 +82,13 @@ public func parseVictronAdvertisement(
         case .batteryMonitor:
             return .success(.batteryMonitor(
                 try BatteryMonitorRecord.parse(
+                    productID: advertisement.productID,
+                    decrypted: decrypted
+                )
+            ))
+        case .dcDcConverter:
+            return .success(.dcDcConverter(
+                try DcDcConverterRecord.parse(
                     productID: advertisement.productID,
                     decrypted: decrypted
                 )

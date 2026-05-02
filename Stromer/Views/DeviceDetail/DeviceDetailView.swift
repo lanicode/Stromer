@@ -174,6 +174,8 @@ struct DeviceDetailView: View {
                     batteryRows(payload)
                 case let .solarCharger(payload):
                     solarRows(payload)
+                case let .dcDcConverter(payload):
+                    dcDcRows(payload)
                 }
             } else if supportStatus(for: device) == .plannedPhase37 {
                 StromerEmptyStateView(
@@ -336,6 +338,32 @@ struct DeviceDetailView: View {
             unit: "A",
             systemImage: "powerplug"
         )
+    }
+
+    @ViewBuilder
+    private func dcDcRows(_ payload: DcDcConverterReading) -> some View {
+        LabeledContent("Ladezustand", value: DevicePresentation.chargerStateTitle(payload.chargeStateRaw))
+        LabeledContent(
+            "Charger Error",
+            value: payload.chargerErrorCode.map { "\($0)" } ?? "Nicht verfügbar"
+        )
+        ValueRow(
+            label: "Eingangsspannung",
+            value: payload.inputVoltage.map { DevicePresentation.number($0, digits: 2) } ?? "—",
+            unit: "V",
+            systemImage: "arrow.down.circle"
+        )
+        ValueRow(
+            label: "Ausgangsspannung",
+            value: payload.outputVoltage.map { DevicePresentation.number($0, digits: 2) } ?? "—",
+            unit: "V",
+            systemImage: "arrow.up.circle"
+        )
+        LabeledContent(
+            "Aus-Grund",
+            value: DevicePresentation.dcDcOffReasonTitle(rawValue: payload.offReasonRaw)
+        )
+        LabeledContent("Off Reason Raw", value: DevicePresentation.hex(payload.offReasonRaw))
     }
 
     private func productIDText(reading: DeviceReading?, device: RegisteredDevice) -> String {

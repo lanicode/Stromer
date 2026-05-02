@@ -171,26 +171,26 @@ public enum VictronProductCatalog {
         .planned(0xA3B1, "Smart BatteryProtect 12/24V-100A", .smartBatteryProtect),
         .planned(0xA3B2, "Smart BatteryProtect 12/24V-220A", .smartBatteryProtect),
         .planned(0xA3B3, "Smart BatteryProtect 48V-100A", .smartBatteryProtect),
-        .planned(0xA3C0, "Orion Smart 12V/12V-18A DC-DC Converter", .dcDcConverter),
-        .planned(0xA3C1, "Orion Smart 12V/24V-10A DC-DC Converter", .dcDcConverter),
-        .planned(0xA3C2, "Orion Smart 24V/12V-20A DC-DC Converter", .dcDcConverter),
-        .planned(0xA3C3, "Orion Smart 24V/24V-12A DC-DC Converter", .dcDcConverter),
-        .planned(0xA3C4, "Orion Smart 24V/48V-6A DC-DC Converter", .dcDcConverter),
-        .planned(0xA3C5, "Orion Smart 48V/12V-20A DC-DC Converter", .dcDcConverter),
-        .planned(0xA3C6, "Orion Smart 48V/24V-12A DC-DC Converter", .dcDcConverter),
-        .planned(0xA3C7, "Orion Smart 48V/48V-6A DC-DC Converter", .dcDcConverter),
-        .planned(0xA3C8, "Orion Smart 12V/12V-30A DC-DC Converter", .dcDcConverter),
-        .planned(0xA3C9, "Orion Smart 12V/24V-15A DC-DC Converter", .dcDcConverter),
-        .planned(0xA3CA, "Orion Smart 24V/12V-30A DC-DC Converter", .dcDcConverter),
-        .planned(0xA3CB, "Orion Smart 24V/24V-17A DC-DC Converter", .dcDcConverter),
-        .planned(0xA3CC, "Orion Smart 24V/48V-8.5A DC-DC Converter", .dcDcConverter),
-        .planned(0xA3CD, "Orion Smart 48V/12V-30A DC-DC Converter", .dcDcConverter),
-        .planned(0xA3CE, "Orion Smart 48V/24V-16A DC-DC Converter", .dcDcConverter),
-        .planned(0xA3CF, "Orion Smart 48V/48V-8A DC-DC Converter", .dcDcConverter),
-        .planned(0xA3D0, "Orion Smart 12V/12V-30A Buck-Boost Converter", .dcDcConverter),
-        .planned(0xA3D1, "Orion Smart 12V/24V-15A Buck-Boost Converter", .dcDcConverter),
-        .planned(0xA3D2, "Orion Smart Orion 24V/12V-30A Buck-Boost Converter", .dcDcConverter),
-        .planned(0xA3D3, "Orion Smart Orion 24V/24V-17A Buck-Boost Converter", .dcDcConverter),
+        .supported(0xA3C0, "Orion Smart 12V/12V-18A DC-DC Converter", .dcDcConverter),
+        .supported(0xA3C1, "Orion Smart 12V/24V-10A DC-DC Converter", .dcDcConverter),
+        .supported(0xA3C2, "Orion Smart 24V/12V-20A DC-DC Converter", .dcDcConverter),
+        .supported(0xA3C3, "Orion Smart 24V/24V-12A DC-DC Converter", .dcDcConverter),
+        .supported(0xA3C4, "Orion Smart 24V/48V-6A DC-DC Converter", .dcDcConverter),
+        .supported(0xA3C5, "Orion Smart 48V/12V-20A DC-DC Converter", .dcDcConverter),
+        .supported(0xA3C6, "Orion Smart 48V/24V-12A DC-DC Converter", .dcDcConverter),
+        .supported(0xA3C7, "Orion Smart 48V/48V-6A DC-DC Converter", .dcDcConverter),
+        .supported(0xA3C8, "Orion Smart 12V/12V-30A DC-DC Converter", .dcDcConverter),
+        .supported(0xA3C9, "Orion Smart 12V/24V-15A DC-DC Converter", .dcDcConverter),
+        .supported(0xA3CA, "Orion Smart 24V/12V-30A DC-DC Converter", .dcDcConverter),
+        .supported(0xA3CB, "Orion Smart 24V/24V-17A DC-DC Converter", .dcDcConverter),
+        .supported(0xA3CC, "Orion Smart 24V/48V-8.5A DC-DC Converter", .dcDcConverter),
+        .supported(0xA3CD, "Orion Smart 48V/12V-30A DC-DC Converter", .dcDcConverter),
+        .supported(0xA3CE, "Orion Smart 48V/24V-16A DC-DC Converter", .dcDcConverter),
+        .supported(0xA3CF, "Orion Smart 48V/48V-8A DC-DC Converter", .dcDcConverter),
+        .supported(0xA3D0, "Orion Smart 12V/12V-30A Buck-Boost Converter", .dcDcConverter),
+        .supported(0xA3D1, "Orion Smart 12V/24V-15A Buck-Boost Converter", .dcDcConverter),
+        .supported(0xA3D2, "Orion Smart Orion 24V/12V-30A Buck-Boost Converter", .dcDcConverter),
+        .supported(0xA3D3, "Orion Smart Orion 24V/24V-17A Buck-Boost Converter", .dcDcConverter),
         .outOfScope(0xA3E5, "Lynx Smart BMS 500", .lynxBMS),
         .outOfScope(0xA3E6, "Lynx Smart BMS 1000", .lynxBMS),
         .outOfScope(0xA401, "Inverter RS Smart Solar 48/6000", .inverterRS),
@@ -207,9 +207,9 @@ public enum VictronProductCatalog {
 
     private static func statusForRecordType(_ recordType: UInt8) -> DiscoverySupportStatus? {
         switch recordType {
-        case 0x01, 0x02:
+        case 0x01, 0x02, 0x04:
             return .supported
-        case 0x03, 0x04, 0x05, 0x08, 0x09:
+        case 0x03, 0x05, 0x08, 0x09:
             return .plannedPhase37
         case 0x06, 0x0A, 0x0B, 0x0C, 0x0D, 0x0F:
             return .outOfScope

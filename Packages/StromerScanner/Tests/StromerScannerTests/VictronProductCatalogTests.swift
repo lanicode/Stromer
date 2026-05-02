@@ -18,11 +18,11 @@ final class VictronProductCatalogTests: XCTestCase {
         XCTAssertEqual(entry?.supportStatus, .supported)
     }
 
-    func testLookupPlannedPhase37Family() {
+    func testLookupDcDcFamilyIsSupported() {
         let entry = VictronProductCatalog.lookup(productID: 0xA3C0)
 
         XCTAssertEqual(entry?.deviceType, .dcDcConverter)
-        XCTAssertEqual(entry?.supportStatus, .plannedPhase37)
+        XCTAssertEqual(entry?.supportStatus, .supported)
     }
 
     func testLookupOrionSmart12V12V30ADCConverter() {
@@ -73,6 +73,10 @@ final class VictronProductCatalogTests: XCTestCase {
             .supported
         )
         XCTAssertEqual(
+            VictronProductCatalog.supportStatus(productID: 0xFFFF, recordType: 0x04),
+            .supported
+        )
+        XCTAssertEqual(
             VictronProductCatalog.supportStatus(productID: 0xFFFF, recordType: 0x03),
             .plannedPhase37
         )
@@ -101,5 +105,5 @@ private func assertOrionEntry(
 
     XCTAssertEqual(entry?.modelName, modelName, file: file, line: line)
     XCTAssertEqual(entry?.deviceType, .dcDcConverter, file: file, line: line)
-    XCTAssertEqual(entry?.supportStatus, .plannedPhase37, file: file, line: line)
+    XCTAssertEqual(entry?.supportStatus, .supported, file: file, line: line)
 }
