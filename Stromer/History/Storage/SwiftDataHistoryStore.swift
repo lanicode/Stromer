@@ -199,6 +199,52 @@ final class SwiftDataHistoryStore: HistoryStore, DeviceReadingHistoryStoring, @u
         saveIgnoringErrors()
     }
 
+    func liveReadings(deviceID: UUID, from: Date, to: Date) async -> [LiveReading] {
+        let descriptor = FetchDescriptor<LiveReading>(
+            predicate: #Predicate {
+                $0.deviceID == deviceID
+                    && $0.timestamp >= from
+                    && $0.timestamp <= to
+            },
+            sortBy: [SortDescriptor(\.timestamp)]
+        )
+        return (try? context.fetch(descriptor)) ?? []
+    }
+
+    func minuteAggregates(deviceID: UUID, from: Date, to: Date) async -> [MinuteAggregate] {
+        let descriptor = FetchDescriptor<MinuteAggregate>(
+            predicate: #Predicate {
+                $0.deviceID == deviceID
+                    && $0.slotStart >= from
+                    && $0.slotStart <= to
+            },
+            sortBy: [SortDescriptor(\.slotStart)]
+        )
+        return (try? context.fetch(descriptor)) ?? []
+    }
+
+    func dailyAggregates(deviceID: UUID, from: Date, to: Date) async -> [DailyAggregate] {
+        let descriptor = FetchDescriptor<DailyAggregate>(
+            predicate: #Predicate {
+                $0.deviceID == deviceID
+                    && $0.dayStart >= from
+                    && $0.dayStart <= to
+            },
+            sortBy: [SortDescriptor(\.dayStart)]
+        )
+        return (try? context.fetch(descriptor)) ?? []
+    }
+
+    func todayAggregate(deviceID: UUID) async -> DailyAggregate? {
+        let dayStart = calendar.startOfDay(for: nowProvider())
+        let descriptor = FetchDescriptor<DailyAggregate>(
+            predicate: #Predicate {
+                $0.deviceID == deviceID && $0.dayStart == dayStart
+            }
+        )
+        return try? context.fetch(descriptor).first
+    }
+
     private func upsertDaily(reading: DeviceReading) {
         let dayStart = calendar.startOfDay(for: reading.timestamp)
         let daily = fetchDailyAggregate(
