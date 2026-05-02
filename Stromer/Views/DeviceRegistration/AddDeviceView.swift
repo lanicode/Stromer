@@ -644,7 +644,7 @@ private struct DiscoveryDeviceRow: View {
     }
 
     private var tileForeground: Color {
-        device.estimatedDeviceType == .solarCharger ? .boltInk : .boltCream
+        device.estimatedDeviceType == .solarCharger ? .boltInkFixed : .boltCream
     }
 
     private var statusTitle: String {
