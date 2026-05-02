@@ -9,32 +9,42 @@ struct OnboardingBluetoothPage: View {
 
     var body: some View {
         OnboardingPageView(
-            systemImage: "bluetooth",
-            title: "Bluetooth wird gebraucht",
-            subtitle: "Stromer scannt nach Victron-Advertisements in deiner Nähe. Es wird keine Verbindung aufgebaut und nichts an Geräte geschrieben.",
+            pageIndex: 2,
+            eyebrow: "Bluetooth",
+            title: "Bluetooth wird\ngebraucht.",
+            bodyText: "Stromer scannt nach Victron-Advertisements in deiner Nähe. Es wird keine Verbindung aufgebaut und nichts an Geräte geschrieben.",
             primaryButtonTitle: primaryButtonTitle,
+            primaryShowsBolt: !permissionProbe.canContinue,
             primaryAction: primaryAction,
             secondaryButtonTitle: "Überspringen",
             secondaryAction: onSkip,
+            hero: {
+                OnboardingAntennaHero()
+            },
             content: {
-                VStack(spacing: 14) {
+                VStack(spacing: 12) {
                     HStack(spacing: 10) {
-                        Circle()
+                        Rectangle()
                             .fill(statusColor)
-                            .frame(width: 10, height: 10)
+                            .frame(width: 8, height: 8)
+
                         Text(statusTitle)
-                            .font(.subheadline.weight(.semibold))
+                            .font(.system(size: 14, weight: .heavy))
+                            .foregroundStyle(statusColor)
+
                         Spacer()
                     }
 
                     Text(statusDescription)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .font(.system(size: 13, weight: .regular))
+                        .foregroundStyle(Color.boltInkSoft)
+                        .lineSpacing(2)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(16)
-                .background(.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 14))
+                .background(Color.boltPaper)
+                .overlay(Rectangle().stroke(Color.boltHair, lineWidth: 1))
             }
         )
         .onAppear {
@@ -90,18 +100,18 @@ struct OnboardingBluetoothPage: View {
 
     private var statusColor: Color {
         if permissionProbe.centralState == .unsupported {
-            return .red
+            return .boltBad
         }
 
         switch permissionProbe.authorization {
         case .allowed:
-            return .green
+            return .boltTeal
         case .denied, .restricted:
-            return .red
+            return .boltWarn
         case .notDetermined:
-            return .orange
+            return .boltYellowDeep
         case .unknown:
-            return .secondary
+            return .boltInkSoft
         }
     }
 }
