@@ -1,6 +1,11 @@
 import Foundation
 
 @MainActor
+public protocol DeviceReadingHistoryStoring: Sendable {
+    func recordReading(_ reading: DeviceReading) async
+}
+
+@MainActor
 public final class ScannerService {
     public private(set) var state: ScannerState = .idle
     public private(set) var lastError: ScannerError?
@@ -9,6 +14,7 @@ public final class ScannerService {
     private let registry: DeviceRegistry
     private let store: VictronStore
     private let discoveryStore: DiscoveryStore?
+    private let historyStore: (any DeviceReadingHistoryStoring)?
     private let onReadingUpdated: (@MainActor @Sendable (DeviceReading) -> Void)?
     private var tasks: [Task<Void, Never>] = []
 
@@ -17,12 +23,14 @@ public final class ScannerService {
         registry: DeviceRegistry,
         store: VictronStore,
         discoveryStore: DiscoveryStore? = nil,
+        historyStore: (any DeviceReadingHistoryStoring)? = nil,
         onReadingUpdated: (@MainActor @Sendable (DeviceReading) -> Void)? = nil
     ) {
         self.scanner = scanner
         self.registry = registry
         self.store = store
         self.discoveryStore = discoveryStore
+        self.historyStore = historyStore
         self.onReadingUpdated = onReadingUpdated
     }
 
@@ -64,6 +72,11 @@ public final class ScannerService {
                     record: match.record,
                     advertisement: match.advertisement
                 )
+                if let historyStore {
+                    Task {
+                        await historyStore.recordReading(reading)
+                    }
+                }
                 onReadingUpdated?(reading)
                 lastError = nil
             } catch {

@@ -93,6 +93,7 @@ final class StromerAppViewModel {
     @ObservationIgnored private let discoveryStore: DiscoveryStore
     @ObservationIgnored private let keychainStore: any KeychainStoring
     @ObservationIgnored private let scannerService: ScannerService
+    @ObservationIgnored let historyStore: (any HistoryStore)?
     @ObservationIgnored private let liveActivityService: LiveActivityService<ActivityKitActivityClient>
     @ObservationIgnored let widgetRefreshCoordinator: WidgetRefreshCoordinator
     @ObservationIgnored private let deviceSnapshotStore: (any RegisteredDeviceSnapshotStoring)?
@@ -109,6 +110,7 @@ final class StromerAppViewModel {
         scanner: any BLEScanning,
         discoveryStore: DiscoveryStore,
         keychainStore: any KeychainStoring,
+        historyStore: (any HistoryStore)?,
         liveActivityService: LiveActivityService<ActivityKitActivityClient>,
         widgetRefreshCoordinator: WidgetRefreshCoordinator? = nil,
         deviceSnapshotStore: (any RegisteredDeviceSnapshotStoring)?,
@@ -120,6 +122,7 @@ final class StromerAppViewModel {
         self.store = store
         self.discoveryStore = discoveryStore
         self.keychainStore = keychainStore
+        self.historyStore = historyStore
         self.liveActivityService = liveActivityService
         self.widgetRefreshCoordinator = widgetRefreshCoordinator
         self.deviceSnapshotStore = deviceSnapshotStore
@@ -129,6 +132,7 @@ final class StromerAppViewModel {
             registry: registry,
             store: store,
             discoveryStore: discoveryStore,
+            historyStore: historyStore as? any DeviceReadingHistoryStoring,
             onReadingUpdated: { _ in
                 widgetRefreshCoordinator.requestReload(reason: .reading)
             }
@@ -163,6 +167,13 @@ final class StromerAppViewModel {
             service: StromerIdentifiers.keychainService,
             accessGroup: nil
         )
+        let historyStore: (any HistoryStore)?
+        do {
+            historyStore = try SwiftDataHistoryStore()
+        } catch {
+            historyStore = nil
+            print("History store init failed: \(error)")
+        }
         let liveActivityService = LiveActivityService(
             client: ActivityKitActivityClient()
         )
@@ -177,6 +188,7 @@ final class StromerAppViewModel {
             scanner: scanner,
             discoveryStore: discoveryStore,
             keychainStore: keychainStore,
+            historyStore: historyStore,
             liveActivityService: liveActivityService,
             deviceSnapshotStore: deviceSnapshotStore,
             metadataDefaults: defaults,
@@ -214,6 +226,15 @@ final class StromerAppViewModel {
         await scannerService.restartScan(delay: .milliseconds(150))
         refreshRuntimeState()
         widgetRefreshCoordinator.requestReload(reason: .foreground)
+    }
+
+    func runOpportunisticAggregation() async {
+        guard let historyStore else {
+            return
+        }
+
+        await historyStore.aggregateLiveToMinute()
+        await historyStore.aggregateMinuteToDaily()
     }
 
     func registerDevice(

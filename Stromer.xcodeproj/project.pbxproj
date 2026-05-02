@@ -62,6 +62,22 @@
 		D1C00000000000000000000B /* DesignSystemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1F00000000000000000000B /* DesignSystemTests.swift */; };
 		F454EF074DCC3F8E9827C9F8 /* WidgetRefreshCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A27C244D05E124D5F669F847 /* WidgetRefreshCoordinator.swift */; };
 		FDA54A3E3832AB816773191E /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 941D923D1EBAD56298D15DD8 /* OnboardingFlowView.swift */; };
+		H4B000000000000000000001 /* LiveReading.swift in Sources */ = {isa = PBXBuildFile; fileRef = H4F000000000000000000001 /* LiveReading.swift */; };
+		H4B000000000000000000002 /* MinuteAggregate.swift in Sources */ = {isa = PBXBuildFile; fileRef = H4F000000000000000000002 /* MinuteAggregate.swift */; };
+		H4B000000000000000000003 /* DailyAggregate.swift in Sources */ = {isa = PBXBuildFile; fileRef = H4F000000000000000000003 /* DailyAggregate.swift */; };
+		H4B000000000000000000004 /* HistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = H4F000000000000000000004 /* HistoryStore.swift */; };
+		H4B000000000000000000005 /* SwiftDataHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = H4F000000000000000000005 /* SwiftDataHistoryStore.swift */; };
+		H4C000000000000000000001 /* LiveReading.swift in Sources */ = {isa = PBXBuildFile; fileRef = H4F000000000000000000001 /* LiveReading.swift */; };
+		H4C000000000000000000002 /* MinuteAggregate.swift in Sources */ = {isa = PBXBuildFile; fileRef = H4F000000000000000000002 /* MinuteAggregate.swift */; };
+		H4C000000000000000000003 /* DailyAggregate.swift in Sources */ = {isa = PBXBuildFile; fileRef = H4F000000000000000000003 /* DailyAggregate.swift */; };
+		H4C000000000000000000004 /* HistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = H4F000000000000000000004 /* HistoryStore.swift */; };
+		H4C000000000000000000005 /* SwiftDataHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = H4F000000000000000000005 /* SwiftDataHistoryStore.swift */; };
+		H4D000000000000000000001 /* VictronParser in Frameworks */ = {isa = PBXBuildFile; productRef = 800000000000000000000001 /* VictronParser */; };
+		H4D000000000000000000002 /* StromerScanner in Frameworks */ = {isa = PBXBuildFile; productRef = 800000000000000000000002 /* StromerScanner */; };
+		T4B000000000000000000001 /* LiveReadingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T4F000000000000000000001 /* LiveReadingTests.swift */; };
+		T4B000000000000000000002 /* HistoryStoreDebounceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T4F000000000000000000002 /* HistoryStoreDebounceTests.swift */; };
+		T4B000000000000000000003 /* AggregationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T4F000000000000000000003 /* AggregationTests.swift */; };
+		T4B000000000000000000004 /* DailyUpsertTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T4F000000000000000000004 /* DailyUpsertTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -135,6 +151,15 @@
 		D1F00000000000000000000A /* BoltBackground.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BoltBackground.swift; sourceTree = "<group>"; };
 		D1F00000000000000000000B /* DesignSystemTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DesignSystemTests.swift; sourceTree = "<group>"; };
 		ED145DA6C288D9AE130B0A4E /* WidgetRefreshCoordinatorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WidgetRefreshCoordinatorTests.swift; sourceTree = "<group>"; };
+		H4F000000000000000000001 /* LiveReading.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LiveReading.swift; sourceTree = "<group>"; };
+		H4F000000000000000000002 /* MinuteAggregate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MinuteAggregate.swift; sourceTree = "<group>"; };
+		H4F000000000000000000003 /* DailyAggregate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DailyAggregate.swift; sourceTree = "<group>"; };
+		H4F000000000000000000004 /* HistoryStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HistoryStore.swift; sourceTree = "<group>"; };
+		H4F000000000000000000005 /* SwiftDataHistoryStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwiftDataHistoryStore.swift; sourceTree = "<group>"; };
+		T4F000000000000000000001 /* LiveReadingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LiveReadingTests.swift; sourceTree = "<group>"; };
+		T4F000000000000000000002 /* HistoryStoreDebounceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HistoryStoreDebounceTests.swift; sourceTree = "<group>"; };
+		T4F000000000000000000003 /* AggregationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AggregationTests.swift; sourceTree = "<group>"; };
+		T4F000000000000000000004 /* DailyUpsertTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DailyUpsertTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -159,6 +184,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				H4D000000000000000000001 /* VictronParser in Frameworks */,
+				H4D000000000000000000002 /* StromerScanner in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -197,6 +224,7 @@
 				100000000000000000000005 /* Assets.xcassets */,
 				563AFAC22DF8F726AD5DBDD8 /* Services */,
 				D1F00000000000000000000C /* DesignSystem */,
+				H4G000000000000000000001 /* History */,
 			);
 			path = Stromer;
 			sourceTree = "<group>";
@@ -298,6 +326,10 @@
 				7DDFB4397D0034784E2DEF1B /* OnboardingStateTests.swift */,
 				ED145DA6C288D9AE130B0A4E /* WidgetRefreshCoordinatorTests.swift */,
 				D1F00000000000000000000B /* DesignSystemTests.swift */,
+				T4F000000000000000000001 /* LiveReadingTests.swift */,
+				T4F000000000000000000002 /* HistoryStoreDebounceTests.swift */,
+				T4F000000000000000000003 /* AggregationTests.swift */,
+				T4F000000000000000000004 /* DailyUpsertTests.swift */,
 			);
 			name = StromerTests;
 			path = StromerTests;
@@ -319,6 +351,34 @@
 			);
 			name = DesignSystem;
 			path = DesignSystem;
+			sourceTree = "<group>";
+		};
+		H4G000000000000000000001 /* History */ = {
+			isa = PBXGroup;
+			children = (
+				H4G000000000000000000002 /* Models */,
+				H4G000000000000000000003 /* Storage */,
+			);
+			path = History;
+			sourceTree = "<group>";
+		};
+		H4G000000000000000000002 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				H4F000000000000000000001 /* LiveReading.swift */,
+				H4F000000000000000000002 /* MinuteAggregate.swift */,
+				H4F000000000000000000003 /* DailyAggregate.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		H4G000000000000000000003 /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				H4F000000000000000000004 /* HistoryStore.swift */,
+				H4F000000000000000000005 /* SwiftDataHistoryStore.swift */,
+			);
+			path = Storage;
 			sourceTree = "<group>";
 		};
 		8188454EC63F2F9EEB0607FA /* Frameworks */ = {
@@ -409,6 +469,10 @@
 			dependencies = (
 			);
 			name = StromerTests;
+			packageProductDependencies = (
+				800000000000000000000001 /* VictronParser */,
+				800000000000000000000002 /* StromerScanner */,
+			);
 			productName = StromerTests;
 			productReference = 969D475A7A6BA8912B29277E /* StromerTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -531,6 +595,11 @@
 				D1B000000000000000000008 /* BoltSpark.swift in Sources */,
 				D1B000000000000000000009 /* BoltCornerNotch.swift in Sources */,
 				D1B00000000000000000000A /* BoltBackground.swift in Sources */,
+				H4B000000000000000000001 /* LiveReading.swift in Sources */,
+				H4B000000000000000000002 /* MinuteAggregate.swift in Sources */,
+				H4B000000000000000000003 /* DailyAggregate.swift in Sources */,
+				H4B000000000000000000004 /* HistoryStore.swift in Sources */,
+				H4B000000000000000000005 /* SwiftDataHistoryStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -565,6 +634,15 @@
 				D1C000000000000000000009 /* BoltCornerNotch.swift in Sources */,
 				D1C00000000000000000000A /* BoltBackground.swift in Sources */,
 				D1C00000000000000000000B /* DesignSystemTests.swift in Sources */,
+				H4C000000000000000000001 /* LiveReading.swift in Sources */,
+				H4C000000000000000000002 /* MinuteAggregate.swift in Sources */,
+				H4C000000000000000000003 /* DailyAggregate.swift in Sources */,
+				H4C000000000000000000004 /* HistoryStore.swift in Sources */,
+				H4C000000000000000000005 /* SwiftDataHistoryStore.swift in Sources */,
+				T4B000000000000000000001 /* LiveReadingTests.swift in Sources */,
+				T4B000000000000000000002 /* HistoryStoreDebounceTests.swift in Sources */,
+				T4B000000000000000000003 /* AggregationTests.swift in Sources */,
+				T4B000000000000000000004 /* DailyUpsertTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
