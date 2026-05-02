@@ -4,15 +4,11 @@ struct EmptyDeviceListView: View {
     let addAction: () -> Void
 
     var body: some View {
-        ContentUnavailableView {
-            Label("Noch keine Victron-Geräte", systemImage: "dot.radiowaves.left.and.right")
-        } description: {
-            Text("Füge deinen SmartShunt oder MPPT mit dem Advertisement Key aus VictronConnect hinzu.")
-        } actions: {
-            Button(action: addAction) {
-                Label("Gerät hinzufügen", systemImage: "plus")
-            }
-            .buttonStyle(.borderedProminent)
-        }
+        StromerEmptyStateView(
+            iconSystemName: "dot.radiowaves.left.and.right",
+            title: "Noch keine Victron-Geräte",
+            description: "Füge dein erstes Victron-Gerät hinzu. Stromer kann SmartShunt/BMV und MPPT live anzeigen.",
+            action: .init(label: "Gerät hinzufügen", perform: addAction)
+        )
     }
 }

@@ -49,7 +49,7 @@ struct DeviceDetailView: View {
                     .padding(.vertical, 8)
                 }
 
-                liveDataSection(reading: reading)
+                liveDataSection(device: device, reading: reading)
                 liveActivitySection(reading: reading)
 
                 Section("Gerät") {
@@ -114,10 +114,10 @@ struct DeviceDetailView: View {
                 .presentationDetents([.medium])
             }
         } else {
-            ContentUnavailableView(
-                "Gerät nicht gefunden",
-                systemImage: "questionmark.circle",
-                description: Text("Dieses Gerät ist nicht mehr registriert.")
+            StromerEmptyStateView(
+                iconSystemName: "questionmark.circle",
+                title: "Gerät nicht gefunden",
+                description: "Dieses Gerät ist nicht mehr registriert."
             )
         }
     }
@@ -156,17 +156,17 @@ struct DeviceDetailView: View {
 
                 LabeledContent("Aktueller Stand", value: DevicePresentation.relativeTime(reading.timestamp))
             } else {
-                ContentUnavailableView(
-                    "Noch kein Live-Wert",
-                    systemImage: "rectangle.on.rectangle.slash",
-                    description: Text("Die Live-Anzeige kann gestartet werden, sobald ein erstes Advertisement empfangen wurde.")
+                StromerEmptyStateView(
+                    iconSystemName: "rectangle.on.rectangle.slash",
+                    title: "Noch kein Live-Wert",
+                    description: "Die Live-Anzeige kann gestartet werden, sobald ein erstes Advertisement empfangen wurde."
                 )
             }
         }
     }
 
     @ViewBuilder
-    private func liveDataSection(reading: DeviceReading?) -> some View {
+    private func liveDataSection(device: RegisteredDevice, reading: DeviceReading?) -> some View {
         Section("Live-Daten") {
             if let reading {
                 switch reading.payload {
@@ -175,11 +175,22 @@ struct DeviceDetailView: View {
                 case let .solarCharger(payload):
                     solarRows(payload)
                 }
+            } else if supportStatus(for: device) == .plannedPhase37 {
+                StromerEmptyStateView(
+                    iconSystemName: "clock.arrow.circlepath",
+                    title: "Decoding folgt",
+                    description: "Dieses Gerät ist registriert. Live-Werte erscheinen nach einem späteren Decoder-Update."
+                )
             } else {
-                ContentUnavailableView(
-                    "Noch keine Live-Daten",
-                    systemImage: "wave.3.right",
-                    description: Text("Sobald ein passendes Advertisement empfangen wird, erscheinen hier die Werte.")
+                StromerEmptyStateView(
+                    iconSystemName: "wave.3.right",
+                    title: "Noch keine Live-Daten",
+                    description: "Sobald Stromer ein passendes Advertisement empfängt, erscheinen hier die Werte.",
+                    action: .init(label: "Scanner neu starten") {
+                        Task {
+                            await appModel.restartScanner()
+                        }
+                    }
                 )
             }
         }
@@ -341,6 +352,28 @@ struct DeviceDetailView: View {
             return "Noch nicht empfangen"
         }
         return "\(rssi) dBm"
+    }
+
+    private func supportStatus(for device: RegisteredDevice) -> DiscoverySupportStatus {
+        if let productID = device.productID, let recordType = device.recordType {
+            return VictronProductCatalog.supportStatus(
+                productID: productID,
+                recordType: recordType
+            )
+        }
+
+        if let recordType = device.recordType {
+            return VictronProductCatalog.supportStatus(
+                productID: 0,
+                recordType: recordType
+            )
+        }
+
+        if let productID = device.productID {
+            return VictronProductCatalog.lookup(productID: productID)?.supportStatus ?? .supported
+        }
+
+        return .supported
     }
 }
 

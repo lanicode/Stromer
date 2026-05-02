@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0298A0695E5F1BD088D419D9 /* StromerEmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B263956F8D02B856BA0CBDB2 /* StromerEmptyStateView.swift */; };
 		15D61745C661404443ADCB4F /* OnboardingPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C328EC667A5C6DDFEC7AD85 /* OnboardingPageView.swift */; };
 		200000000000000000000001 /* VictronParser in Frameworks */ = {isa = PBXBuildFile; productRef = 800000000000000000000001 /* VictronParser */; };
 		200000000000000000000002 /* StromerScanner in Frameworks */ = {isa = PBXBuildFile; productRef = 800000000000000000000002 /* StromerScanner */; };
@@ -94,6 +95,7 @@
 		7DDFB4397D0034784E2DEF1B /* OnboardingStateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnboardingStateTests.swift; sourceTree = "<group>"; };
 		941D923D1EBAD56298D15DD8 /* OnboardingFlowView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnboardingFlowView.swift; sourceTree = "<group>"; };
 		969D475A7A6BA8912B29277E /* StromerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StromerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B263956F8D02B856BA0CBDB2 /* StromerEmptyStateView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StromerEmptyStateView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -181,6 +183,7 @@
 				00000000000000000000000B /* Settings */,
 				00000000000000000000000C /* Components */,
 				84553AD0E91CD64A4C024483 /* Onboarding */,
+				9BEBF1FE6C387CCAA67D6B6A /* Shared */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -265,6 +268,15 @@
 			);
 			name = Onboarding;
 			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		9BEBF1FE6C387CCAA67D6B6A /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				B263956F8D02B856BA0CBDB2 /* StromerEmptyStateView.swift */,
+			);
+			name = Shared;
+			path = Shared;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -436,6 +448,7 @@
 				AAF81BD3B440D4ECEF94F53F /* OnboardingBluetoothPage.swift in Sources */,
 				C598E21F6A907BB1A1BEAFFA /* OnboardingKeyGuideView.swift in Sources */,
 				BB3C153B8C242DEFA8C726D8 /* OnboardingState.swift in Sources */,
+				0298A0695E5F1BD088D419D9 /* StromerEmptyStateView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
