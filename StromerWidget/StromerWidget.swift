@@ -27,7 +27,7 @@ struct StromerWidgetProvider: AppIntentTimelineProvider {
         for configuration: StromerWidgetConfigurationIntent,
         in context: Context
     ) async -> Timeline<StromerWidgetEntry> {
-        let maxDevices = context.family == .systemMedium ? 2 : 1
+        let maxDevices = context.family == .systemMedium ? 3 : 1
         let selectedID = configuration.device?.uuid
 
         do {
@@ -55,7 +55,7 @@ struct StromerWidgetProvider: AppIntentTimelineProvider {
         for configuration: StromerWidgetConfigurationIntent,
         family: WidgetFamily
     ) -> StromerWidgetEntry {
-        let maxDevices = family == .systemMedium ? 2 : 1
+        let maxDevices = family == .systemMedium ? 3 : 1
         let selectedID = configuration.device?.uuid
         let snapshot = (try? StromerWidgetSnapshotProvider.appGroup()
             .snapshot(selectedDeviceID: selectedID, maxDevices: maxDevices))
@@ -84,7 +84,9 @@ struct StromerWidgetView: View {
                 smallWidget
             }
         }
-        .containerBackground(.fill.tertiary, for: .widget)
+        .containerBackground(for: .widget) {
+            widgetBackground
+        }
     }
 
     private var firstDevice: StromerWidgetDeviceSnapshot? {
@@ -96,13 +98,29 @@ struct StromerWidgetView: View {
     }
 
     @ViewBuilder
+    private var widgetBackground: some View {
+        switch family {
+        case .systemSmall:
+            if firstDevice?.boltKind == .solar {
+                Color.boltInk
+            } else {
+                BoltWidgetBackground()
+            }
+        case .systemMedium:
+            BoltWidgetBackground()
+        default:
+            Color.clear
+        }
+    }
+
+    @ViewBuilder
     private var smallWidget: some View {
         if let device = firstDevice {
-            DeviceWidgetTile(device: device, compact: false)
-                .padding()
+            DeviceWidgetTile(device: device)
+                .padding(14)
         } else {
             WidgetEmptyStateView(status: entry.snapshot.status, compact: false)
-                .padding()
+                .padding(14)
         }
     }
 
@@ -110,18 +128,10 @@ struct StromerWidgetView: View {
     private var mediumWidget: some View {
         if entry.snapshot.status != .ready || entry.snapshot.devices.isEmpty {
             WidgetEmptyStateView(status: entry.snapshot.status, compact: false)
-                .padding()
+                .padding(14)
         } else {
-            HStack(spacing: 12) {
-                ForEach(entry.snapshot.devices.prefix(2)) { device in
-                    DeviceWidgetTile(device: device, compact: true)
-
-                    if device.id != entry.snapshot.devices.prefix(2).last?.id {
-                        Divider()
-                    }
-                }
-            }
-            .padding()
+            MediumHeroWidget(devices: Array(entry.snapshot.devices.prefix(3)))
+                .padding(14)
         }
     }
 
@@ -131,10 +141,15 @@ struct StromerWidgetView: View {
             ZStack {
                 AccessoryWidgetBackground()
                 VStack(spacing: 2) {
-                    Image(systemName: device.deviceTypeIcon)
-                        .font(.caption2)
+                    BoltWidgetGlyph(
+                        size: 11,
+                        fillColor: .primary,
+                        strokeColor: .clear,
+                        strokeWidth: 0
+                    )
                     Text("\(device.mainValue)\(device.mainUnit)")
-                        .font(.system(size: 13, weight: .semibold, design: .rounded))
+                        .font(.system(size: 13, weight: .heavy))
+                        .monospacedDigit()
                         .minimumScaleFactor(0.72)
                         .lineLimit(1)
                 }
@@ -153,13 +168,13 @@ struct StromerWidgetView: View {
         if let device = firstDevice {
             VStack(alignment: .leading, spacing: 2) {
                 Text(device.name)
-                    .font(.caption.weight(.semibold))
+                    .font(.caption.weight(.bold))
                     .lineLimit(1)
                 Text("\(device.mainValue) \(device.mainUnit)")
-                    .font(.headline.monospacedDigit())
+                    .font(.headline.monospacedDigit().weight(.heavy))
                     .lineLimit(1)
                 Text(device.secondary)
-                    .font(.caption2)
+                    .font(.caption2.monospaced())
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
@@ -172,75 +187,246 @@ struct StromerWidgetView: View {
     @ViewBuilder
     private var inlineAccessory: some View {
         if let device = firstDevice {
-            Text("\(device.name): \(device.mainValue) \(device.mainUnit)")
+            Text("Stromer · \(device.mainValue) \(device.mainUnit) · \(device.relativeLastUpdated)")
         } else {
-            Text("Stromer: \(WidgetEmptyStateContent(status: entry.snapshot.status).title)")
+            Text("Stromer · \(WidgetEmptyStateContent(status: entry.snapshot.status).title)")
         }
+    }
+}
+
+private struct MediumHeroWidget: View {
+    let devices: [StromerWidgetDeviceSnapshot]
+
+    private var aggregate: AggregateValue {
+        let percentages = devices
+            .filter { $0.mainUnit == "%" }
+            .compactMap(\.numericMainValue)
+
+        if !percentages.isEmpty {
+            let average = percentages.reduce(0, +) / Double(percentages.count)
+            return AggregateValue(
+                value: average.formatted(.number.precision(.fractionLength(0))),
+                unit: "%",
+                label: "Gesamtladung",
+                marker: min(max(average / 100, 0), 1)
+            )
+        }
+
+        if let first = devices.first {
+            return AggregateValue(
+                value: first.mainValue,
+                unit: first.mainUnit,
+                label: first.mainLabel,
+                marker: nil
+            )
+        }
+
+        return AggregateValue(value: "--", unit: "", label: "Stromer", marker: nil)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 6) {
+                BoltWidgetSLockup(size: 18)
+                Text("Stromer".uppercased())
+                    .font(.system(size: 9, weight: .bold))
+                    .tracking(3.0)
+                    .foregroundStyle(Color.boltInk)
+
+                Spacer()
+
+                freshnessStrip
+            }
+
+            HStack(alignment: .lastTextBaseline, spacing: 4) {
+                Text(aggregate.value)
+                    .font(.system(size: 48, weight: .heavy))
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.65)
+                Text(aggregate.unit)
+                    .font(.system(size: 20, weight: .heavy))
+                    .foregroundStyle(Color.boltTeal)
+            }
+            .foregroundStyle(Color.boltInk)
+
+            Text(aggregate.label.uppercased())
+                .font(.system(size: 9, weight: .heavy))
+                .tracking(1.5)
+                .foregroundStyle(Color.boltInkSoft)
+
+            WidgetHorizonLine(marker: aggregate.marker)
+                .frame(height: 14)
+
+            HStack(alignment: .top, spacing: 10) {
+                ForEach(devices.prefix(3)) { device in
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(device.name.uppercased())
+                            .font(.system(size: 8, weight: .heavy))
+                            .tracking(0.7)
+                            .foregroundStyle(Color.boltInkSoft)
+                            .lineLimit(1)
+                        Text("\(device.mainValue) \(device.mainUnit)")
+                            .font(.system(size: 13, weight: .heavy))
+                            .monospacedDigit()
+                            .foregroundStyle(Color.boltInk)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.65)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .boltWidgetCornerNotch(size: 18)
+    }
+
+    private var freshnessStrip: some View {
+        HStack(spacing: 3) {
+            ForEach(devices.prefix(3)) { device in
+                Rectangle()
+                    .fill(device.freshness.boltWidgetColor)
+                    .frame(width: 6, height: 6)
+            }
+        }
+    }
+
+    private struct AggregateValue {
+        let value: String
+        let unit: String
+        let label: String
+        let marker: Double?
     }
 }
 
 private struct DeviceWidgetTile: View {
     let device: StromerWidgetDeviceSnapshot
-    let compact: Bool
+
+    private var isSolar: Bool {
+        device.boltKind == .solar
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: compact ? 7 : 10) {
-            HStack(spacing: 6) {
-                Image(systemName: device.deviceTypeIcon)
-                    .foregroundStyle(.tint)
-                Text(device.name)
-                    .font(.caption.weight(.semibold))
-                    .lineLimit(1)
-            }
+        VStack(alignment: .leading, spacing: 8) {
+            header
 
             Spacer(minLength: 0)
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text(device.mainLabel)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+            valueBlock
 
-                HStack(alignment: .firstTextBaseline, spacing: 3) {
-                    Text(device.mainValue)
-                        .font(.system(size: compact ? 28 : 36, weight: .semibold, design: .rounded))
-                        .monospacedDigit()
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.6)
-                    Text(device.mainUnit)
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                }
+            if isSolar {
+                BoltWidgetSpark(values: sparkValues, color: .boltYellow)
+                    .frame(height: 15)
+            } else {
+                WidgetHorizonLine(marker: marker)
+                    .frame(height: 14)
             }
 
-            Text(device.secondary)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-
             HStack(spacing: 5) {
-                Circle()
-                    .fill(color(for: device.freshness))
+                Rectangle()
+                    .fill(device.freshness.boltWidgetColor)
                     .frame(width: 6, height: 6)
-                Text(device.relativeLastUpdated)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+                Text(device.relativeLastUpdated.uppercased())
+                    .font(.system(size: 8, weight: .heavy))
+                    .tracking(0.8)
+                    .foregroundStyle(isSolar ? Color.boltCream.opacity(0.62) : Color.boltInkSoft)
                     .lineLimit(1)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .opacity(device.isDimmed ? 0.55 : 1)
+        .boltWidgetCornerNotch(size: isSolar ? 16 : 0, color: isSolar ? .boltYellow : .clear)
     }
 
-    private func color(for freshness: DeviceFreshness) -> Color {
-        switch freshness {
-        case .fresh:
-            return .green
-        case .delayed:
-            return .yellow
-        case .stale:
-            return .orange
-        case .missing:
-            return .red
+    private var header: some View {
+        HStack(spacing: 6) {
+            if isSolar {
+                Text("Solar".uppercased())
+                    .font(.system(size: 8, weight: .heavy))
+                    .tracking(1.8)
+                    .foregroundStyle(Color.boltYellow)
+            } else {
+                BoltWidgetSLockup(size: 15)
+                Text(device.boltKind.shortLabel.uppercased())
+                    .font(.system(size: 8, weight: .heavy))
+                    .tracking(1.8)
+                    .foregroundStyle(Color.boltInkSoft)
+                    .lineLimit(1)
+            }
+            Spacer()
+        }
+    }
+
+    private var valueBlock: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(alignment: .firstTextBaseline, spacing: 3) {
+                Text(device.mainValue)
+                    .font(.system(size: 42, weight: .heavy))
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.55)
+                Text(device.mainUnit)
+                    .font(.system(size: 14, weight: .heavy))
+                    .foregroundStyle(isSolar ? Color.boltCream.opacity(0.62) : Color.boltTeal)
+            }
+
+            Text(labelTitle)
+                .font(.system(size: 8, weight: .heavy))
+                .tracking(1.4)
+                .foregroundStyle(isSolar ? Color.boltCream.opacity(0.62) : Color.boltInkSoft)
+                .lineLimit(1)
+        }
+        .foregroundStyle(isSolar ? Color.boltCream : Color.boltInk)
+    }
+
+    private var labelTitle: String {
+        switch device.boltKind {
+        case .battery:
+            return "LADESTAND"
+        case .solar:
+            return "WATT JETZT"
+        case .dcDc:
+            return device.mainLabel.uppercased().contains("EINGANG") ? "EINGANG" : "AUSGANG"
+        case .other:
+            return device.mainLabel.uppercased()
+        }
+    }
+
+    private var marker: Double? {
+        guard device.mainUnit == "%", let value = device.numericMainValue else {
+            return nil
+        }
+
+        return min(max(value / 100, 0), 1)
+    }
+
+    private var sparkValues: [Double] {
+        guard let value = device.numericMainValue else {
+            return []
+        }
+
+        return [value * 0.72, value * 0.84, value * 0.78, value * 0.93, value]
+    }
+}
+
+private struct WidgetHorizonLine: View {
+    let marker: Double?
+
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack(alignment: .leading) {
+                Rectangle()
+                    .fill(Color.boltInk)
+                    .frame(height: 2)
+
+                if let marker {
+                    BoltWidgetGlyph(size: 10)
+                        .position(
+                            x: max(6, min(geometry.size.width - 6, geometry.size.width * marker)),
+                            y: geometry.size.height / 2
+                        )
+                }
+            }
         }
     }
 }
@@ -254,21 +440,35 @@ private struct WidgetEmptyStateView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: compact ? 3 : 8) {
-            Image(systemName: content.iconSystemName)
-                .font(compact ? .caption : .title2)
-                .foregroundStyle(.tint)
+        VStack(alignment: compact ? .leading : .center, spacing: compact ? 4 : 9) {
+            if compact {
+                Image(systemName: content.iconSystemName)
+                    .font(.caption.weight(.bold))
+            } else {
+                BoltWidgetSLockup(size: 24)
+            }
 
-            Text(content.title)
-                .font(compact ? .caption.weight(.semibold) : .headline)
-                .lineLimit(compact ? 1 : 2)
+            Text("Stromer".uppercased())
+                .font(.system(size: compact ? 8 : 9, weight: .heavy))
+                .tracking(compact ? 1.2 : 2.4)
+                .foregroundStyle(Color.boltInkSoft)
 
-            Text(content.description)
-                .font(compact ? .caption2 : .caption)
-                .foregroundStyle(.secondary)
+            Text(content.title.uppercased())
+                .font(.system(size: compact ? 11 : 12, weight: .heavy))
+                .tracking(compact ? 0.6 : 1.2)
+                .foregroundStyle(Color.boltTeal)
                 .lineLimit(compact ? 2 : 3)
+                .multilineTextAlignment(compact ? .leading : .center)
+
+            if !compact {
+                Text(content.description)
+                    .font(.caption2)
+                    .foregroundStyle(Color.boltInkSoft)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(3)
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: compact ? .leading : .center)
     }
 }
 
@@ -281,11 +481,11 @@ private struct WidgetEmptyStateContent {
         switch status {
         case .ready, .noDevices:
             iconSystemName = "plus.circle"
-            title = "Gerät hinzufügen"
+            title = "+ Gerät hinzufügen"
             description = "Öffne Stromer und registriere ein Victron-Gerät."
         case .deviceMissing:
             iconSystemName = "questionmark.circle"
-            title = "Gerät nicht mehr vorhanden"
+            title = "Gerät nicht gefunden"
             description = "Wähle in der Widget-Konfiguration ein anderes Gerät."
         }
     }
