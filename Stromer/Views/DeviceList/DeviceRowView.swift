@@ -113,7 +113,7 @@ struct DeviceRowView: View {
     private var iconForeground: Color {
         switch kind {
         case .solar:
-            return .boltInk
+            return .boltInkFixed
         case .battery, .dcDc, .unknown:
             return .boltCream
         }
