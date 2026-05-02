@@ -4,7 +4,6 @@ import Foundation
 import Observation
 import StromerScanner
 import VictronParser
-import WidgetKit
 
 enum BluetoothAuthorizationStatus: Equatable {
     case allowed
@@ -95,6 +94,7 @@ final class StromerAppViewModel {
     @ObservationIgnored private let keychainStore: any KeychainStoring
     @ObservationIgnored private let scannerService: ScannerService
     @ObservationIgnored private let liveActivityService: LiveActivityService<ActivityKitActivityClient>
+    @ObservationIgnored let widgetRefreshCoordinator: WidgetRefreshCoordinator
     @ObservationIgnored private let deviceSnapshotStore: (any RegisteredDeviceSnapshotStoring)?
     @ObservationIgnored private let metadataDefaults: UserDefaults
     @ObservationIgnored private var monitorTask: Task<Void, Never>?
@@ -110,15 +110,18 @@ final class StromerAppViewModel {
         discoveryStore: DiscoveryStore,
         keychainStore: any KeychainStoring,
         liveActivityService: LiveActivityService<ActivityKitActivityClient>,
+        widgetRefreshCoordinator: WidgetRefreshCoordinator? = nil,
         deviceSnapshotStore: (any RegisteredDeviceSnapshotStoring)?,
         metadataDefaults: UserDefaults,
         initialErrorMessage: String? = nil
     ) {
+        let widgetRefreshCoordinator = widgetRefreshCoordinator ?? WidgetRefreshCoordinator()
         self.registry = registry
         self.store = store
         self.discoveryStore = discoveryStore
         self.keychainStore = keychainStore
         self.liveActivityService = liveActivityService
+        self.widgetRefreshCoordinator = widgetRefreshCoordinator
         self.deviceSnapshotStore = deviceSnapshotStore
         self.metadataDefaults = metadataDefaults
         self.scannerService = ScannerService(
@@ -127,7 +130,7 @@ final class StromerAppViewModel {
             store: store,
             discoveryStore: discoveryStore,
             onReadingUpdated: { _ in
-                WidgetCenter.shared.reloadAllTimelines()
+                widgetRefreshCoordinator.requestReload(reason: .reading)
             }
         )
         self.lastErrorMessage = initialErrorMessage
@@ -311,7 +314,7 @@ final class StromerAppViewModel {
             refreshLiveActivityState()
         }
         registeredDevices = registry.devices
-        persistRegisteredDevices()
+        persistRegisteredDevices(reloadReason: .deviceDeleted)
         refreshRuntimeState()
     }
 
@@ -485,7 +488,9 @@ final class StromerAppViewModel {
         }
     }
 
-    private func persistRegisteredDevices() {
+    private func persistRegisteredDevices(
+        reloadReason: WidgetRefreshCoordinator.ReloadReason = .deviceRegistered
+    ) {
         do {
             let snapshots = registry.devices.map(RegisteredDeviceSnapshot.init)
             if let deviceSnapshotStore {
@@ -495,7 +500,7 @@ final class StromerAppViewModel {
                 let data = try JSONEncoder().encode(metadata)
                 metadataDefaults.set(data, forKey: metadataKey)
             }
-            WidgetCenter.shared.reloadAllTimelines()
+            widgetRefreshCoordinator.requestReload(reason: reloadReason)
         } catch {
             lastErrorMessage = "Registrierte Geräte konnten nicht gespeichert werden."
         }
