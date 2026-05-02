@@ -101,11 +101,7 @@ struct StromerWidgetView: View {
     private var widgetBackground: some View {
         switch family {
         case .systemSmall:
-            if firstDevice?.boltKind == .solar {
-                Color.boltInk
-            } else {
-                BoltWidgetBackground()
-            }
+            BoltWidgetBackground()
         case .systemMedium:
             BoltWidgetBackground()
         default:
@@ -329,7 +325,7 @@ private struct DeviceWidgetTile: View {
                 Text(device.relativeLastUpdated.uppercased())
                     .font(.system(size: 8, weight: .heavy))
                     .tracking(0.8)
-                    .foregroundStyle(isSolar ? Color.boltCream.opacity(0.62) : Color.boltInkSoft)
+                    .foregroundStyle(Color.boltInkSoft)
                     .lineLimit(1)
             }
         }
@@ -344,7 +340,7 @@ private struct DeviceWidgetTile: View {
                 Text("Solar".uppercased())
                     .font(.system(size: 8, weight: .heavy))
                     .tracking(1.8)
-                    .foregroundStyle(Color.boltYellow)
+                    .foregroundStyle(Color.boltTealDeep)
             } else {
                 BoltWidgetSLockup(size: 15)
                 Text(device.boltKind.shortLabel.uppercased())
@@ -367,16 +363,16 @@ private struct DeviceWidgetTile: View {
                     .minimumScaleFactor(0.55)
                 Text(device.mainUnit)
                     .font(.system(size: 14, weight: .heavy))
-                    .foregroundStyle(isSolar ? Color.boltCream.opacity(0.62) : Color.boltTeal)
+                    .foregroundStyle(Color.boltTeal)
             }
 
             Text(labelTitle)
                 .font(.system(size: 8, weight: .heavy))
                 .tracking(1.4)
-                .foregroundStyle(isSolar ? Color.boltCream.opacity(0.62) : Color.boltInkSoft)
+                .foregroundStyle(Color.boltInkSoft)
                 .lineLimit(1)
         }
-        .foregroundStyle(isSolar ? Color.boltCream : Color.boltInk)
+        .foregroundStyle(Color.boltInk)
     }
 
     private var labelTitle: String {
