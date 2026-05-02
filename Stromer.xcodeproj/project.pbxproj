@@ -32,10 +32,13 @@
 		200000000000000000000015 /* EmptyDeviceListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000017 /* EmptyDeviceListView.swift */; };
 		200000000000000000000016 /* StromerWidgetConfigurationIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000018 /* StromerWidgetConfigurationIntent.swift */; };
 		243F499BED506947D34B2B17 /* OnboardingStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DDFB4397D0034784E2DEF1B /* OnboardingStateTests.swift */; };
+		71AD9C16ABDB2323C92B1BF4 /* WidgetRefreshCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED145DA6C288D9AE130B0A4E /* WidgetRefreshCoordinatorTests.swift */; };
 		A0B6896F2FDAA041290684E0 /* OnboardingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 671F07405AB4D8828EE7C272 /* OnboardingState.swift */; };
 		AAF81BD3B440D4ECEF94F53F /* OnboardingBluetoothPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B9974DAA355C30D4F945EED /* OnboardingBluetoothPage.swift */; };
+		B2A3DE64D5465D7C31EA401A /* WidgetRefreshCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A27C244D05E124D5F669F847 /* WidgetRefreshCoordinator.swift */; };
 		BB3C153B8C242DEFA8C726D8 /* OnboardingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 671F07405AB4D8828EE7C272 /* OnboardingState.swift */; };
 		C598E21F6A907BB1A1BEAFFA /* OnboardingKeyGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32CAF78FFB84109F050334CD /* OnboardingKeyGuideView.swift */; };
+		F454EF074DCC3F8E9827C9F8 /* WidgetRefreshCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A27C244D05E124D5F669F847 /* WidgetRefreshCoordinator.swift */; };
 		FDA54A3E3832AB816773191E /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 941D923D1EBAD56298D15DD8 /* OnboardingFlowView.swift */; };
 /* End PBXBuildFile section */
 
@@ -95,7 +98,9 @@
 		7DDFB4397D0034784E2DEF1B /* OnboardingStateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnboardingStateTests.swift; sourceTree = "<group>"; };
 		941D923D1EBAD56298D15DD8 /* OnboardingFlowView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnboardingFlowView.swift; sourceTree = "<group>"; };
 		969D475A7A6BA8912B29277E /* StromerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StromerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A27C244D05E124D5F669F847 /* WidgetRefreshCoordinator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WidgetRefreshCoordinator.swift; sourceTree = "<group>"; };
 		B263956F8D02B856BA0CBDB2 /* StromerEmptyStateView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StromerEmptyStateView.swift; sourceTree = "<group>"; };
+		ED145DA6C288D9AE130B0A4E /* WidgetRefreshCoordinatorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WidgetRefreshCoordinatorTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -156,6 +161,7 @@
 				100000000000000000000003 /* Info.plist */,
 				100000000000000000000004 /* Stromer.entitlements */,
 				100000000000000000000005 /* Assets.xcassets */,
+				563AFAC22DF8F726AD5DBDD8 /* Services */,
 			);
 			path = Stromer;
 			sourceTree = "<group>";
@@ -241,10 +247,20 @@
 			path = Components;
 			sourceTree = "<group>";
 		};
+		563AFAC22DF8F726AD5DBDD8 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A27C244D05E124D5F669F847 /* WidgetRefreshCoordinator.swift */,
+			);
+			name = Services;
+			path = Services;
+			sourceTree = "<group>";
+		};
 		6F75DA664C25546731FD1BD0 /* StromerTests */ = {
 			isa = PBXGroup;
 			children = (
 				7DDFB4397D0034784E2DEF1B /* OnboardingStateTests.swift */,
+				ED145DA6C288D9AE130B0A4E /* WidgetRefreshCoordinatorTests.swift */,
 			);
 			name = StromerTests;
 			path = StromerTests;
@@ -449,6 +465,7 @@
 				C598E21F6A907BB1A1BEAFFA /* OnboardingKeyGuideView.swift in Sources */,
 				BB3C153B8C242DEFA8C726D8 /* OnboardingState.swift in Sources */,
 				0298A0695E5F1BD088D419D9 /* StromerEmptyStateView.swift in Sources */,
+				B2A3DE64D5465D7C31EA401A /* WidgetRefreshCoordinator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -469,6 +486,8 @@
 			files = (
 				243F499BED506947D34B2B17 /* OnboardingStateTests.swift in Sources */,
 				A0B6896F2FDAA041290684E0 /* OnboardingState.swift in Sources */,
+				F454EF074DCC3F8E9827C9F8 /* WidgetRefreshCoordinator.swift in Sources */,
+				71AD9C16ABDB2323C92B1BF4 /* WidgetRefreshCoordinatorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
