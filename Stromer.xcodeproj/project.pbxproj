@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		15D61745C661404443ADCB4F /* OnboardingPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C328EC667A5C6DDFEC7AD85 /* OnboardingPageView.swift */; };
 		200000000000000000000001 /* VictronParser in Frameworks */ = {isa = PBXBuildFile; productRef = 800000000000000000000001 /* VictronParser */; };
 		200000000000000000000002 /* StromerScanner in Frameworks */ = {isa = PBXBuildFile; productRef = 800000000000000000000002 /* StromerScanner */; };
 		200000000000000000000003 /* StromerScanner in Frameworks */ = {isa = PBXBuildFile; productRef = 800000000000000000000003 /* StromerScanner */; };
@@ -15,7 +16,6 @@
 		200000000000000000000006 /* StromerWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000006 /* StromerWidgetBundle.swift */; };
 		200000000000000000000007 /* StromerWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000007 /* StromerWidget.swift */; };
 		200000000000000000000008 /* StromerWidgetLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000008 /* StromerWidgetLiveActivity.swift */; };
-		200000000000000000000016 /* StromerWidgetConfigurationIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000018 /* StromerWidgetConfigurationIntent.swift */; };
 		200000000000000000000009 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000005 /* Assets.xcassets */; };
 		20000000000000000000000A /* StromerWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 10000000000000000000000C /* StromerWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		20000000000000000000000B /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10000000000000000000000D /* RootView.swift */; };
@@ -29,6 +29,13 @@
 		200000000000000000000013 /* FreshnessBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000015 /* FreshnessBadge.swift */; };
 		200000000000000000000014 /* ValueRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000016 /* ValueRow.swift */; };
 		200000000000000000000015 /* EmptyDeviceListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000017 /* EmptyDeviceListView.swift */; };
+		200000000000000000000016 /* StromerWidgetConfigurationIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000018 /* StromerWidgetConfigurationIntent.swift */; };
+		243F499BED506947D34B2B17 /* OnboardingStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DDFB4397D0034784E2DEF1B /* OnboardingStateTests.swift */; };
+		A0B6896F2FDAA041290684E0 /* OnboardingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 671F07405AB4D8828EE7C272 /* OnboardingState.swift */; };
+		AAF81BD3B440D4ECEF94F53F /* OnboardingBluetoothPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B9974DAA355C30D4F945EED /* OnboardingBluetoothPage.swift */; };
+		BB3C153B8C242DEFA8C726D8 /* OnboardingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 671F07405AB4D8828EE7C272 /* OnboardingState.swift */; };
+		C598E21F6A907BB1A1BEAFFA /* OnboardingKeyGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32CAF78FFB84109F050334CD /* OnboardingKeyGuideView.swift */; };
+		FDA54A3E3832AB816773191E /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 941D923D1EBAD56298D15DD8 /* OnboardingFlowView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,7 +71,6 @@
 		100000000000000000000006 /* StromerWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StromerWidgetBundle.swift; sourceTree = "<group>"; };
 		100000000000000000000007 /* StromerWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StromerWidget.swift; sourceTree = "<group>"; };
 		100000000000000000000008 /* StromerWidgetLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StromerWidgetLiveActivity.swift; sourceTree = "<group>"; };
-		100000000000000000000018 /* StromerWidgetConfigurationIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StromerWidgetConfigurationIntent.swift; sourceTree = "<group>"; };
 		100000000000000000000009 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		10000000000000000000000A /* StromerWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = StromerWidget.entitlements; sourceTree = "<group>"; };
 		10000000000000000000000B /* Stromer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Stromer.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -80,6 +86,14 @@
 		100000000000000000000015 /* FreshnessBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreshnessBadge.swift; sourceTree = "<group>"; };
 		100000000000000000000016 /* ValueRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueRow.swift; sourceTree = "<group>"; };
 		100000000000000000000017 /* EmptyDeviceListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyDeviceListView.swift; sourceTree = "<group>"; };
+		100000000000000000000018 /* StromerWidgetConfigurationIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StromerWidgetConfigurationIntent.swift; sourceTree = "<group>"; };
+		32CAF78FFB84109F050334CD /* OnboardingKeyGuideView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnboardingKeyGuideView.swift; sourceTree = "<group>"; };
+		4C328EC667A5C6DDFEC7AD85 /* OnboardingPageView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnboardingPageView.swift; sourceTree = "<group>"; };
+		671F07405AB4D8828EE7C272 /* OnboardingState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnboardingState.swift; sourceTree = "<group>"; };
+		7B9974DAA355C30D4F945EED /* OnboardingBluetoothPage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnboardingBluetoothPage.swift; sourceTree = "<group>"; };
+		7DDFB4397D0034784E2DEF1B /* OnboardingStateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnboardingStateTests.swift; sourceTree = "<group>"; };
+		941D923D1EBAD56298D15DD8 /* OnboardingFlowView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnboardingFlowView.swift; sourceTree = "<group>"; };
+		969D475A7A6BA8912B29277E /* StromerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StromerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,6 +114,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B6C492DD29333911E7667BFF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -109,6 +130,8 @@
 				000000000000000000000004 /* Stromer */,
 				000000000000000000000005 /* StromerWidget */,
 				000000000000000000000003 /* Products */,
+				8188454EC63F2F9EEB0607FA /* Frameworks */,
+				6F75DA664C25546731FD1BD0 /* StromerTests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -117,6 +140,7 @@
 			children = (
 				10000000000000000000000B /* Stromer.app */,
 				10000000000000000000000C /* StromerWidget.appex */,
+				969D475A7A6BA8912B29277E /* StromerTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -156,6 +180,7 @@
 				00000000000000000000000A /* DeviceRegistration */,
 				00000000000000000000000B /* Settings */,
 				00000000000000000000000C /* Components */,
+				84553AD0E91CD64A4C024483 /* Onboarding */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -213,6 +238,35 @@
 			path = Components;
 			sourceTree = "<group>";
 		};
+		6F75DA664C25546731FD1BD0 /* StromerTests */ = {
+			isa = PBXGroup;
+			children = (
+				7DDFB4397D0034784E2DEF1B /* OnboardingStateTests.swift */,
+			);
+			name = StromerTests;
+			path = StromerTests;
+			sourceTree = "<group>";
+		};
+		8188454EC63F2F9EEB0607FA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		84553AD0E91CD64A4C024483 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				941D923D1EBAD56298D15DD8 /* OnboardingFlowView.swift */,
+				4C328EC667A5C6DDFEC7AD85 /* OnboardingPageView.swift */,
+				7B9974DAA355C30D4F945EED /* OnboardingBluetoothPage.swift */,
+				32CAF78FFB84109F050334CD /* OnboardingKeyGuideView.swift */,
+				671F07405AB4D8828EE7C272 /* OnboardingState.swift */,
+			);
+			name = Onboarding;
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -259,6 +313,23 @@
 			productReference = 10000000000000000000000C /* StromerWidget.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		3A3D6FC65A819F106726238E /* StromerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BDC653ADFCC5671DCE9CCD0E /* Build configuration list for PBXNativeTarget "StromerTests" */;
+			buildPhases = (
+				FDD40A7CBE48DCBC805881A9 /* Sources */,
+				B6C492DD29333911E7667BFF /* Frameworks */,
+				AC10BA714DD2DEC9FC5614BE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = StromerTests;
+			productName = StromerTests;
+			productReference = 969D475A7A6BA8912B29277E /* StromerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -303,8 +374,8 @@
 			);
 			mainGroup = 000000000000000000000002;
 			packageReferences = (
-				700000000000000000000001 /* XCLocalSwiftPackageReference "Packages/VictronParser" */,
-				700000000000000000000002 /* XCLocalSwiftPackageReference "Packages/StromerScanner" */,
+				700000000000000000000001 /* XCLocalSwiftPackageReference "VictronParser" */,
+				700000000000000000000002 /* XCLocalSwiftPackageReference "StromerScanner" */,
 			);
 			productRefGroup = 000000000000000000000003 /* Products */;
 			projectDirPath = "";
@@ -312,6 +383,7 @@
 			targets = (
 				300000000000000000000001 /* Stromer */,
 				300000000000000000000002 /* StromerWidget */,
+				3A3D6FC65A819F106726238E /* StromerTests */,
 			);
 		};
 /* End PBXProject section */
@@ -326,6 +398,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		400000000000000000000007 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AC10BA714DD2DEC9FC5614BE /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -352,6 +431,11 @@
 				200000000000000000000013 /* FreshnessBadge.swift in Sources */,
 				200000000000000000000014 /* ValueRow.swift in Sources */,
 				200000000000000000000015 /* EmptyDeviceListView.swift in Sources */,
+				FDA54A3E3832AB816773191E /* OnboardingFlowView.swift in Sources */,
+				15D61745C661404443ADCB4F /* OnboardingPageView.swift in Sources */,
+				AAF81BD3B440D4ECEF94F53F /* OnboardingBluetoothPage.swift in Sources */,
+				C598E21F6A907BB1A1BEAFFA /* OnboardingKeyGuideView.swift in Sources */,
+				BB3C153B8C242DEFA8C726D8 /* OnboardingState.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -366,6 +450,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FDD40A7CBE48DCBC805881A9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				243F499BED506947D34B2B17 /* OnboardingStateTests.swift in Sources */,
+				A0B6896F2FDAA041290684E0 /* OnboardingState.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -377,6 +470,25 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		21D44D465B7B516D8D527C97 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4MF278NA29;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lanicode.StromerApp.Tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_STRICT_CONCURRENCY = targeted;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		600000000000000000000001 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -617,6 +729,26 @@
 			};
 			name = Release;
 		};
+		6E09258852628A9DEA77F2EE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4MF278NA29;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lanicode.StromerApp.Tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_STRICT_CONCURRENCY = targeted;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -647,14 +779,23 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		BDC653ADFCC5671DCE9CCD0E /* Build configuration list for PBXNativeTarget "StromerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6E09258852628A9DEA77F2EE /* Release */,
+				21D44D465B7B516D8D527C97 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		700000000000000000000001 /* XCLocalSwiftPackageReference "Packages/VictronParser" */ = {
+		700000000000000000000001 /* XCLocalSwiftPackageReference "VictronParser" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/VictronParser;
 		};
-		700000000000000000000002 /* XCLocalSwiftPackageReference "Packages/StromerScanner" */ = {
+		700000000000000000000002 /* XCLocalSwiftPackageReference "StromerScanner" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/StromerScanner;
 		};
@@ -663,17 +804,17 @@
 /* Begin XCSwiftPackageProductDependency section */
 		800000000000000000000001 /* VictronParser */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 700000000000000000000001 /* XCLocalSwiftPackageReference "Packages/VictronParser" */;
+			package = 700000000000000000000001 /* XCLocalSwiftPackageReference "VictronParser" */;
 			productName = VictronParser;
 		};
 		800000000000000000000002 /* StromerScanner */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 700000000000000000000002 /* XCLocalSwiftPackageReference "Packages/StromerScanner" */;
+			package = 700000000000000000000002 /* XCLocalSwiftPackageReference "StromerScanner" */;
 			productName = StromerScanner;
 		};
 		800000000000000000000003 /* StromerScanner */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 700000000000000000000002 /* XCLocalSwiftPackageReference "Packages/StromerScanner" */;
+			package = 700000000000000000000002 /* XCLocalSwiftPackageReference "StromerScanner" */;
 			productName = StromerScanner;
 		};
 /* End XCSwiftPackageProductDependency section */

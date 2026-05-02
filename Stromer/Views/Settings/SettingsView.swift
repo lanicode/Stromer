@@ -4,6 +4,7 @@ import UIKit
 
 struct SettingsView: View {
     @Environment(StromerAppViewModel.self) private var appModel
+    @Environment(OnboardingState.self) private var onboardingState
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
 
@@ -74,6 +75,13 @@ struct SettingsView: View {
                     )
                 } label: {
                     Label("Open-Source-Lizenzen", systemImage: "doc.text")
+                }
+
+                Button {
+                    onboardingState.reset()
+                    dismiss()
+                } label: {
+                    Label("Onboarding erneut anzeigen", systemImage: "questionmark.circle")
                 }
             }
         }
