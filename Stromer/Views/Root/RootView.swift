@@ -27,7 +27,7 @@ struct RootView: View {
         .onChange(of: scenePhase) { _, newPhase in
             switch newPhase {
             case .active:
-                appViewModel.widgetRefreshCoordinator.requestReload(reason: .foreground)
+                break
             case .background:
                 appViewModel.widgetRefreshCoordinator.requestReload(reason: .background)
             case .inactive:
