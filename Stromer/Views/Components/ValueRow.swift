@@ -86,6 +86,28 @@ enum DevicePresentation {
                     unit: "Wh"
                 )
             }
+        case let .dcDcConverter(payload):
+            if let outputVoltage = payload.outputVoltage {
+                return PrimaryReadingValue(
+                    label: "Ausgangsspannung",
+                    value: number(outputVoltage, digits: 2),
+                    unit: "V"
+                )
+            }
+            if let inputVoltage = payload.inputVoltage {
+                return PrimaryReadingValue(
+                    label: "Eingangsspannung",
+                    value: number(inputVoltage, digits: 2),
+                    unit: "V"
+                )
+            }
+            if payload.chargeStateRaw != nil {
+                return PrimaryReadingValue(
+                    label: "Status",
+                    value: chargerStateTitle(payload.chargeStateRaw),
+                    unit: nil
+                )
+            }
         }
 
         return PrimaryReadingValue(label: "Live-Wert", value: "Keine Daten", unit: nil)
@@ -108,12 +130,16 @@ enum DevicePresentation {
             return "battery.100.bolt"
         case .solarCharger:
             return "sun.max.fill"
+        case .dcDcConverter:
+            return "arrow.left.arrow.right.circle.fill"
         case nil:
             switch device.recordType {
             case 0x02:
                 return "battery.100.bolt"
             case 0x01:
                 return "sun.max.fill"
+            case 0x04:
+                return "arrow.left.arrow.right.circle.fill"
             default:
                 return "dot.radiowaves.left.and.right"
             }
@@ -126,12 +152,16 @@ enum DevicePresentation {
             return "SmartShunt / BMV"
         case .solarCharger:
             return "SmartSolar / MPPT"
+        case .dcDcConverter:
+            return "Orion Smart"
         case nil:
             switch device.recordType {
             case 0x02:
                 return "SmartShunt / BMV"
             case 0x01:
                 return "SmartSolar / MPPT"
+            case 0x04:
+                return "Orion Smart"
             default:
                 return "Victron Gerät"
             }
@@ -168,6 +198,10 @@ enum DevicePresentation {
 
     static func hex(_ value: UInt16) -> String {
         "0x" + String(value, radix: 16, uppercase: true)
+    }
+
+    static func hex(_ value: UInt32) -> String {
+        "0x" + String(format: "%08X", value)
     }
 
     static func chargerStateTitle(_ rawValue: UInt8?) -> String {
@@ -249,5 +283,9 @@ enum DevicePresentation {
         case nil:
             return "Unbekannt"
         }
+    }
+
+    static func dcDcOffReasonTitle(rawValue: UInt32) -> String {
+        DcDcOffReason(rawValue: rawValue).knownName ?? hex(rawValue)
     }
 }

@@ -57,6 +57,8 @@ struct DeviceRowView: View {
             return .green
         case .solarCharger:
             return .orange
+        case .dcDcConverter:
+            return .teal
         case nil:
             return .accentColor
         }

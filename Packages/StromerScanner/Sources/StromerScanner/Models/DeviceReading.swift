@@ -4,6 +4,7 @@ import VictronParser
 public enum DeviceReadingKind: String, Codable, Equatable, Sendable {
     case solarCharger
     case batteryMonitor
+    case dcDcConverter
 }
 
 public struct SolarChargerReading: Codable, Equatable, Sendable {
@@ -29,9 +30,18 @@ public struct BatteryMonitorReading: Codable, Equatable, Sendable {
     public let soc: Double?
 }
 
+public struct DcDcConverterReading: Codable, Equatable, Sendable {
+    public let chargeStateRaw: UInt8?
+    public let chargerErrorCode: UInt8?
+    public let inputVoltage: Double?
+    public let outputVoltage: Double?
+    public let offReasonRaw: UInt32
+}
+
 public enum DeviceReadingPayload: Codable, Equatable, Sendable {
     case solarCharger(SolarChargerReading)
     case batteryMonitor(BatteryMonitorReading)
+    case dcDcConverter(DcDcConverterReading)
 }
 
 public struct DeviceReading: Codable, Equatable, Identifiable, Sendable {
@@ -132,6 +142,26 @@ extension DeviceReading {
                     batteryCurrent: battery.batteryCurrent,
                     consumedAh: battery.consumedAh,
                     soc: battery.soc
+                ))
+            )
+        case let .dcDcConverter(dcDc):
+            self.init(
+                deviceID: device.id,
+                name: device.name,
+                localName: device.localName,
+                peripheralID: device.peripheralID,
+                productID: dcDc.productID.rawValue,
+                recordType: 0x04,
+                modelName: dcDc.modelName,
+                rssi: rssi,
+                timestamp: timestamp,
+                freshness: DeviceFreshness(lastSeenAt: timestamp, now: now),
+                payload: .dcDcConverter(DcDcConverterReading(
+                    chargeStateRaw: dcDc.chargeState?.rawValue,
+                    chargerErrorCode: dcDc.chargerErrorCode,
+                    inputVoltage: dcDc.inputVoltage,
+                    outputVoltage: dcDc.outputVoltage,
+                    offReasonRaw: dcDc.offReason.rawValue
                 ))
             )
         }

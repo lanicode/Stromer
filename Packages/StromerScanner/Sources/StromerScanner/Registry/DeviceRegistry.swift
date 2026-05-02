@@ -141,6 +141,8 @@ public final class DeviceRegistry {
             return 0x01
         case .batteryMonitor:
             return 0x02
+        case .dcDcConverter:
+            return 0x04
         }
     }
 }
