@@ -48,6 +48,15 @@ struct DeviceDetailView: View {
                         actions(reading: reading)
                             .padding(.horizontal, 18)
 
+                        if let historyKind = historyKind(for: device, reading: reading) {
+                            DeviceHistorySection(
+                                deviceID: device.id,
+                                kind: historyKind,
+                                historyStore: appModel.historyStore
+                            )
+                            .padding(.horizontal, 18)
+                        }
+
                         footerMeta(device: device, reading: reading)
                             .padding(.horizontal, 18)
                     }
@@ -316,6 +325,37 @@ struct DeviceDetailView: View {
         switch reading.payload {
         case let .dcDcConverter(payload):
             return DevicePresentation.chargerStateTitle(payload.chargeStateRaw).uppercased()
+        default:
+            return nil
+        }
+    }
+
+    private func historyKind(for device: RegisteredDevice, reading: DeviceReading?) -> DeviceHistoryKind? {
+        switch supportStatus(for: device) {
+        case .plannedPhase37, .outOfScope:
+            return nil
+        case .supported:
+            break
+        }
+
+        switch reading?.payload {
+        case .batteryMonitor:
+            return .battery
+        case .solarCharger:
+            return .solar
+        case .dcDcConverter:
+            return .dcDc
+        case nil:
+            break
+        }
+
+        switch device.recordType {
+        case 0x02:
+            return .battery
+        case 0x01:
+            return .solar
+        case 0x04:
+            return .dcDc
         default:
             return nil
         }

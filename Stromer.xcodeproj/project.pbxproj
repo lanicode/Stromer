@@ -67,6 +67,10 @@
 		H4B000000000000000000003 /* DailyAggregate.swift in Sources */ = {isa = PBXBuildFile; fileRef = H4F000000000000000000003 /* DailyAggregate.swift */; };
 		H4B000000000000000000004 /* HistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = H4F000000000000000000004 /* HistoryStore.swift */; };
 		H4B000000000000000000005 /* SwiftDataHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = H4F000000000000000000005 /* SwiftDataHistoryStore.swift */; };
+		C4B000000000000000000001 /* ChartTimeRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4F000000000000000000001 /* ChartTimeRange.swift */; };
+		C4B000000000000000000002 /* BatteryChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4F000000000000000000002 /* BatteryChartView.swift */; };
+		C4B000000000000000000003 /* SolarChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4F000000000000000000003 /* SolarChartView.swift */; };
+		C4B000000000000000000004 /* DcDcChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4F000000000000000000004 /* DcDcChartView.swift */; };
 		H4C000000000000000000001 /* LiveReading.swift in Sources */ = {isa = PBXBuildFile; fileRef = H4F000000000000000000001 /* LiveReading.swift */; };
 		H4C000000000000000000002 /* MinuteAggregate.swift in Sources */ = {isa = PBXBuildFile; fileRef = H4F000000000000000000002 /* MinuteAggregate.swift */; };
 		H4C000000000000000000003 /* DailyAggregate.swift in Sources */ = {isa = PBXBuildFile; fileRef = H4F000000000000000000003 /* DailyAggregate.swift */; };
@@ -78,6 +82,7 @@
 		T4B000000000000000000002 /* HistoryStoreDebounceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T4F000000000000000000002 /* HistoryStoreDebounceTests.swift */; };
 		T4B000000000000000000003 /* AggregationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T4F000000000000000000003 /* AggregationTests.swift */; };
 		T4B000000000000000000004 /* DailyUpsertTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T4F000000000000000000004 /* DailyUpsertTests.swift */; };
+		C4T000000000000000000001 /* HistoryQueryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4F000000000000000000005 /* HistoryQueryTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -156,6 +161,11 @@
 		H4F000000000000000000003 /* DailyAggregate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DailyAggregate.swift; sourceTree = "<group>"; };
 		H4F000000000000000000004 /* HistoryStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HistoryStore.swift; sourceTree = "<group>"; };
 		H4F000000000000000000005 /* SwiftDataHistoryStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwiftDataHistoryStore.swift; sourceTree = "<group>"; };
+		C4F000000000000000000001 /* ChartTimeRange.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChartTimeRange.swift; sourceTree = "<group>"; };
+		C4F000000000000000000002 /* BatteryChartView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BatteryChartView.swift; sourceTree = "<group>"; };
+		C4F000000000000000000003 /* SolarChartView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SolarChartView.swift; sourceTree = "<group>"; };
+		C4F000000000000000000004 /* DcDcChartView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DcDcChartView.swift; sourceTree = "<group>"; };
+		C4F000000000000000000005 /* HistoryQueryTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HistoryQueryTests.swift; sourceTree = "<group>"; };
 		T4F000000000000000000001 /* LiveReadingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LiveReadingTests.swift; sourceTree = "<group>"; };
 		T4F000000000000000000002 /* HistoryStoreDebounceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HistoryStoreDebounceTests.swift; sourceTree = "<group>"; };
 		T4F000000000000000000003 /* AggregationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AggregationTests.swift; sourceTree = "<group>"; };
@@ -280,6 +290,7 @@
 			isa = PBXGroup;
 			children = (
 				100000000000000000000011 /* DeviceDetailView.swift */,
+				C4G000000000000000000001 /* Charts */,
 			);
 			path = DeviceDetail;
 			sourceTree = "<group>";
@@ -330,9 +341,21 @@
 				T4F000000000000000000002 /* HistoryStoreDebounceTests.swift */,
 				T4F000000000000000000003 /* AggregationTests.swift */,
 				T4F000000000000000000004 /* DailyUpsertTests.swift */,
+				C4F000000000000000000005 /* HistoryQueryTests.swift */,
 			);
 			name = StromerTests;
 			path = StromerTests;
+			sourceTree = "<group>";
+		};
+		C4G000000000000000000001 /* Charts */ = {
+			isa = PBXGroup;
+			children = (
+				C4F000000000000000000001 /* ChartTimeRange.swift */,
+				C4F000000000000000000002 /* BatteryChartView.swift */,
+				C4F000000000000000000003 /* SolarChartView.swift */,
+				C4F000000000000000000004 /* DcDcChartView.swift */,
+			);
+			path = Charts;
 			sourceTree = "<group>";
 		};
 		D1F00000000000000000000C /* DesignSystem */ = {
@@ -600,6 +623,10 @@
 				H4B000000000000000000003 /* DailyAggregate.swift in Sources */,
 				H4B000000000000000000004 /* HistoryStore.swift in Sources */,
 				H4B000000000000000000005 /* SwiftDataHistoryStore.swift in Sources */,
+				C4B000000000000000000001 /* ChartTimeRange.swift in Sources */,
+				C4B000000000000000000002 /* BatteryChartView.swift in Sources */,
+				C4B000000000000000000003 /* SolarChartView.swift in Sources */,
+				C4B000000000000000000004 /* DcDcChartView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -643,6 +670,7 @@
 				T4B000000000000000000002 /* HistoryStoreDebounceTests.swift in Sources */,
 				T4B000000000000000000003 /* AggregationTests.swift in Sources */,
 				T4B000000000000000000004 /* DailyUpsertTests.swift in Sources */,
+				C4T000000000000000000001 /* HistoryQueryTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
