@@ -1,12 +1,10 @@
 import StromerScanner
 import SwiftUI
-import UIKit
 
 struct SettingsView: View {
     @Environment(StromerAppViewModel.self) private var appModel
     @Environment(OnboardingState.self) private var onboardingState
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.openURL) private var openURL
     @State private var isShowingAddDevice = false
     @State private var isShowingLicenses = false
 
@@ -19,9 +17,6 @@ struct SettingsView: View {
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 22) {
-                        scannerStatusBlock
-                            .padding(.horizontal, 18)
-
                         bluetoothSection
                             .padding(.horizontal, 18)
 
@@ -111,44 +106,10 @@ struct SettingsView: View {
         .padding(.vertical, 10)
     }
 
-    private var scannerStatusBlock: some View {
-        HStack(spacing: 14) {
-            ZStack {
-                Rectangle()
-                    .fill(isScannerActive ? Color.boltTeal : Color.boltHair)
-                Image(systemName: "antenna.radiowaves.left.and.right")
-                    .font(.system(size: 17, weight: .bold))
-                    .foregroundStyle(isScannerActive ? Color.boltCream : Color.boltInkSoft)
-            }
-            .frame(width: 38, height: 38)
-
-            VStack(alignment: .leading, spacing: 3) {
-                BoltEyebrow("Bluetooth Scanner")
-                Text(isScannerActive ? "Aktiv · sucht Advertisements" : "Pausiert")
-                    .font(.system(size: 17, weight: .heavy))
-                    .foregroundStyle(Color.boltInk)
-                    .lineLimit(2)
-            }
-
-            Spacer(minLength: 12)
-
-            SettingsScannerSwitch(isOn: isScannerActive) {
-                Task {
-                    await toggleScanner()
-                }
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 16)
-        .background(Color.boltPaper)
-        .overlay(Rectangle().stroke(Color.boltHair, lineWidth: 1))
-        .boltCornerNotch(size: 22)
-    }
-
     private var bluetoothSection: some View {
         BoltSection(
             header: "Bluetooth",
-            footer: "Im Hintergrund empfängt iOS Victron-Advertisements opportunistisch. Stromer zeigt deshalb immer den letzten bekannten Wert mit Aktualitätsstatus."
+            footer: "Stromer empfängt Werte automatisch wenn deine Geräte in Reichweite sind. Keine Aktion nötig."
         ) {
             SettingsRow(title: "Berechtigung") {
                 StatusPill(
@@ -158,39 +119,8 @@ struct SettingsView: View {
                 )
             }
 
-            if appModel.bluetoothAuthorization.needsSettingsAction {
-                SettingsRow(
-                    title: "Einstellungen öffnen",
-                    iconSystemName: "gearshape",
-                    tint: .boltTeal
-                ) {
-                    if let url = URL(string: UIApplication.openSettingsURLString) {
-                        openURL(url)
-                    }
-                } trailing: {
-                    Image(systemName: "arrow.up.forward")
-                }
-            }
-
-            SettingsRow(title: "Scanner") {
-                Text(scannerStateTitle.uppercased())
-                    .font(.system(size: 12, weight: .heavy))
-                    .tracking(1.4)
-                    .foregroundStyle(scannerStateColor)
-            }
-
-            SettingsRow(
-                title: isScannerActive ? "Scanner stoppen" : "Scanner neu starten",
-                iconSystemName: isScannerActive ? "stop.fill" : "arrow.clockwise",
-                tint: .boltTeal,
-                isLast: true
-            ) {
-                Task {
-                    await toggleScanner()
-                }
-            } trailing: {
-                Image(systemName: "chevron.right")
-                    .font(.caption.weight(.bold))
+            SettingsRow(title: "Empfang", isLast: true) {
+                ReceptionStatusPill(status: appModel.receptionStatusObserver.status)
             }
         }
     }
@@ -325,7 +255,7 @@ struct SettingsView: View {
                     Text("Noch nichts eingerichtet")
                         .font(.system(size: 17, weight: .heavy))
                         .foregroundStyle(Color.boltInk)
-                    Text("Bluetooth-Status und Scanner-Steuerung sind bereit. Füge ein Gerät hinzu, um Live-Werte zu sehen.")
+                    Text("Bluetooth-Status ist bereit. Füge ein Gerät hinzu, um Live-Werte zu sehen.")
                         .font(.boltBody)
                         .foregroundStyle(Color.boltInkSoft)
                     BoltPrimary("Gerät hinzufügen", showsBolt: true) {
@@ -422,53 +352,12 @@ struct SettingsView: View {
         .frame(maxWidth: .infinity, alignment: .center)
     }
 
-    private var scannerStateTitle: String {
-        switch appModel.scannerState {
-        case .idle:
-            return "Bereit"
-        case .scanning:
-            return "Scannt"
-        case .unauthorized:
-            return "Keine Berechtigung"
-        case .off:
-            return "Bluetooth aus"
-        case .unsupported:
-            return "Nicht unterstützt"
-        case .resetting:
-            return "Wird zurückgesetzt"
-        case .unknown:
-            return "Unbekannt"
-        case let .failed(message):
-            return "Fehler: \(message)"
-        }
-    }
-
-    private var scannerStateColor: Color {
-        switch appModel.scannerState {
-        case .scanning:
-            return .boltOk
-        case .off, .unauthorized, .unsupported, .failed:
-            return .boltBad
-        case .idle, .resetting, .unknown:
-            return .boltInkSoft
-        }
-    }
-
-    private var isScannerActive: Bool {
-        switch appModel.scannerState {
-        case .scanning, .resetting:
-            return true
-        case .idle, .unauthorized, .off, .unsupported, .unknown, .failed:
-            return false
-        }
-    }
-
     private var authorizationTitle: String {
         switch appModel.bluetoothAuthorization {
         case .allowed:
             return "Erlaubt"
         case .denied:
-            return "Abgelehnt"
+            return "Verweigert"
         case .restricted:
             return "Eingeschränkt"
         case .notDetermined:
@@ -508,36 +397,6 @@ struct SettingsView: View {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"
     }
 
-    private func toggleScanner() async {
-        if isScannerActive {
-            await appModel.stopScanner()
-        } else {
-            await appModel.restartScanner()
-        }
-    }
-}
-
-private struct SettingsScannerSwitch: View {
-    let isOn: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            ZStack(alignment: isOn ? .trailing : .leading) {
-                Rectangle()
-                    .fill(isOn ? Color.boltTeal : Color.boltHair)
-                    .frame(width: 30, height: 16)
-
-                Rectangle()
-                    .fill(Color.boltCream)
-                    .frame(width: 10, height: 10)
-                    .padding(.horizontal, 3)
-            }
-            .frame(width: 30, height: 16)
-        }
-        .buttonStyle(.plain)
-        .animation(.easeInOut(duration: 0.18), value: isOn)
-    }
 }
 
 private struct SettingsRow<Trailing: View>: View {
@@ -615,6 +474,54 @@ private struct StatusPill: View {
                 .tracking(1.2)
         }
         .foregroundStyle(color)
+    }
+}
+
+private struct ReceptionStatusPill: View {
+    let status: ReceptionStatus
+
+    var body: some View {
+        HStack(spacing: 5) {
+            Text(symbol)
+            Text(title)
+                .font(.boltMono(11))
+                .tracking(1.4)
+        }
+        .font(.boltMono(11))
+        .foregroundStyle(color)
+    }
+
+    private var title: String {
+        switch status {
+        case .live:
+            return "LIVE"
+        case .waiting:
+            return "WARTET"
+        case .offline:
+            return "OFFLINE"
+        }
+    }
+
+    private var symbol: String {
+        switch status {
+        case .live:
+            return "⚡"
+        case .waiting:
+            return "◌"
+        case .offline:
+            return "◐"
+        }
+    }
+
+    private var color: Color {
+        switch status {
+        case .live:
+            return .boltTeal
+        case .waiting:
+            return .boltInk
+        case .offline:
+            return .boltInkSoft
+        }
     }
 }
 
