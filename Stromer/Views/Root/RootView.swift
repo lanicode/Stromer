@@ -54,6 +54,7 @@ struct RootView: View {
                     await appViewModel.runOpportunisticAggregation()
                     await appViewModel.refreshDashboardData()
                     await appViewModel.refreshHistoryData()
+                    await appViewModel.refreshSolarForecastData()
                     await appViewModel.checkDeviceLossNotifications()
                 }
             case .background:

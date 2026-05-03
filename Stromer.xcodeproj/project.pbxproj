@@ -76,6 +76,7 @@
 		P5B000000000000000000003 /* SunsetService.swift in Sources */ = {isa = PBXBuildFile; fileRef = P5F000000000000000000003 /* SunsetService.swift */; };
 		P5B000000000000000000004 /* DailyInsightScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = P5F000000000000000000004 /* DailyInsightScheduler.swift */; };
 		P5B000000000000000000005 /* NotificationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = P5F000000000000000000005 /* NotificationSettingsView.swift */; };
+		W6B000000000000000000001 /* WidgetSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = W6F000000000000000000001 /* WidgetSettingsView.swift */; };
 		P5C000000000000000000001 /* NotificationSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = P5F000000000000000000001 /* NotificationSettings.swift */; };
 		P5C000000000000000000002 /* NotificationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = P5F000000000000000000002 /* NotificationCoordinator.swift */; };
 		P5C000000000000000000003 /* SunsetService.swift in Sources */ = {isa = PBXBuildFile; fileRef = P5F000000000000000000003 /* SunsetService.swift */; };
@@ -99,6 +100,23 @@
 		P6B00000000000000000000A /* BatteryHistorySection.swift in Sources */ = {isa = PBXBuildFile; fileRef = P6F00000000000000000000A /* BatteryHistorySection.swift */; };
 		P6B00000000000000000000B /* DcDcHistorySection.swift in Sources */ = {isa = PBXBuildFile; fileRef = P6F00000000000000000000B /* DcDcHistorySection.swift */; };
 		P6B00000000000000000000C /* ComparisonSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = P6F00000000000000000000C /* ComparisonSection.swift */; };
+		P9B000000000000000000001 /* ForecastSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = P9F000000000000000000001 /* ForecastSettings.swift */; };
+		P9B000000000000000000002 /* AstronomicalCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = P9F000000000000000000002 /* AstronomicalCalculator.swift */; };
+		P9B000000000000000000003 /* ElevationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = P9F000000000000000000003 /* ElevationService.swift */; };
+		P9B000000000000000000004 /* LocalHorizonCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = P9F000000000000000000004 /* LocalHorizonCalculator.swift */; };
+		P9B000000000000000000005 /* SolarForecastService.swift in Sources */ = {isa = PBXBuildFile; fileRef = P9F000000000000000000005 /* SolarForecastService.swift */; };
+		P9B000000000000000000006 /* YieldEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = P9F000000000000000000006 /* YieldEstimator.swift */; };
+		P9B000000000000000000007 /* SolarForecastViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = P9F000000000000000000007 /* SolarForecastViewModel.swift */; };
+		P9B000000000000000000008 /* SolarForecastSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = P9F000000000000000000008 /* SolarForecastSection.swift */; };
+		P9B000000000000000000009 /* HorizonPanoramaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = P9F000000000000000000009 /* HorizonPanoramaView.swift */; };
+		P9C000000000000000000002 /* AstronomicalCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = P9F000000000000000000002 /* AstronomicalCalculator.swift */; };
+		P9C000000000000000000003 /* ElevationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = P9F000000000000000000003 /* ElevationService.swift */; };
+		P9C000000000000000000004 /* LocalHorizonCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = P9F000000000000000000004 /* LocalHorizonCalculator.swift */; };
+		P9C000000000000000000005 /* SolarForecastService.swift in Sources */ = {isa = PBXBuildFile; fileRef = P9F000000000000000000005 /* SolarForecastService.swift */; };
+		P9C000000000000000000006 /* YieldEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = P9F000000000000000000006 /* YieldEstimator.swift */; };
+		P9C00000000000000000000A /* SolarForecastServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = P9F00000000000000000000A /* SolarForecastServiceTests.swift */; };
+		P9C00000000000000000000B /* YieldEstimatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = P9F00000000000000000000B /* YieldEstimatorTests.swift */; };
+		P9C00000000000000000000C /* LocalHorizonCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = P9F00000000000000000000C /* LocalHorizonCalculatorTests.swift */; };
 		P6C000000000000000000001 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = P6F000000000000000000002 /* DashboardViewModel.swift */; };
 		P6C000000000000000000002 /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = P6F000000000000000000008 /* HistoryViewModel.swift */; };
 		P6C000000000000000000003 /* DashboardViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = P6F00000000000000000000D /* DashboardViewModelTests.swift */; };
@@ -201,6 +219,7 @@
 		P5F000000000000000000006 /* NotificationSettingsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NotificationSettingsTests.swift; sourceTree = "<group>"; };
 		P5F000000000000000000007 /* NotificationCoordinatorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NotificationCoordinatorTests.swift; sourceTree = "<group>"; };
 		P5F000000000000000000008 /* SunsetServiceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SunsetServiceTests.swift; sourceTree = "<group>"; };
+		W6F000000000000000000001 /* WidgetSettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WidgetSettingsView.swift; sourceTree = "<group>"; };
 		P6F000000000000000000001 /* DashboardView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		P6F000000000000000000002 /* DashboardViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
 		P6F000000000000000000003 /* LiveBalanceSection.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LiveBalanceSection.swift; sourceTree = "<group>"; };
@@ -215,6 +234,18 @@
 		P6F00000000000000000000C /* ComparisonSection.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ComparisonSection.swift; sourceTree = "<group>"; };
 		P6F00000000000000000000D /* DashboardViewModelTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DashboardViewModelTests.swift; sourceTree = "<group>"; };
 		P6F00000000000000000000E /* HistoryViewModelTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HistoryViewModelTests.swift; sourceTree = "<group>"; };
+		P9F000000000000000000001 /* ForecastSettings.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ForecastSettings.swift; sourceTree = "<group>"; };
+		P9F000000000000000000002 /* AstronomicalCalculator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AstronomicalCalculator.swift; sourceTree = "<group>"; };
+		P9F000000000000000000003 /* ElevationService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ElevationService.swift; sourceTree = "<group>"; };
+		P9F000000000000000000004 /* LocalHorizonCalculator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalHorizonCalculator.swift; sourceTree = "<group>"; };
+		P9F000000000000000000005 /* SolarForecastService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SolarForecastService.swift; sourceTree = "<group>"; };
+		P9F000000000000000000006 /* YieldEstimator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = YieldEstimator.swift; sourceTree = "<group>"; };
+		P9F000000000000000000007 /* SolarForecastViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SolarForecastViewModel.swift; sourceTree = "<group>"; };
+		P9F000000000000000000008 /* SolarForecastSection.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SolarForecastSection.swift; sourceTree = "<group>"; };
+		P9F000000000000000000009 /* HorizonPanoramaView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HorizonPanoramaView.swift; sourceTree = "<group>"; };
+		P9F00000000000000000000A /* SolarForecastServiceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SolarForecastServiceTests.swift; sourceTree = "<group>"; };
+		P9F00000000000000000000B /* YieldEstimatorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = YieldEstimatorTests.swift; sourceTree = "<group>"; };
+		P9F00000000000000000000C /* LocalHorizonCalculatorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalHorizonCalculatorTests.swift; sourceTree = "<group>"; };
 		T4F000000000000000000001 /* LiveReadingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LiveReadingTests.swift; sourceTree = "<group>"; };
 		T4F000000000000000000002 /* HistoryStoreDebounceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HistoryStoreDebounceTests.swift; sourceTree = "<group>"; };
 		T4F000000000000000000003 /* AggregationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AggregationTests.swift; sourceTree = "<group>"; };
@@ -285,6 +316,7 @@
 				D1F00000000000000000000C /* DesignSystem */,
 				H4G000000000000000000001 /* History */,
 				P5G000000000000000000001 /* Notifications */,
+				P9G000000000000000000001 /* Weather */,
 			);
 			path = Stromer;
 			sourceTree = "<group>";
@@ -361,6 +393,7 @@
 			children = (
 				100000000000000000000014 /* SettingsView.swift */,
 				P5F000000000000000000005 /* NotificationSettingsView.swift */,
+				W6F000000000000000000001 /* WidgetSettingsView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -400,6 +433,9 @@
 				P5F000000000000000000008 /* SunsetServiceTests.swift */,
 				P6F00000000000000000000D /* DashboardViewModelTests.swift */,
 				P6F00000000000000000000E /* HistoryViewModelTests.swift */,
+				P9F00000000000000000000A /* SolarForecastServiceTests.swift */,
+				P9F00000000000000000000B /* YieldEstimatorTests.swift */,
+				P9F00000000000000000000C /* LocalHorizonCalculatorTests.swift */,
 			);
 			name = StromerTests;
 			path = StromerTests;
@@ -454,6 +490,36 @@
 			path = Notifications;
 			sourceTree = "<group>";
 		};
+		P9G000000000000000000001 /* Weather */ = {
+			isa = PBXGroup;
+			children = (
+				P9F000000000000000000001 /* ForecastSettings.swift */,
+				P9F000000000000000000007 /* SolarForecastViewModel.swift */,
+				P9G000000000000000000002 /* Astronomy */,
+				P9G000000000000000000003 /* Services */,
+			);
+			path = Weather;
+			sourceTree = "<group>";
+		};
+		P9G000000000000000000002 /* Astronomy */ = {
+			isa = PBXGroup;
+			children = (
+				P9F000000000000000000002 /* AstronomicalCalculator.swift */,
+				P9F000000000000000000003 /* ElevationService.swift */,
+				P9F000000000000000000004 /* LocalHorizonCalculator.swift */,
+			);
+			path = Astronomy;
+			sourceTree = "<group>";
+		};
+		P9G000000000000000000003 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				P9F000000000000000000005 /* SolarForecastService.swift */,
+				P9F000000000000000000006 /* YieldEstimator.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
 		P6G000000000000000000001 /* Dashboard */ = {
 			isa = PBXGroup;
 			children = (
@@ -471,6 +537,8 @@
 				P6F000000000000000000004 /* TodayStatsSection.swift */,
 				P6F000000000000000000005 /* InsightsSection.swift */,
 				P6F000000000000000000006 /* TrendChartSection.swift */,
+				P9F000000000000000000008 /* SolarForecastSection.swift */,
+				P9F000000000000000000009 /* HorizonPanoramaView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -743,6 +811,7 @@
 				P5B000000000000000000003 /* SunsetService.swift in Sources */,
 				P5B000000000000000000004 /* DailyInsightScheduler.swift in Sources */,
 				P5B000000000000000000005 /* NotificationSettingsView.swift in Sources */,
+				W6B000000000000000000001 /* WidgetSettingsView.swift in Sources */,
 				P6B000000000000000000001 /* DashboardView.swift in Sources */,
 				P6B000000000000000000002 /* DashboardViewModel.swift in Sources */,
 				P6B000000000000000000003 /* LiveBalanceSection.swift in Sources */,
@@ -755,6 +824,15 @@
 				P6B00000000000000000000A /* BatteryHistorySection.swift in Sources */,
 				P6B00000000000000000000B /* DcDcHistorySection.swift in Sources */,
 				P6B00000000000000000000C /* ComparisonSection.swift in Sources */,
+				P9B000000000000000000001 /* ForecastSettings.swift in Sources */,
+				P9B000000000000000000002 /* AstronomicalCalculator.swift in Sources */,
+				P9B000000000000000000003 /* ElevationService.swift in Sources */,
+				P9B000000000000000000004 /* LocalHorizonCalculator.swift in Sources */,
+				P9B000000000000000000005 /* SolarForecastService.swift in Sources */,
+				P9B000000000000000000006 /* YieldEstimator.swift in Sources */,
+				P9B000000000000000000007 /* SolarForecastViewModel.swift in Sources */,
+				P9B000000000000000000008 /* SolarForecastSection.swift in Sources */,
+				P9B000000000000000000009 /* HorizonPanoramaView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -809,6 +887,14 @@
 				P6C000000000000000000002 /* HistoryViewModel.swift in Sources */,
 				P6C000000000000000000003 /* DashboardViewModelTests.swift in Sources */,
 				P6C000000000000000000004 /* HistoryViewModelTests.swift in Sources */,
+				P9C000000000000000000002 /* AstronomicalCalculator.swift in Sources */,
+				P9C000000000000000000003 /* ElevationService.swift in Sources */,
+				P9C000000000000000000004 /* LocalHorizonCalculator.swift in Sources */,
+				P9C000000000000000000005 /* SolarForecastService.swift in Sources */,
+				P9C000000000000000000006 /* YieldEstimator.swift in Sources */,
+				P9C00000000000000000000A /* SolarForecastServiceTests.swift in Sources */,
+				P9C00000000000000000000B /* YieldEstimatorTests.swift in Sources */,
+				P9C00000000000000000000C /* LocalHorizonCalculatorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

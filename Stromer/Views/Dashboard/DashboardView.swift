@@ -53,6 +53,17 @@ struct DashboardView: View {
                         )
                         .padding(.horizontal, 18)
 
+                        if appModel.forecastSettings.isForecastEnabled {
+                            SolarForecastSection(
+                                viewModel: appModel.solarForecastViewModel,
+                                requestLocation: {
+                                    appModel.sunsetService.requestPermission()
+                                    appModel.sunsetService.requestSingleLocationUpdate()
+                                }
+                            )
+                            .padding(.horizontal, 18)
+                        }
+
                         BoltSecondary("Geräte öffnen", action: openDevices)
                             .padding(.horizontal, 18)
                     }
@@ -62,11 +73,13 @@ struct DashboardView: View {
             }
             .refreshable {
                 await viewModel.refresh()
+                await appModel.refreshSolarForecastData()
             }
         }
         .toolbar(.hidden, for: .navigationBar)
         .task {
             await viewModel.refresh()
+            await appModel.refreshSolarForecastData()
         }
         .sheet(isPresented: $isShowingSettings) {
             NavigationStack {

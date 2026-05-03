@@ -38,6 +38,18 @@ public struct StromerWidgetSnapshotProvider: Sendable {
         selectedDeviceID: UUID?,
         maxDevices: Int = 2
     ) -> StromerWidgetSnapshot {
+        snapshot(
+            selectedDeviceID: selectedDeviceID,
+            preferences: nil,
+            maxDevices: maxDevices
+        )
+    }
+
+    public func snapshot(
+        selectedDeviceID: UUID?,
+        preferences: StromerWidgetPreferences?,
+        maxDevices: Int = 2
+    ) -> StromerWidgetSnapshot {
         let now = nowProvider()
 
         do {
@@ -49,6 +61,7 @@ public struct StromerWidgetSnapshotProvider: Sendable {
                 devices: devices,
                 readings: readings,
                 selectedDeviceID: selectedDeviceID,
+                preferences: preferences,
                 maxDevices: maxDevices
             )
         } catch {
@@ -65,7 +78,23 @@ public struct StromerWidgetSnapshotProvider: Sendable {
         selectedDeviceID: UUID?,
         maxDevices: Int = 2
     ) -> StromerWidgetTimelineSnapshot {
-        let snapshot = snapshot(selectedDeviceID: selectedDeviceID, maxDevices: maxDevices)
+        timeline(
+            selectedDeviceID: selectedDeviceID,
+            preferences: nil,
+            maxDevices: maxDevices
+        )
+    }
+
+    public func timeline(
+        selectedDeviceID: UUID?,
+        preferences: StromerWidgetPreferences?,
+        maxDevices: Int = 2
+    ) -> StromerWidgetTimelineSnapshot {
+        let snapshot = snapshot(
+            selectedDeviceID: selectedDeviceID,
+            preferences: preferences,
+            maxDevices: maxDevices
+        )
         return StromerWidgetTimelineSnapshot(
             entries: [snapshot],
             reloadAfter: snapshot.date.addingTimeInterval(reloadInterval)
@@ -77,6 +106,7 @@ public struct StromerWidgetSnapshotProvider: Sendable {
         devices: [RegisteredDeviceSnapshot],
         readings: [DeviceReading],
         selectedDeviceID: UUID?,
+        preferences: StromerWidgetPreferences?,
         maxDevices: Int
     ) -> StromerWidgetSnapshot {
         guard !devices.isEmpty else {
@@ -89,7 +119,14 @@ public struct StromerWidgetSnapshotProvider: Sendable {
         }
 
         let selectedDevices: [RegisteredDeviceSnapshot]
-        if let selectedDeviceID {
+        if let preferences {
+            selectedDevices = preferredDevices(
+                from: devices,
+                selectedDeviceID: selectedDeviceID,
+                preferences: preferences,
+                maxDevices: maxDevices
+            )
+        } else if let selectedDeviceID {
             guard let selected = devices.first(where: { $0.id == selectedDeviceID }) else {
                 return StromerWidgetSnapshot(
                     date: date,
@@ -116,6 +153,53 @@ public struct StromerWidgetSnapshotProvider: Sendable {
             status: .ready,
             message: ""
         )
+    }
+
+    private func preferredDevices(
+        from devices: [RegisteredDeviceSnapshot],
+        selectedDeviceID: UUID?,
+        preferences: StromerWidgetPreferences,
+        maxDevices: Int
+    ) -> [RegisteredDeviceSnapshot] {
+        let limit = max(1, maxDevices)
+
+        switch preferences.mediumMode {
+        case .automatic:
+            if let selectedDeviceID,
+               let selected = devices.first(where: { $0.id == selectedDeviceID }) {
+                let remaining = devices.filter { $0.id != selectedDeviceID }
+                return Array(([selected] + remaining).prefix(limit))
+            }
+            return Array(devices.prefix(limit))
+
+        case .manual:
+            let preferred = preferences.mediumDeviceIDs.compactMap { id in
+                devices.first { $0.id == id }
+            }
+            let remaining = devices.filter { device in
+                !preferred.contains { $0.id == device.id }
+            }
+            return Array((preferred + remaining).prefix(limit))
+
+        case .battery:
+            return focusedDevices(from: devices, matchingRecordType: 0x02, limit: limit)
+
+        case .solar:
+            return focusedDevices(from: devices, matchingRecordType: 0x01, limit: limit)
+
+        case .dcDc:
+            return focusedDevices(from: devices, matchingRecordType: 0x04, limit: limit)
+        }
+    }
+
+    private func focusedDevices(
+        from devices: [RegisteredDeviceSnapshot],
+        matchingRecordType recordType: UInt8,
+        limit: Int
+    ) -> [RegisteredDeviceSnapshot] {
+        let focused = devices.filter { $0.recordType == recordType }
+        let remaining = devices.filter { $0.recordType != recordType }
+        return Array((focused + remaining).prefix(limit))
     }
 
     private func deviceSnapshot(

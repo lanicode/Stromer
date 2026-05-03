@@ -100,6 +100,8 @@ final class StromerAppViewModel {
     @ObservationIgnored let dailyInsightScheduler: DailyInsightScheduler?
     @ObservationIgnored let dashboardViewModel: DashboardViewModel
     @ObservationIgnored let historyViewModel: HistoryViewModel
+    @ObservationIgnored let forecastSettings: ForecastSettings
+    @ObservationIgnored let solarForecastViewModel: SolarForecastViewModel
     @ObservationIgnored private let liveActivityService: LiveActivityService<ActivityKitActivityClient>
     @ObservationIgnored let widgetRefreshCoordinator: WidgetRefreshCoordinator
     @ObservationIgnored private let deviceSnapshotStore: (any RegisteredDeviceSnapshotStoring)?
@@ -123,6 +125,8 @@ final class StromerAppViewModel {
         dailyInsightScheduler: DailyInsightScheduler?,
         dashboardViewModel: DashboardViewModel,
         historyViewModel: HistoryViewModel,
+        forecastSettings: ForecastSettings,
+        solarForecastViewModel: SolarForecastViewModel,
         liveActivityService: LiveActivityService<ActivityKitActivityClient>,
         widgetRefreshCoordinator: WidgetRefreshCoordinator? = nil,
         deviceSnapshotStore: (any RegisteredDeviceSnapshotStoring)?,
@@ -141,6 +145,8 @@ final class StromerAppViewModel {
         self.dailyInsightScheduler = dailyInsightScheduler
         self.dashboardViewModel = dashboardViewModel
         self.historyViewModel = historyViewModel
+        self.forecastSettings = forecastSettings
+        self.solarForecastViewModel = solarForecastViewModel
         self.liveActivityService = liveActivityService
         self.widgetRefreshCoordinator = widgetRefreshCoordinator
         self.deviceSnapshotStore = deviceSnapshotStore
@@ -196,7 +202,9 @@ final class StromerAppViewModel {
             historyStore = try SwiftDataHistoryStore()
         } catch {
             historyStore = nil
-            print("History store init failed: \(error)")
+            if initialError == nil {
+                initialError = "Historie ist nicht verfügbar."
+            }
         }
         let notificationSettings = NotificationSettings()
         let sunsetService = SunsetService()
@@ -220,6 +228,21 @@ final class StromerAppViewModel {
             historyStore: historyStore,
             registeredDevicesProvider: { registry.devices }
         )
+        let forecastSettings = ForecastSettings()
+        let solarForecastService = SolarForecastService.shared
+        let solarEstimator = historyStore.map {
+            YieldEstimator(
+                historyStore: $0,
+                solarService: solarForecastService
+            )
+        }
+        let solarForecastViewModel = SolarForecastViewModel(
+            estimator: solarEstimator,
+            elevationService: ElevationService.shared,
+            sunsetService: sunsetService,
+            settings: forecastSettings,
+            registeredDevicesProvider: { registry.devices }
+        )
         let liveActivityService = LiveActivityService(
             client: ActivityKitActivityClient()
         )
@@ -241,6 +264,8 @@ final class StromerAppViewModel {
             dailyInsightScheduler: dailyInsightScheduler,
             dashboardViewModel: dashboardViewModel,
             historyViewModel: historyViewModel,
+            forecastSettings: forecastSettings,
+            solarForecastViewModel: solarForecastViewModel,
             liveActivityService: liveActivityService,
             deviceSnapshotStore: deviceSnapshotStore,
             metadataDefaults: defaults,
@@ -252,6 +277,7 @@ final class StromerAppViewModel {
             await model.dailyInsightScheduler?.reschedule()
             await model.refreshDashboardData()
             await model.refreshHistoryData()
+            await model.refreshSolarForecastData()
         }
         return model
     }
@@ -300,6 +326,10 @@ final class StromerAppViewModel {
 
     func refreshHistoryData() async {
         await historyViewModel.refresh()
+    }
+
+    func refreshSolarForecastData() async {
+        await solarForecastViewModel.refresh()
     }
 
     var latestReadingTimestamps: [UUID: Date] {

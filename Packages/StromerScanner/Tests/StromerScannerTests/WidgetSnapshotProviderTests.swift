@@ -60,6 +60,58 @@ final class WidgetSnapshotProviderTests: XCTestCase {
         XCTAssertEqual(timeline.reloadAfter, referenceDate.addingTimeInterval(1_800))
     }
 
+    func testMediumPreferencesManualOrderDevices() {
+        let provider = StromerWidgetSnapshotProvider(
+            deviceStore: WidgetDeviceStore([batteryDevice, solarDevice]),
+            readingStore: WidgetReadingStore([batteryReading, solarReading]),
+            now: { referenceDate }
+        )
+        let preferences = StromerWidgetPreferences(
+            mediumMode: .manual,
+            mediumDeviceIDs: [solarDevice.id, batteryDevice.id]
+        )
+
+        let snapshot = provider.snapshot(
+            selectedDeviceID: nil,
+            preferences: preferences,
+            maxDevices: 2
+        )
+
+        XCTAssertEqual(snapshot.devices.map(\.name), ["MPPT", "SmartShunt"])
+    }
+
+    func testMediumPreferencesPrioritizeSolarDevices() {
+        let provider = StromerWidgetSnapshotProvider(
+            deviceStore: WidgetDeviceStore([batteryDevice, solarDevice]),
+            readingStore: WidgetReadingStore([batteryReading, solarReading]),
+            now: { referenceDate }
+        )
+        let preferences = StromerWidgetPreferences(mediumMode: .solar)
+
+        let snapshot = provider.snapshot(
+            selectedDeviceID: batteryDevice.id,
+            preferences: preferences,
+            maxDevices: 2
+        )
+
+        XCTAssertEqual(snapshot.devices.map(\.name), ["MPPT", "SmartShunt"])
+    }
+
+    func testWidgetPreferencesStoreDefaultsAndRoundtrip() throws {
+        let backing = WidgetPreferenceKeyValueStore()
+        let store = AppGroupWidgetPreferenceStore(backing: backing)
+
+        XCTAssertEqual(store.loadPreferences(), .default)
+
+        let preferences = StromerWidgetPreferences(
+            mediumMode: .manual,
+            mediumDeviceIDs: [batteryDevice.id, solarDevice.id]
+        )
+        try store.savePreferences(preferences)
+
+        XCTAssertEqual(store.loadPreferences(), preferences)
+    }
+
     func testMissingSelectedDeviceDoesNotCrash() {
         let provider = StromerWidgetSnapshotProvider(
             deviceStore: WidgetDeviceStore([batteryDevice]),
@@ -199,5 +251,17 @@ private final class WidgetReadingStore: ReadingStoring, @unchecked Sendable {
 
     func deleteReading(deviceID: UUID) throws {
         readings.removeAll { $0.deviceID == deviceID }
+    }
+}
+
+private final class WidgetPreferenceKeyValueStore: AppGroupKeyValueStoring, @unchecked Sendable {
+    private var values: [String: Data] = [:]
+
+    func data(forKey key: String) -> Data? {
+        values[key]
+    }
+
+    func set(_ value: Data?, forKey key: String) {
+        values[key] = value
     }
 }
