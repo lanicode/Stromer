@@ -80,3 +80,57 @@ enum LocalHorizonCalculator {
         return nil
     }
 }
+
+extension ElevationService.HorizonProfile {
+    var dominantDirection: String {
+        guard let highest = highestSample else {
+            return ""
+        }
+        return directionName(for: highest.azimuth)
+    }
+
+    var dominantObstacleType: String {
+        guard let highest = highestSample else {
+            return "Gelände"
+        }
+
+        switch highest.horizonAngle {
+        case 8...:
+            return "Berge"
+        case 3..<8:
+            return "Hügel"
+        default:
+            return "Gelände"
+        }
+    }
+
+    private var highestSample: HorizonSample? {
+        samples.max { $0.horizonAngle < $1.horizonAngle }
+    }
+
+    private func directionName(for azimuth: Double) -> String {
+        let normalized = azimuth.truncatingRemainder(dividingBy: 360)
+        let positive = normalized < 0 ? normalized + 360 : normalized
+
+        switch positive {
+        case 337.5..<360, 0..<22.5:
+            return "Norden"
+        case 22.5..<67.5:
+            return "Nordosten"
+        case 67.5..<112.5:
+            return "Osten"
+        case 112.5..<157.5:
+            return "Südosten"
+        case 157.5..<202.5:
+            return "Süden"
+        case 202.5..<247.5:
+            return "Südwesten"
+        case 247.5..<292.5:
+            return "Westen"
+        case 292.5..<337.5:
+            return "Nordwesten"
+        default:
+            return ""
+        }
+    }
+}

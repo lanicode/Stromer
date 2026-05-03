@@ -39,6 +39,19 @@ struct HorizonPanoramaView: View {
                         )
                 }
 
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(obstacleHeadline.uppercased())
+                        .font(.system(size: 9, weight: .heavy))
+                        .tracking(1.1)
+                        .foregroundStyle(Color.boltInkSoft)
+                    Text(profile.dominantDirection)
+                        .font(.system(size: 13, weight: .heavy))
+                        .foregroundStyle(Color.boltInk)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
+
                 if let sunAzimuth {
                     sunMarker(
                         azimuth: sunAzimuth,
@@ -49,6 +62,17 @@ struct HorizonPanoramaView: View {
                 }
             }
             .overlay(Rectangle().stroke(Color.boltHair, lineWidth: 1))
+        }
+    }
+
+    private var obstacleHeadline: String {
+        switch profile.dominantObstacleType {
+        case "Berge":
+            return "Höchste Berge"
+        case "Hügel":
+            return "Höchste Hügel"
+        default:
+            return "Höchstes Gelände"
         }
     }
 
