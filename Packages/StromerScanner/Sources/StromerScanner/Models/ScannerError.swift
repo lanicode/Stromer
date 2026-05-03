@@ -17,4 +17,5 @@ public enum StromerIdentifiers {
     public static let scannerRestoreIdentifier = "com.lanicode.StromerApp.scanner"
     public static let latestReadingsStoreKey = "com.lanicode.StromerApp.latest-readings"
     public static let registeredDevicesStoreKey = "com.lanicode.StromerApp.registered-devices"
+    public static let widgetPreferencesStoreKey = "com.lanicode.StromerApp.widget-preferences"
 }

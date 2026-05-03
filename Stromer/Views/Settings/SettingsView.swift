@@ -28,6 +28,12 @@ struct SettingsView: View {
                         notificationsSection
                             .padding(.horizontal, 18)
 
+                        widgetSection
+                            .padding(.horizontal, 18)
+
+                        forecastSection
+                            .padding(.horizontal, 18)
+
                         if let lastErrorMessage = appModel.lastErrorMessage {
                             errorSection(lastErrorMessage)
                                 .padding(.horizontal, 18)
@@ -231,6 +237,70 @@ struct SettingsView: View {
                 }
             }
             .buttonStyle(.plain)
+        }
+    }
+
+    private var widgetSection: some View {
+        BoltSection(
+            header: "Widget",
+            footer: "Lege fest, was das mittelgroße Home-Screen-Widget zeigen soll."
+        ) {
+            NavigationLink {
+                WidgetSettingsView(devices: appModel.registeredDevices)
+            } label: {
+                VStack(spacing: 0) {
+                    HStack(spacing: 10) {
+                        Image(systemName: "rectangle.grid.2x2")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(Color.boltTeal)
+                            .frame(width: 20)
+
+                        Text("Mittelgroßes Widget")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(Color.boltInk)
+
+                        Spacer(minLength: 12)
+
+                        Text("Konfigurieren".uppercased())
+                            .font(.system(size: 10, weight: .heavy))
+                            .tracking(1.0)
+                            .foregroundStyle(Color.boltInkSoft)
+
+                        Image(systemName: "chevron.right")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(Color.boltInkSoft)
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 13)
+                }
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private var forecastSection: some View {
+        BoltSection(
+            header: "Prognose",
+            footer: "Verwendet Standortdaten zur Berechnung lokaler Horizont-Abschattung. Daten werden lokal verarbeitet und nicht übermittelt."
+        ) {
+            SettingsForecastToggleRow(
+                title: "Solar-Vorhersage anzeigen",
+                isOn: Binding(
+                    get: { appModel.forecastSettings.isForecastEnabled },
+                    set: { appModel.forecastSettings.isForecastEnabled = $0 }
+                )
+            )
+
+            SettingsForecastToggleRow(
+                title: "Topographie berücksichtigen",
+                subtitle: "Benötigt Standortfreigabe für Sonnenstand und Horizont.",
+                isOn: Binding(
+                    get: { appModel.forecastSettings.usesTopography },
+                    set: { appModel.forecastSettings.usesTopography = $0 }
+                ),
+                isEnabled: appModel.forecastSettings.isForecastEnabled,
+                isLast: true
+            )
         }
     }
 
@@ -545,6 +615,49 @@ private struct StatusPill: View {
                 .tracking(1.2)
         }
         .foregroundStyle(color)
+    }
+}
+
+private struct SettingsForecastToggleRow: View {
+    let title: String
+    var subtitle: String?
+    @Binding var isOn: Bool
+    var isEnabled = true
+    var isLast = false
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(alignment: .center, spacing: 12) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title)
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(isEnabled ? Color.boltInk : Color.boltInkFaint)
+
+                    if let subtitle {
+                        Text(subtitle)
+                            .font(.boltMono(11))
+                            .foregroundStyle(Color.boltInkSoft)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+
+                Spacer(minLength: 12)
+
+                Toggle("", isOn: $isOn)
+                    .labelsHidden()
+                    .tint(.boltTeal)
+                    .disabled(!isEnabled)
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 13)
+
+            if !isLast {
+                Rectangle()
+                    .fill(Color.boltHair2)
+                    .frame(height: 1)
+            }
+        }
+        .opacity(isEnabled ? 1 : 0.55)
     }
 }
 

@@ -29,10 +29,15 @@ struct StromerWidgetProvider: AppIntentTimelineProvider {
     ) async -> Timeline<StromerWidgetEntry> {
         let maxDevices = context.family == .systemMedium ? 3 : 1
         let selectedID = configuration.device?.uuid
+        let preferences = context.family == .systemMedium ? mediumPreferences() : nil
 
         do {
             let timeline = try StromerWidgetSnapshotProvider.appGroup()
-                .timeline(selectedDeviceID: selectedID, maxDevices: maxDevices)
+                .timeline(
+                    selectedDeviceID: selectedID,
+                    preferences: preferences,
+                    maxDevices: maxDevices
+                )
             let entries = timeline.entries.map {
                 StromerWidgetEntry(date: $0.date, snapshot: $0)
             }
@@ -57,11 +62,20 @@ struct StromerWidgetProvider: AppIntentTimelineProvider {
     ) -> StromerWidgetEntry {
         let maxDevices = family == .systemMedium ? 3 : 1
         let selectedID = configuration.device?.uuid
+        let preferences = family == .systemMedium ? mediumPreferences() : nil
         let snapshot = (try? StromerWidgetSnapshotProvider.appGroup()
-            .snapshot(selectedDeviceID: selectedID, maxDevices: maxDevices))
+            .snapshot(
+                selectedDeviceID: selectedID,
+                preferences: preferences,
+                maxDevices: maxDevices
+            ))
             ?? .placeholder()
 
         return StromerWidgetEntry(date: snapshot.date, snapshot: snapshot)
+    }
+
+    private func mediumPreferences() -> StromerWidgetPreferences {
+        (try? AppGroupWidgetPreferenceStore().loadPreferences()) ?? .default
     }
 }
 
