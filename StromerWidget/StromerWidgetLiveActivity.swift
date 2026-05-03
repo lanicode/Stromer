@@ -189,6 +189,9 @@ private struct LiveActivityLockScreenView: View {
                 }
 
                 HStack(spacing: 5) {
+                    Rectangle()
+                        .fill(freshnessColor(context.state.freshness))
+                        .frame(width: 6, height: 6)
                     BoltWidgetGlyph(
                         size: 9,
                         fillColor: .boltYellow,
@@ -220,6 +223,19 @@ private struct LiveActivityLockScreenView: View {
 
     private func formattedValue(_ value: Double) -> String {
         value.formatted(.number.precision(.fractionLength(value.rounded() == value ? 0 : 1)))
+    }
+
+    private func freshnessColor(_ freshness: String) -> Color {
+        switch freshness {
+        case DeviceFreshness.fresh.rawValue:
+            return .boltOk
+        case DeviceFreshness.delayed.rawValue:
+            return .boltWarn
+        case DeviceFreshness.stale.rawValue:
+            return .boltWarn
+        default:
+            return .boltBad
+        }
     }
 }
 

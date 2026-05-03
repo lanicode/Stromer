@@ -118,7 +118,9 @@ struct DeviceListView: View {
                     NavigationLink(value: device.id) {
                         DeviceRowView(
                             device: device,
-                            reading: store.reading(for: device.id)
+                            reading: store.reading(for: device.id),
+                            connectionStatus: appModel.receptionStatusObserver.status(for: device.id),
+                            lastSeenText: appModel.receptionStatusObserver.relativeTimeText(for: device.id)
                         )
                     }
                     .buttonStyle(.plain)

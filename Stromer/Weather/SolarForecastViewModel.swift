@@ -11,6 +11,7 @@ final class SolarForecastViewModel {
     private(set) var horizonProfile: ElevationService.HorizonProfile?
     private(set) var localHorizonTimes: LocalHorizonTimes?
     private(set) var efficiencyFactor: EfficiencyFactor?
+    private(set) var solarHistorySampleDays = 0
     private(set) var loading = false
     private(set) var lastError: String?
 
@@ -39,7 +40,7 @@ final class SolarForecastViewModel {
 
     func refresh() async {
         guard settings.isForecastEnabled else {
-            clearForecast()
+            clearForecast(resetSampleDays: true)
             return
         }
 
@@ -49,10 +50,14 @@ final class SolarForecastViewModel {
         }
 
         guard let mpptDevice = registeredDevicesProvider().first(where: { $0.recordType == 0x01 }) else {
-            clearForecast()
+            clearForecast(resetSampleDays: true)
             lastError = "Kein Solar-Regler registriert."
             return
         }
+
+        solarHistorySampleDays = await estimator.solarHistorySampleDayCount(
+            deviceID: mpptDevice.id
+        )
 
         guard let location = sunsetService.lastKnownLocation else {
             sunsetService.requestSingleLocationUpdate()
@@ -113,11 +118,14 @@ final class SolarForecastViewModel {
         }
     }
 
-    private func clearForecast() {
+    private func clearForecast(resetSampleDays: Bool = false) {
         todayEstimate = nil
         weekEstimates = []
         horizonProfile = nil
         localHorizonTimes = nil
         efficiencyFactor = nil
+        if resetSampleDays {
+            solarHistorySampleDays = 0
+        }
     }
 }

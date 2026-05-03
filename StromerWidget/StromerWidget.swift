@@ -115,9 +115,9 @@ struct StromerWidgetView: View {
     private var widgetBackground: some View {
         switch family {
         case .systemSmall:
-            BoltWidgetBackground()
+            WidgetConnectionBackground(status: widgetConnectionStatus)
         case .systemMedium:
-            BoltWidgetBackground()
+            WidgetConnectionBackground(status: widgetConnectionStatus)
         default:
             Color.clear
         }
@@ -126,7 +126,10 @@ struct StromerWidgetView: View {
     @ViewBuilder
     private var smallWidget: some View {
         if let device = firstDevice {
-            DeviceWidgetTile(device: device)
+            DeviceWidgetTile(
+                device: device,
+                connectionStatus: WidgetConnectionStatus(device: device, now: entry.date)
+            )
                 .padding(14)
         } else {
             WidgetEmptyStateView(status: entry.snapshot.status, compact: false)
@@ -140,7 +143,11 @@ struct StromerWidgetView: View {
             WidgetEmptyStateView(status: entry.snapshot.status, compact: false)
                 .padding(14)
         } else {
-            MediumHeroWidget(devices: Array(entry.snapshot.devices.prefix(3)))
+            MediumHeroWidget(
+                devices: Array(entry.snapshot.devices.prefix(3)),
+                connectionStatus: widgetConnectionStatus,
+                lastUpdatedText: widgetLastUpdatedText
+            )
                 .padding(14)
         }
     }
@@ -202,10 +209,121 @@ struct StromerWidgetView: View {
             Text("Stromer · \(WidgetEmptyStateContent(status: entry.snapshot.status).title)")
         }
     }
+
+    private var widgetConnectionStatus: WidgetConnectionStatus {
+        WidgetConnectionStatus.aggregate(
+            devices: entry.snapshot.devices,
+            now: entry.date
+        )
+    }
+
+    private var widgetLastUpdatedText: String {
+        let devices = entry.snapshot.devices
+        guard let oldest = devices.min(by: { lhs, rhs in
+            (lhs.lastUpdated ?? .distantPast) < (rhs.lastUpdated ?? .distantPast)
+        }) else {
+            return "Noch keine Daten"
+        }
+
+        return oldest.relativeLastUpdated
+    }
+}
+
+private enum WidgetConnectionStatus {
+    case live
+    case recent
+    case stale
+    case offline
+
+    init(device: StromerWidgetDeviceSnapshot, now: Date) {
+        self = Self.status(lastUpdated: device.lastUpdated, now: now)
+    }
+
+    static func aggregate(
+        devices: [StromerWidgetDeviceSnapshot],
+        now: Date
+    ) -> WidgetConnectionStatus {
+        guard !devices.isEmpty else {
+            return .live
+        }
+
+        if devices.contains(where: { status(lastUpdated: $0.lastUpdated, now: now) == .offline }) {
+            return .offline
+        }
+        if devices.contains(where: { status(lastUpdated: $0.lastUpdated, now: now) == .stale }) {
+            return .stale
+        }
+        if devices.contains(where: { status(lastUpdated: $0.lastUpdated, now: now) == .recent }) {
+            return .recent
+        }
+        return .live
+    }
+
+    var dimsValues: Bool {
+        self == .stale || self == .offline
+    }
+
+    var indicatorColor: Color {
+        switch self {
+        case .live:
+            return .boltOk
+        case .recent:
+            return .boltInkSoft
+        case .stale:
+            return .boltWarn
+        case .offline:
+            return .boltBad
+        }
+    }
+
+    private static func status(lastUpdated: Date?, now: Date) -> WidgetConnectionStatus {
+        guard let lastUpdated else {
+            return .offline
+        }
+
+        let age = max(0, now.timeIntervalSince(lastUpdated))
+        switch age {
+        case 0..<120:
+            return .live
+        case 120..<1_800:
+            return .recent
+        case 1_800..<21_600:
+            return .stale
+        default:
+            return .offline
+        }
+    }
+}
+
+private struct WidgetConnectionBackground: View {
+    let status: WidgetConnectionStatus
+
+    var body: some View {
+        ZStack {
+            BoltWidgetBackground()
+            tint
+        }
+    }
+
+    @ViewBuilder
+    private var tint: some View {
+        switch status {
+        case .live:
+            Color.clear
+        case .recent:
+            Color.boltInk.opacity(0.04)
+        case .stale:
+            Color.boltWarn.opacity(0.14)
+        case .offline:
+            Color.boltInk.opacity(0.12)
+        }
+    }
 }
 
 private struct MediumHeroWidget: View {
     let devices: [StromerWidgetDeviceSnapshot]
+    let connectionStatus: WidgetConnectionStatus
+    let lastUpdatedText: String
 
     private var aggregate: AggregateValue {
         let percentages = devices
@@ -259,6 +377,7 @@ private struct MediumHeroWidget: View {
                     .foregroundStyle(Color.boltTeal)
             }
             .foregroundStyle(Color.boltInk)
+            .opacity(connectionStatus.dimsValues ? 0.62 : 1)
 
             Text(aggregate.label.uppercased())
                 .font(.system(size: 9, weight: .heavy))
@@ -282,9 +401,21 @@ private struct MediumHeroWidget: View {
                             .foregroundStyle(Color.boltInk)
                             .lineLimit(1)
                             .minimumScaleFactor(0.65)
+                            .opacity(device.isDimmed ? 0.55 : 1)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
+            }
+
+            HStack(spacing: 5) {
+                Rectangle()
+                    .fill(connectionStatus.indicatorColor)
+                    .frame(width: 6, height: 6)
+                Text("ÄLTESTER WERT · \(lastUpdatedText.uppercased())")
+                    .font(.system(size: 8, weight: .heavy))
+                    .tracking(0.8)
+                    .foregroundStyle(Color.boltInkSoft)
+                    .lineLimit(1)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -311,6 +442,7 @@ private struct MediumHeroWidget: View {
 
 private struct DeviceWidgetTile: View {
     let device: StromerWidgetDeviceSnapshot
+    let connectionStatus: WidgetConnectionStatus
 
     private var isSolar: Bool {
         device.boltKind == .solar
@@ -323,6 +455,7 @@ private struct DeviceWidgetTile: View {
             Spacer(minLength: 0)
 
             valueBlock
+                .opacity(connectionStatus.dimsValues ? 0.55 : 1)
 
             if isSolar {
                 BoltWidgetSpark(values: sparkValues, color: .boltYellow)
@@ -334,7 +467,7 @@ private struct DeviceWidgetTile: View {
 
             HStack(spacing: 5) {
                 Rectangle()
-                    .fill(device.freshness.boltWidgetColor)
+                    .fill(connectionStatus.indicatorColor)
                     .frame(width: 6, height: 6)
                 Text(device.relativeLastUpdated.uppercased())
                     .font(.system(size: 8, weight: .heavy))
@@ -344,7 +477,6 @@ private struct DeviceWidgetTile: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-        .opacity(device.isDimmed ? 0.55 : 1)
         .boltWidgetCornerNotch(size: isSolar ? 16 : 0, color: isSolar ? .boltYellow : .clear)
     }
 

@@ -98,6 +98,14 @@ struct RootView: View {
             .tag(AppTab.history)
 
             NavigationStack {
+                ForecastView()
+            }
+            .tabItem {
+                Label("Prognose", systemImage: "sun.max.fill")
+            }
+            .tag(AppTab.forecast)
+
+            NavigationStack {
                 DeviceListView()
             }
             .tabItem {
@@ -112,5 +120,6 @@ struct RootView: View {
 private enum AppTab {
     case dashboard
     case history
+    case forecast
     case devices
 }

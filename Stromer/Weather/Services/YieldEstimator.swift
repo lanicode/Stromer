@@ -39,18 +39,7 @@ final class YieldEstimator {
         deviceID: UUID,
         days: Int = 14
     ) async -> EfficiencyFactor? {
-        let now = Date()
-        guard let startDate = calendar.date(byAdding: .day, value: -days, to: now) else {
-            return nil
-        }
-
-        let dailyAggregates = await historyStore.dailyAggregates(
-            deviceID: deviceID,
-            from: startDate,
-            to: now
-        )
-        let solarDays = dailyAggregates
-            .filter { $0.familyKind == "solar" && ($0.yieldTodayMax ?? 0) > 0 }
+        let solarDays = await solarHistoryDays(deviceID: deviceID, days: days)
 
         guard solarDays.count >= 5 else {
             return nil
@@ -68,6 +57,13 @@ final class YieldEstimator {
             confidence: confidence,
             whPerRadiationMJ: max(0, avgYield / 16.0)
         )
+    }
+
+    func solarHistorySampleDayCount(
+        deviceID: UUID,
+        days: Int = 14
+    ) async -> Int {
+        await solarHistoryDays(deviceID: deviceID, days: days).count
     }
 
     func estimateYield(
@@ -149,6 +145,21 @@ final class YieldEstimator {
         }
 
         return min(max(blockedRadiation / totalRadiation, 0), 1)
+    }
+
+    private func solarHistoryDays(deviceID: UUID, days: Int) async -> [DailyAggregate] {
+        let now = Date()
+        guard let startDate = calendar.date(byAdding: .day, value: -days, to: now) else {
+            return []
+        }
+
+        let dailyAggregates = await historyStore.dailyAggregates(
+            deviceID: deviceID,
+            from: startDate,
+            to: now
+        )
+        return dailyAggregates
+            .filter { $0.familyKind == "solar" && ($0.yieldTodayMax ?? 0) > 0 }
     }
 }
 
