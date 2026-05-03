@@ -2,6 +2,7 @@ import Charts
 import SwiftUI
 
 struct SolarHistorySection: View {
+    let timeRange: HistoryOverviewRange
     let points: [DailyYieldPoint]
     let totalKwh: Double
     let bestDay: DailyYieldPoint?
@@ -21,7 +22,7 @@ struct SolarHistorySection: View {
                             .foregroundStyle(point.id == bestDay?.id ? Color.boltYellowDeep : Color.boltYellow)
                         }
                     }
-                    .chartXAxis { historyDayAxis }
+                    .chartXAxis { stromerDateAxis(for: timeRange.axisRange) }
                     .chartYAxis { historyValueAxis }
                     .frame(height: 170)
 

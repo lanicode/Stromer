@@ -2,6 +2,7 @@ import Charts
 import SwiftUI
 
 struct BatteryHistorySection: View {
+    let timeRange: HistoryOverviewRange
     let ranges: [SocRangePoint]
     let lowestDay: SocRangePoint?
     let fullCharges: Int
@@ -32,7 +33,7 @@ struct BatteryHistorySection: View {
                         }
                     }
                     .chartYScale(domain: 0...100)
-                    .chartXAxis { historyDayAxis }
+                    .chartXAxis { stromerDateAxis(for: timeRange.axisRange) }
                     .chartYAxis { historyPercentAxis }
                     .frame(height: 170)
 

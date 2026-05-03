@@ -55,7 +55,7 @@ struct SolarChartView: View {
                         .foregroundStyle(Color.boltYellow)
                     }
                 }
-                .chartXAxis { timeAxisMarks }
+                .chartXAxis { stromerDateAxis(for: timeRange.axisRange) }
                 .chartYAxis { wattAxisMarks }
                 .frame(height: 220)
 
@@ -80,7 +80,7 @@ struct SolarChartView: View {
                     .foregroundStyle(Color.boltYellow)
                 }
             }
-            .chartXAxis { dayAxisMarks }
+            .chartXAxis { stromerDateAxis(for: timeRange.axisRange) }
             .chartYAxis { whAxisMarks }
             .frame(height: 220)
 
@@ -109,7 +109,7 @@ struct SolarChartView: View {
                     .foregroundStyle(Color.boltYellow)
                 }
             }
-            .chartXAxis { monthAxisMarks }
+            .chartXAxis { stromerDateAxis(for: timeRange.axisRange) }
             .chartYAxis { whAxisMarks }
             .frame(height: 220)
 
@@ -184,36 +184,6 @@ struct SolarChartView: View {
 
     private var taskID: String {
         "\(deviceID.uuidString)-\(timeRange.rawValue)"
-    }
-
-    private var timeAxisMarks: some AxisContent {
-        AxisMarks(values: .automatic(desiredCount: 4)) {
-            AxisGridLine().foregroundStyle(Color.boltHair2)
-            AxisTick().foregroundStyle(Color.boltHair)
-            AxisValueLabel(format: .dateTime.hour().minute())
-                .font(.boltMono(10))
-                .foregroundStyle(Color.boltInkSoft)
-        }
-    }
-
-    private var dayAxisMarks: some AxisContent {
-        AxisMarks(values: .automatic(desiredCount: 5)) {
-            AxisGridLine().foregroundStyle(Color.boltHair2)
-            AxisTick().foregroundStyle(Color.boltHair)
-            AxisValueLabel(format: .dateTime.day().month())
-                .font(.boltMono(10))
-                .foregroundStyle(Color.boltInkSoft)
-        }
-    }
-
-    private var monthAxisMarks: some AxisContent {
-        AxisMarks(values: .automatic(desiredCount: 4)) {
-            AxisGridLine().foregroundStyle(Color.boltHair2)
-            AxisTick().foregroundStyle(Color.boltHair)
-            AxisValueLabel(format: .dateTime.month(.abbreviated))
-                .font(.boltMono(10))
-                .foregroundStyle(Color.boltInkSoft)
-        }
     }
 
     private var wattAxisMarks: some AxisContent {

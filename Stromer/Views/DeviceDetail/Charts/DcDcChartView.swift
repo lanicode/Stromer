@@ -71,7 +71,7 @@ struct DcDcChartView: View {
                     }
                 }
             }
-            .chartXAxis { timeAxisMarks }
+            .chartXAxis { stromerDateAxis(for: timeRange.axisRange) }
             .chartYAxis { voltAxisMarks }
             .frame(height: 220)
 
@@ -132,7 +132,7 @@ struct DcDcChartView: View {
                     .lineStyle(StrokeStyle(lineWidth: 1.4, lineCap: .square, lineJoin: .miter))
                 }
             }
-            .chartXAxis { dayAxisMarks }
+            .chartXAxis { stromerDateAxis(for: timeRange.axisRange) }
             .chartYAxis { voltAxisMarks }
             .frame(height: 220)
 
@@ -177,7 +177,7 @@ struct DcDcChartView: View {
                     }
                 }
             }
-            .chartXAxis { monthAxisMarks }
+            .chartXAxis { stromerDateAxis(for: timeRange.axisRange) }
             .chartYAxis { voltAxisMarks }
             .frame(height: 220)
 
@@ -255,36 +255,6 @@ struct DcDcChartView: View {
 
     private var taskID: String {
         "\(deviceID.uuidString)-\(timeRange.rawValue)"
-    }
-
-    private var timeAxisMarks: some AxisContent {
-        AxisMarks(values: .automatic(desiredCount: 4)) {
-            AxisGridLine().foregroundStyle(Color.boltHair2)
-            AxisTick().foregroundStyle(Color.boltHair)
-            AxisValueLabel(format: .dateTime.hour().minute())
-                .font(.boltMono(10))
-                .foregroundStyle(Color.boltInkSoft)
-        }
-    }
-
-    private var dayAxisMarks: some AxisContent {
-        AxisMarks(values: .automatic(desiredCount: 5)) {
-            AxisGridLine().foregroundStyle(Color.boltHair2)
-            AxisTick().foregroundStyle(Color.boltHair)
-            AxisValueLabel(format: .dateTime.day().month())
-                .font(.boltMono(10))
-                .foregroundStyle(Color.boltInkSoft)
-        }
-    }
-
-    private var monthAxisMarks: some AxisContent {
-        AxisMarks(values: .automatic(desiredCount: 4)) {
-            AxisGridLine().foregroundStyle(Color.boltHair2)
-            AxisTick().foregroundStyle(Color.boltHair)
-            AxisValueLabel(format: .dateTime.month(.abbreviated))
-                .font(.boltMono(10))
-                .foregroundStyle(Color.boltInkSoft)
-        }
     }
 
     private var voltAxisMarks: some AxisContent {

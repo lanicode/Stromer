@@ -28,6 +28,7 @@ struct HistoryView: View {
 
                         if viewModel.hasSolarSection {
                             SolarHistorySection(
+                                timeRange: viewModel.timeRange,
                                 points: viewModel.solarDailyData,
                                 totalKwh: viewModel.totalSolarKwh,
                                 bestDay: viewModel.bestSolarDay
@@ -37,6 +38,7 @@ struct HistoryView: View {
 
                         if viewModel.hasBatterySection {
                             BatteryHistorySection(
+                                timeRange: viewModel.timeRange,
                                 ranges: viewModel.batterySocRange,
                                 lowestDay: viewModel.lowestSocDay,
                                 fullCharges: viewModel.totalFullCharges
@@ -46,6 +48,7 @@ struct HistoryView: View {
 
                         if viewModel.hasDcDcSection {
                             DcDcHistorySection(
+                                timeRange: viewModel.timeRange,
                                 points: viewModel.dcDcChargingData,
                                 totalChargingHours: viewModel.totalChargingHours
                             )

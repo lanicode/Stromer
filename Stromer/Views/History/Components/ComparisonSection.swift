@@ -66,16 +66,6 @@ struct HistoryInlineEmptyState: View {
     }
 }
 
-var historyDayAxis: some AxisContent {
-    AxisMarks(values: .automatic(desiredCount: 5)) {
-        AxisGridLine().foregroundStyle(Color.boltHair2)
-        AxisTick().foregroundStyle(Color.boltHair)
-        AxisValueLabel(format: .dateTime.day().month())
-            .font(.boltMono(10))
-            .foregroundStyle(Color.boltInkSoft)
-    }
-}
-
 var historyValueAxis: some AxisContent {
     AxisMarks(position: .trailing, values: .automatic(desiredCount: 4)) {
         AxisGridLine().foregroundStyle(Color.boltHair2)

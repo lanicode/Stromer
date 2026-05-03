@@ -2,6 +2,7 @@ import Charts
 import SwiftUI
 
 struct DcDcHistorySection: View {
+    let timeRange: HistoryOverviewRange
     let points: [DailyChargingPoint]
     let totalChargingHours: Double
 
@@ -20,7 +21,7 @@ struct DcDcHistorySection: View {
                             .foregroundStyle(Color.boltTeal)
                         }
                     }
-                    .chartXAxis { historyDayAxis }
+                    .chartXAxis { stromerDateAxis(for: timeRange.axisRange) }
                     .chartYAxis { historyValueAxis }
                     .frame(height: 150)
 

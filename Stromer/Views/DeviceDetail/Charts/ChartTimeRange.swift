@@ -1,3 +1,4 @@
+import Charts
 import SwiftUI
 
 enum ChartTimeRange: String, CaseIterable, Identifiable {
@@ -41,6 +42,123 @@ enum ChartTimeRange: String, CaseIterable, Identifiable {
             return "Die Jahres-Übersicht ist verfügbar, sobald mehrere Wochen Daten gesammelt wurden."
         case .today, .sevenDays, .thirtyDays:
             return "Stromer sammelt Verlaufsdaten ab heute. Sobald Advertisements empfangen werden, erscheinen die Werte hier."
+        }
+    }
+}
+
+enum StromerChartAxisRange {
+    case today
+    case sevenDays
+    case thirtyDays
+    case year
+}
+
+extension ChartTimeRange {
+    var axisRange: StromerChartAxisRange {
+        switch self {
+        case .today:
+            return .today
+        case .sevenDays:
+            return .sevenDays
+        case .thirtyDays:
+            return .thirtyDays
+        case .year:
+            return .year
+        }
+    }
+}
+
+extension HistoryOverviewRange {
+    var axisRange: StromerChartAxisRange {
+        switch self {
+        case .today:
+            return .today
+        case .sevenDays:
+            return .sevenDays
+        case .thirtyDays:
+            return .thirtyDays
+        case .year:
+            return .year
+        }
+    }
+}
+
+@AxisContentBuilder
+func stromerDateAxis(for range: StromerChartAxisRange) -> some AxisContent {
+    switch range {
+    case .today:
+        AxisMarks(values: .stride(by: .hour, count: 4)) { value in
+            AxisGridLine().foregroundStyle(Color.boltHair2)
+            AxisTick().foregroundStyle(Color.boltHair)
+            AxisValueLabel {
+                if let date = value.as(Date.self) {
+                    Text(StromerChartDateFormatter.label(for: date, range: range))
+                        .font(.boltMono(10))
+                        .foregroundStyle(Color.boltInkSoft)
+                }
+            }
+        }
+    case .sevenDays:
+        AxisMarks(values: .stride(by: .day)) { value in
+            AxisGridLine().foregroundStyle(Color.boltHair2)
+            AxisTick().foregroundStyle(Color.boltHair)
+            AxisValueLabel {
+                if let date = value.as(Date.self) {
+                    Text(StromerChartDateFormatter.label(for: date, range: range))
+                        .font(.boltMono(10))
+                        .foregroundStyle(Color.boltInkSoft)
+                }
+            }
+        }
+    case .thirtyDays:
+        AxisMarks(values: .stride(by: .day, count: 7)) { value in
+            AxisGridLine().foregroundStyle(Color.boltHair2)
+            AxisTick().foregroundStyle(Color.boltHair)
+            AxisValueLabel {
+                if let date = value.as(Date.self) {
+                    Text(StromerChartDateFormatter.label(for: date, range: range))
+                        .font(.boltMono(10))
+                        .foregroundStyle(Color.boltInkSoft)
+                }
+            }
+        }
+    case .year:
+        AxisMarks(values: .stride(by: .month)) { value in
+            AxisGridLine().foregroundStyle(Color.boltHair2)
+            AxisTick().foregroundStyle(Color.boltHair)
+            AxisValueLabel {
+                if let date = value.as(Date.self) {
+                    Text(StromerChartDateFormatter.label(for: date, range: range))
+                        .font(.boltMono(10))
+                        .foregroundStyle(Color.boltInkSoft)
+                }
+            }
+        }
+    }
+}
+
+private enum StromerChartDateFormatter {
+    static func label(for date: Date, range: StromerChartAxisRange) -> String {
+        switch range {
+        case .today:
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "de_DE")
+            formatter.dateFormat = "HH:mm"
+            return formatter.string(from: date)
+        case .sevenDays:
+            let weekday = Calendar.current.component(.weekday, from: date)
+            let labels = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"]
+            return labels[max(0, min(labels.count - 1, weekday - 1))]
+        case .thirtyDays:
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "de_DE")
+            formatter.dateFormat = "dd.MM"
+            return formatter.string(from: date)
+        case .year:
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "de_DE")
+            formatter.dateFormat = "MMM"
+            return formatter.string(from: date).replacingOccurrences(of: ".", with: "")
         }
     }
 }
