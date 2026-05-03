@@ -77,6 +77,7 @@
 		P5B000000000000000000004 /* DailyInsightScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = P5F000000000000000000004 /* DailyInsightScheduler.swift */; };
 		P5B000000000000000000005 /* NotificationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = P5F000000000000000000005 /* NotificationSettingsView.swift */; };
 		W6B000000000000000000001 /* WidgetSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = W6F000000000000000000001 /* WidgetSettingsView.swift */; };
+		D41B00000000000000000001 /* ReceptionStatusObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = D41F00000000000000000001 /* ReceptionStatusObserver.swift */; };
 		P5C000000000000000000001 /* NotificationSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = P5F000000000000000000001 /* NotificationSettings.swift */; };
 		P5C000000000000000000002 /* NotificationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = P5F000000000000000000002 /* NotificationCoordinator.swift */; };
 		P5C000000000000000000003 /* SunsetService.swift in Sources */ = {isa = PBXBuildFile; fileRef = P5F000000000000000000003 /* SunsetService.swift */; };
@@ -117,6 +118,8 @@
 		P9C00000000000000000000A /* SolarForecastServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = P9F00000000000000000000A /* SolarForecastServiceTests.swift */; };
 		P9C00000000000000000000B /* YieldEstimatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = P9F00000000000000000000B /* YieldEstimatorTests.swift */; };
 		P9C00000000000000000000C /* LocalHorizonCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = P9F00000000000000000000C /* LocalHorizonCalculatorTests.swift */; };
+		D41C00000000000000000001 /* ReceptionStatusObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = D41F00000000000000000001 /* ReceptionStatusObserver.swift */; };
+		D41C00000000000000000002 /* ReceptionStatusObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D41F00000000000000000002 /* ReceptionStatusObserverTests.swift */; };
 		P6C000000000000000000001 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = P6F000000000000000000002 /* DashboardViewModel.swift */; };
 		P6C000000000000000000002 /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = P6F000000000000000000008 /* HistoryViewModel.swift */; };
 		P6C000000000000000000003 /* DashboardViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = P6F00000000000000000000D /* DashboardViewModelTests.swift */; };
@@ -220,6 +223,8 @@
 		P5F000000000000000000007 /* NotificationCoordinatorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NotificationCoordinatorTests.swift; sourceTree = "<group>"; };
 		P5F000000000000000000008 /* SunsetServiceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SunsetServiceTests.swift; sourceTree = "<group>"; };
 		W6F000000000000000000001 /* WidgetSettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WidgetSettingsView.swift; sourceTree = "<group>"; };
+		D41F00000000000000000001 /* ReceptionStatusObserver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReceptionStatusObserver.swift; sourceTree = "<group>"; };
+		D41F00000000000000000002 /* ReceptionStatusObserverTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReceptionStatusObserverTests.swift; sourceTree = "<group>"; };
 		P6F000000000000000000001 /* DashboardView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		P6F000000000000000000002 /* DashboardViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
 		P6F000000000000000000003 /* LiveBalanceSection.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LiveBalanceSection.swift; sourceTree = "<group>"; };
@@ -412,6 +417,7 @@
 			isa = PBXGroup;
 			children = (
 				A27C244D05E124D5F669F847 /* WidgetRefreshCoordinator.swift */,
+				D41F00000000000000000001 /* ReceptionStatusObserver.swift */,
 			);
 			name = Services;
 			path = Services;
@@ -436,6 +442,7 @@
 				P9F00000000000000000000A /* SolarForecastServiceTests.swift */,
 				P9F00000000000000000000B /* YieldEstimatorTests.swift */,
 				P9F00000000000000000000C /* LocalHorizonCalculatorTests.swift */,
+				D41F00000000000000000002 /* ReceptionStatusObserverTests.swift */,
 			);
 			name = StromerTests;
 			path = StromerTests;
@@ -812,6 +819,7 @@
 				P5B000000000000000000004 /* DailyInsightScheduler.swift in Sources */,
 				P5B000000000000000000005 /* NotificationSettingsView.swift in Sources */,
 				W6B000000000000000000001 /* WidgetSettingsView.swift in Sources */,
+				D41B00000000000000000001 /* ReceptionStatusObserver.swift in Sources */,
 				P6B000000000000000000001 /* DashboardView.swift in Sources */,
 				P6B000000000000000000002 /* DashboardViewModel.swift in Sources */,
 				P6B000000000000000000003 /* LiveBalanceSection.swift in Sources */,
@@ -895,6 +903,8 @@
 				P9C00000000000000000000A /* SolarForecastServiceTests.swift in Sources */,
 				P9C00000000000000000000B /* YieldEstimatorTests.swift in Sources */,
 				P9C00000000000000000000C /* LocalHorizonCalculatorTests.swift in Sources */,
+				D41C00000000000000000001 /* ReceptionStatusObserver.swift in Sources */,
+				D41C00000000000000000002 /* ReceptionStatusObserverTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

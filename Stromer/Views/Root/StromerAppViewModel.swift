@@ -102,6 +102,7 @@ final class StromerAppViewModel {
     @ObservationIgnored let historyViewModel: HistoryViewModel
     @ObservationIgnored let forecastSettings: ForecastSettings
     @ObservationIgnored let solarForecastViewModel: SolarForecastViewModel
+    let receptionStatusObserver: ReceptionStatusObserver
     @ObservationIgnored private let liveActivityService: LiveActivityService<ActivityKitActivityClient>
     @ObservationIgnored let widgetRefreshCoordinator: WidgetRefreshCoordinator
     @ObservationIgnored private let deviceSnapshotStore: (any RegisteredDeviceSnapshotStoring)?
@@ -127,6 +128,7 @@ final class StromerAppViewModel {
         historyViewModel: HistoryViewModel,
         forecastSettings: ForecastSettings,
         solarForecastViewModel: SolarForecastViewModel,
+        receptionStatusObserver: ReceptionStatusObserver,
         liveActivityService: LiveActivityService<ActivityKitActivityClient>,
         widgetRefreshCoordinator: WidgetRefreshCoordinator? = nil,
         deviceSnapshotStore: (any RegisteredDeviceSnapshotStoring)?,
@@ -147,6 +149,7 @@ final class StromerAppViewModel {
         self.historyViewModel = historyViewModel
         self.forecastSettings = forecastSettings
         self.solarForecastViewModel = solarForecastViewModel
+        self.receptionStatusObserver = receptionStatusObserver
         self.liveActivityService = liveActivityService
         self.widgetRefreshCoordinator = widgetRefreshCoordinator
         self.deviceSnapshotStore = deviceSnapshotStore
@@ -159,6 +162,7 @@ final class StromerAppViewModel {
             historyStore: historyStore as? any DeviceReadingHistoryStoring,
             readingObserver: { reading in
                 Task { @MainActor in
+                    receptionStatusObserver.handleReading(reading)
                     await notificationCoordinator.evaluate(reading: reading)
                     dashboardViewModel.refreshLiveValues()
                 }
@@ -243,6 +247,8 @@ final class StromerAppViewModel {
             settings: forecastSettings,
             registeredDevicesProvider: { registry.devices }
         )
+        let receptionStatusObserver = ReceptionStatusObserver()
+        receptionStatusObserver.seed(lastReadingAt: store.latestReadings.map(\.timestamp).max())
         let liveActivityService = LiveActivityService(
             client: ActivityKitActivityClient()
         )
@@ -266,6 +272,7 @@ final class StromerAppViewModel {
             historyViewModel: historyViewModel,
             forecastSettings: forecastSettings,
             solarForecastViewModel: solarForecastViewModel,
+            receptionStatusObserver: receptionStatusObserver,
             liveActivityService: liveActivityService,
             deviceSnapshotStore: deviceSnapshotStore,
             metadataDefaults: defaults,
@@ -284,12 +291,9 @@ final class StromerAppViewModel {
 
     func start() async {
         startMonitoringIfNeeded()
+        receptionStatusObserver.seed(lastReadingAt: latestReadingAt)
+        receptionStatusObserver.startTicking()
         await scannerService.start()
-        refreshRuntimeState()
-    }
-
-    func stopScanner() async {
-        await scannerService.stop()
         refreshRuntimeState()
     }
 
@@ -305,6 +309,7 @@ final class StromerAppViewModel {
             lastErrorMessage = "Letzte Live-Werte konnten nicht geladen werden."
         }
 
+        receptionStatusObserver.seed(lastReadingAt: latestReadingAt)
         lastScanRecoveryAt = Date()
         await scannerService.restartScan(delay: .milliseconds(150))
         refreshRuntimeState()
@@ -339,6 +344,10 @@ final class StromerAppViewModel {
             }
             return (device.id, timestamp)
         })
+    }
+
+    private var latestReadingAt: Date? {
+        store.latestReadings.map(\.timestamp).max()
     }
 
     func checkDeviceLossNotifications() async {
