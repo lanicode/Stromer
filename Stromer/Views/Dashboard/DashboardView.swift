@@ -25,7 +25,9 @@ struct DashboardView: View {
                         LiveBalanceSection(
                             solarIn: viewModel.currentSolarIn,
                             loadOut: viewModel.currentLoadOut,
-                            net: viewModel.currentNet
+                            net: viewModel.currentNet,
+                            connectionStatus: dashboardConnectionStatus,
+                            dimsValues: dashboardValuesAreDimmed
                         )
                         .padding(.horizontal, 18)
 
@@ -53,17 +55,6 @@ struct DashboardView: View {
                         )
                         .padding(.horizontal, 18)
 
-                        if appModel.forecastSettings.isForecastEnabled {
-                            SolarForecastSection(
-                                viewModel: appModel.solarForecastViewModel,
-                                requestLocation: {
-                                    appModel.sunsetService.requestPermission()
-                                    appModel.sunsetService.requestSingleLocationUpdate()
-                                }
-                            )
-                            .padding(.horizontal, 18)
-                        }
-
                         BoltSecondary("Geräte öffnen", action: openDevices)
                             .padding(.horizontal, 18)
                     }
@@ -73,13 +64,11 @@ struct DashboardView: View {
             }
             .refreshable {
                 await viewModel.refresh()
-                await appModel.refreshSolarForecastData()
             }
         }
         .toolbar(.hidden, for: .navigationBar)
         .task {
             await viewModel.refresh()
-            await appModel.refreshSolarForecastData()
         }
         .sheet(isPresented: $isShowingSettings) {
             NavigationStack {
@@ -157,5 +146,35 @@ struct DashboardView: View {
         .padding(14)
         .background(Color.boltPaper)
         .overlay(Rectangle().stroke(Color.boltHair, lineWidth: 1))
+    }
+
+    private var dashboardConnectionStatus: ReceptionStatusObserver.ConnectionStatus {
+        let statuses = appModel.registeredDevices.map {
+            appModel.receptionStatusObserver.status(for: $0.id)
+        }
+
+        if statuses.contains(.live) {
+            return .live
+        }
+        if statuses.contains(.recent) {
+            return .recent
+        }
+        if statuses.contains(.stale) {
+            return .stale
+        }
+        if statuses.contains(.offline) {
+            return .offline
+        }
+        return .waiting
+    }
+
+    private var dashboardValuesAreDimmed: Bool {
+        let statuses = appModel.registeredDevices.map {
+            appModel.receptionStatusObserver.status(for: $0.id)
+        }
+        guard !statuses.isEmpty else {
+            return false
+        }
+        return statuses.allSatisfy { $0.dimsLiveValue || $0 == .waiting }
     }
 }

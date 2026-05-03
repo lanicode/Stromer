@@ -60,6 +60,9 @@
 		D1C000000000000000000009 /* BoltCornerNotch.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1F000000000000000000009 /* BoltCornerNotch.swift */; };
 		D1C00000000000000000000A /* BoltBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1F00000000000000000000A /* BoltBackground.swift */; };
 		D1C00000000000000000000B /* DesignSystemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1F00000000000000000000B /* DesignSystemTests.swift */; };
+		D43B00000000000000000001 /* ForecastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43F00000000000000000001 /* ForecastView.swift */; };
+		D43B00000000000000000002 /* ConnectionStatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43F00000000000000000002 /* ConnectionStatusBadge.swift */; };
+		D43C00000000000000000002 /* ConnectionStatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43F00000000000000000002 /* ConnectionStatusBadge.swift */; };
 		F454EF074DCC3F8E9827C9F8 /* WidgetRefreshCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A27C244D05E124D5F669F847 /* WidgetRefreshCoordinator.swift */; };
 		FDA54A3E3832AB816773191E /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 941D923D1EBAD56298D15DD8 /* OnboardingFlowView.swift */; };
 		H4B000000000000000000001 /* LiveReading.swift in Sources */ = {isa = PBXBuildFile; fileRef = H4F000000000000000000001 /* LiveReading.swift */; };
@@ -203,6 +206,8 @@
 		D1F000000000000000000009 /* BoltCornerNotch.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BoltCornerNotch.swift; sourceTree = "<group>"; };
 		D1F00000000000000000000A /* BoltBackground.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BoltBackground.swift; sourceTree = "<group>"; };
 		D1F00000000000000000000B /* DesignSystemTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DesignSystemTests.swift; sourceTree = "<group>"; };
+		D43F00000000000000000001 /* ForecastView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ForecastView.swift; sourceTree = "<group>"; };
+		D43F00000000000000000002 /* ConnectionStatusBadge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ConnectionStatusBadge.swift; sourceTree = "<group>"; };
 		ED145DA6C288D9AE130B0A4E /* WidgetRefreshCoordinatorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WidgetRefreshCoordinatorTests.swift; sourceTree = "<group>"; };
 		H4F000000000000000000001 /* LiveReading.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LiveReading.swift; sourceTree = "<group>"; };
 		H4F000000000000000000002 /* MinuteAggregate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MinuteAggregate.swift; sourceTree = "<group>"; };
@@ -346,6 +351,7 @@
 				000000000000000000000007 /* Root */,
 				P6G000000000000000000001 /* Dashboard */,
 				P6G000000000000000000003 /* History */,
+				D43G00000000000000000001 /* Forecast */,
 				000000000000000000000008 /* DeviceList */,
 				000000000000000000000009 /* DeviceDetail */,
 				00000000000000000000000A /* DeviceRegistration */,
@@ -423,6 +429,14 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
+		D43G00000000000000000001 /* Forecast */ = {
+			isa = PBXGroup;
+			children = (
+				D43F00000000000000000001 /* ForecastView.swift */,
+			);
+			path = Forecast;
+			sourceTree = "<group>";
+		};
 		6F75DA664C25546731FD1BD0 /* StromerTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -472,6 +486,7 @@
 				D1F000000000000000000008 /* BoltSpark.swift */,
 				D1F000000000000000000009 /* BoltCornerNotch.swift */,
 				D1F00000000000000000000A /* BoltBackground.swift */,
+				D43F00000000000000000002 /* ConnectionStatusBadge.swift */,
 			);
 			name = DesignSystem;
 			path = DesignSystem;
@@ -804,6 +819,7 @@
 				D1B000000000000000000008 /* BoltSpark.swift in Sources */,
 				D1B000000000000000000009 /* BoltCornerNotch.swift in Sources */,
 				D1B00000000000000000000A /* BoltBackground.swift in Sources */,
+				D43B00000000000000000002 /* ConnectionStatusBadge.swift in Sources */,
 				H4B000000000000000000001 /* LiveReading.swift in Sources */,
 				H4B000000000000000000002 /* MinuteAggregate.swift in Sources */,
 				H4B000000000000000000003 /* DailyAggregate.swift in Sources */,
@@ -832,6 +848,7 @@
 				P6B00000000000000000000A /* BatteryHistorySection.swift in Sources */,
 				P6B00000000000000000000B /* DcDcHistorySection.swift in Sources */,
 				P6B00000000000000000000C /* ComparisonSection.swift in Sources */,
+				D43B00000000000000000001 /* ForecastView.swift in Sources */,
 				P9B000000000000000000001 /* ForecastSettings.swift in Sources */,
 				P9B000000000000000000002 /* AstronomicalCalculator.swift in Sources */,
 				P9B000000000000000000003 /* ElevationService.swift in Sources */,
@@ -874,6 +891,7 @@
 				D1C000000000000000000008 /* BoltSpark.swift in Sources */,
 				D1C000000000000000000009 /* BoltCornerNotch.swift in Sources */,
 				D1C00000000000000000000A /* BoltBackground.swift in Sources */,
+				D43C00000000000000000002 /* ConnectionStatusBadge.swift in Sources */,
 				D1C00000000000000000000B /* DesignSystemTests.swift in Sources */,
 				H4C000000000000000000001 /* LiveReading.swift in Sources */,
 				H4C000000000000000000002 /* MinuteAggregate.swift in Sources */,

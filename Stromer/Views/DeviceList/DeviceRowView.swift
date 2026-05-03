@@ -4,6 +4,8 @@ import SwiftUI
 struct DeviceRowView: View {
     let device: RegisteredDevice
     let reading: DeviceReading?
+    let connectionStatus: ReceptionStatusObserver.ConnectionStatus
+    let lastSeenText: String
 
     var body: some View {
         let primary = DevicePresentation.primaryValue(for: reading, device: device)
@@ -56,6 +58,7 @@ struct DeviceRowView: View {
                             .lineLimit(1)
                     }
                 }
+                .opacity(connectionStatus.dimsLiveValue ? 0.5 : 1)
 
                 HStack(spacing: 4) {
                     if showsChargingBolt {
@@ -68,12 +71,17 @@ struct DeviceRowView: View {
                         .foregroundStyle(Color.boltInkSoft)
                         .lineLimit(1)
                 }
+
+                ConnectionStatusBadge(
+                    status: connectionStatus,
+                    lastSeenText: lastSeenText,
+                    variant: .compact
+                )
             }
         }
         .padding(14)
         .background(Color.boltPaper)
         .overlay(Rectangle().stroke(Color.boltHair, lineWidth: 1))
-        .opacity(freshness == .stale || freshness == .missing ? 0.58 : 1)
         .accessibilityElement(children: .combine)
     }
 

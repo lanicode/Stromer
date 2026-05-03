@@ -249,6 +249,7 @@ final class StromerAppViewModel {
         )
         let receptionStatusObserver = ReceptionStatusObserver()
         receptionStatusObserver.seed(lastReadingAt: store.latestReadings.map(\.timestamp).max())
+        receptionStatusObserver.seed(deviceLastSeen: latestReadingDates(from: store.latestReadings))
         let liveActivityService = LiveActivityService(
             client: ActivityKitActivityClient()
         )
@@ -291,7 +292,7 @@ final class StromerAppViewModel {
 
     func start() async {
         startMonitoringIfNeeded()
-        receptionStatusObserver.seed(lastReadingAt: latestReadingAt)
+        seedReceptionStatus()
         receptionStatusObserver.startTicking()
         await scannerService.start()
         refreshRuntimeState()
@@ -309,7 +310,7 @@ final class StromerAppViewModel {
             lastErrorMessage = "Letzte Live-Werte konnten nicht geladen werden."
         }
 
-        receptionStatusObserver.seed(lastReadingAt: latestReadingAt)
+        seedReceptionStatus()
         lastScanRecoveryAt = Date()
         await scannerService.restartScan(delay: .milliseconds(150))
         refreshRuntimeState()
@@ -348,6 +349,11 @@ final class StromerAppViewModel {
 
     private var latestReadingAt: Date? {
         store.latestReadings.map(\.timestamp).max()
+    }
+
+    private func seedReceptionStatus() {
+        receptionStatusObserver.seed(lastReadingAt: latestReadingAt)
+        receptionStatusObserver.seed(deviceLastSeen: latestReadingTimestamps)
     }
 
     func checkDeviceLossNotifications() async {
@@ -481,6 +487,7 @@ final class StromerAppViewModel {
         }
 
         try? store.recalculateFreshness()
+        receptionStatusObserver.seed(deviceLastSeen: latestReadingTimestamps)
     }
 
     var canUseDiscovery: Bool {
@@ -662,6 +669,15 @@ final class StromerAppViewModel {
             return "Der Keychain-Zugriff ist fehlgeschlagen."
         case .appGroupUnavailable:
             return "Der App-Group-Speicher ist nicht verfügbar."
+        }
+    }
+
+    private static func latestReadingDates(from readings: [DeviceReading]) -> [UUID: Date] {
+        readings.reduce(into: [:]) { result, reading in
+            if let current = result[reading.deviceID], current >= reading.timestamp {
+                return
+            }
+            result[reading.deviceID] = reading.timestamp
         }
     }
 }

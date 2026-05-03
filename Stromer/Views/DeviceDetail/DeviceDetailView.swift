@@ -32,7 +32,9 @@ struct DeviceDetailView: View {
                                 timestamp: reading.timestamp,
                                 rssi: reading.rssi,
                                 spectrumPercent: spectrumPercent(for: reading),
-                                statusText: statusText(for: reading)
+                                statusText: statusText(for: reading),
+                                connectionStatus: appModel.receptionStatusObserver.status(for: device.id),
+                                lastSeenText: appModel.receptionStatusObserver.relativeTimeText(for: device.id)
                             )
                             .padding(.horizontal, 18)
 
@@ -448,6 +450,8 @@ private struct DetailHeroSlab: View {
     let rssi: Int
     let spectrumPercent: Double?
     let statusText: String?
+    let connectionStatus: ReceptionStatusObserver.ConnectionStatus
+    let lastSeenText: String
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -471,6 +475,22 @@ private struct DetailHeroSlab: View {
                 } else {
                     BoltEyebrow(primary.label)
                         .padding(.bottom, 13)
+                }
+            }
+            .opacity(connectionStatus.dimsLiveValue ? 0.45 : 1)
+
+            VStack(alignment: .leading, spacing: 8) {
+                ConnectionStatusBadge(
+                    status: connectionStatus,
+                    lastSeenText: lastSeenText,
+                    variant: .detailed
+                )
+
+                if connectionStatus == .offline {
+                    Text("Stelle sicher, dass Bluetooth aktiv ist, oder bewege dich näher zu deinem Gerät.")
+                        .font(.system(size: 11).italic())
+                        .foregroundStyle(Color.boltInkSoft)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
 

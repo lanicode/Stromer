@@ -37,4 +37,44 @@ final class ReceptionStatusObserverTests: XCTestCase {
 
         XCTAssertEqual(observer.status, .waiting)
     }
+
+    func testPerDeviceStatusIsLiveForRecentReading() {
+        let now = Date(timeIntervalSince1970: 1_000)
+        let deviceID = UUID()
+        let observer = ReceptionStatusObserver(nowProvider: { now })
+
+        observer.handleReading(makeBatteryReading(deviceID: deviceID, timestamp: now.addingTimeInterval(-20)))
+
+        XCTAssertEqual(observer.status(for: deviceID), .live)
+    }
+
+    func testPerDeviceStatusIsStaleForThirtyMinuteOldReading() {
+        let now = Date(timeIntervalSince1970: 4_000)
+        let deviceID = UUID()
+        let observer = ReceptionStatusObserver(nowProvider: { now })
+
+        observer.handleReading(makeBatteryReading(deviceID: deviceID, timestamp: now.addingTimeInterval(-30 * 60)))
+
+        XCTAssertEqual(observer.status(for: deviceID), .stale)
+    }
+
+    func testPerDeviceStatusIsOfflineAfterOneHour() {
+        let now = Date(timeIntervalSince1970: 8_000)
+        let deviceID = UUID()
+        let observer = ReceptionStatusObserver(nowProvider: { now })
+
+        observer.handleReading(makeBatteryReading(deviceID: deviceID, timestamp: now.addingTimeInterval(-3_601)))
+
+        XCTAssertEqual(observer.status(for: deviceID), .offline)
+    }
+
+    func testRelativeTimeTextUsesDeviceLastSeen() {
+        let now = Date(timeIntervalSince1970: 8_000)
+        let deviceID = UUID()
+        let observer = ReceptionStatusObserver(nowProvider: { now })
+
+        observer.handleReading(makeBatteryReading(deviceID: deviceID, timestamp: now.addingTimeInterval(-125)))
+
+        XCTAssertEqual(observer.relativeTimeText(for: deviceID), "vor 2 Min")
+    }
 }

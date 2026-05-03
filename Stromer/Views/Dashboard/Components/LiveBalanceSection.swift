@@ -4,10 +4,17 @@ struct LiveBalanceSection: View {
     let solarIn: Double?
     let loadOut: Double?
     let net: Double?
+    var connectionStatus: ReceptionStatusObserver.ConnectionStatus = .waiting
+    var dimsValues = false
 
     var body: some View {
         BoltSection(header: "Aktuell") {
             VStack(alignment: .leading, spacing: 18) {
+                HStack {
+                    Spacer()
+                    ConnectionStatusBadge(status: connectionStatus)
+                }
+
                 HStack(alignment: .top, spacing: 16) {
                     balanceColumn(
                         label: "Solar rein",
@@ -27,6 +34,7 @@ struct LiveBalanceSection: View {
                         color: .boltInk
                     )
                 }
+                .opacity(dimsValues ? 0.5 : 1)
 
                 Rectangle()
                     .fill(Color.boltHair)
@@ -43,6 +51,7 @@ struct LiveBalanceSection: View {
                         .foregroundStyle(netColor)
                         .lineLimit(1)
                         .minimumScaleFactor(0.72)
+                        .opacity(dimsValues ? 0.5 : 1)
 
                     Text("W")
                         .font(.system(size: 14, weight: .heavy))

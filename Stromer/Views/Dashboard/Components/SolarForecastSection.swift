@@ -4,6 +4,7 @@ import SwiftUI
 struct SolarForecastSection: View {
     let viewModel: SolarForecastViewModel
     let requestLocation: () -> Void
+    var usesExpandedEmptyState = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -11,7 +12,8 @@ struct SolarForecastSection: View {
                 VStack(alignment: .leading, spacing: 16) {
                     if viewModel.loading {
                         loadingState
-                    } else if let estimate = viewModel.todayEstimate {
+                    } else if let estimate = viewModel.todayEstimate,
+                              estimate.expectedWh != nil {
                         estimateSummary(estimate)
                         weekChart
                     } else {
@@ -183,6 +185,36 @@ struct SolarForecastSection: View {
                 .foregroundStyle(Color.boltInkSoft)
                 .multilineTextAlignment(.center)
 
+            if usesExpandedEmptyState,
+               viewModel.lastError == nil {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Aktuell: \(min(viewModel.solarHistorySampleDays, 5)) von 5 Tagen erfasst.")
+                        .font(.boltMono(12))
+                        .foregroundStyle(Color.boltInk)
+
+                    if let date = forecastAvailableDate {
+                        Text("Voraussichtlich verfügbar: \(date.formatted(.dateTime.day().month(.wide)))")
+                            .font(.boltMono(12))
+                            .foregroundStyle(Color.boltInkSoft)
+                    }
+
+                    if let horizonText = horizonDifferenceText ?? sunsetText {
+                        Rectangle()
+                            .fill(Color.boltHair2)
+                            .frame(height: 1)
+                            .padding(.vertical, 2)
+
+                        Text("Trotzdem schon abrufbar:")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundStyle(Color.boltInk)
+
+                        forecastHint(horizonText)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, 6)
+            }
+
             if viewModel.lastError == "Standort nicht verfügbar." {
                 BoltSecondary("Standort erlauben", action: requestLocation)
                     .padding(.top, 4)
@@ -213,6 +245,21 @@ struct SolarForecastSection: View {
             }
         }
         return "Vorhersage benötigt mind. 5 Tage Solar-Daten."
+    }
+
+    private var forecastAvailableDate: Date? {
+        let remaining = max(0, 5 - viewModel.solarHistorySampleDays)
+        guard remaining > 0 else {
+            return nil
+        }
+        return Calendar.current.date(byAdding: .day, value: remaining, to: Date())
+    }
+
+    private var sunsetText: String? {
+        guard let sunset = viewModel.localHorizonTimes?.astronomicalSunset else {
+            return nil
+        }
+        return "Sonnenuntergang heute: \(formattedTime(sunset))."
     }
 
     private var horizonDifferenceText: String? {
