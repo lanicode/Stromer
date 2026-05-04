@@ -86,7 +86,7 @@ struct ForecastView: View {
                 .font(.system(size: 24, weight: .heavy))
                 .foregroundStyle(Color.boltInk)
 
-            Text("Aktiviere die Prognose in den Einstellungen, um Wetter, Sonnenstand und lokalen Horizont einzubeziehen.")
+            Text("Aktiviere die Prognose in den Einstellungen, um Wetter, Sonnenstand und Gelände am Stellplatz einzubeziehen.")
                 .font(.boltBody)
                 .foregroundStyle(Color.boltInkSoft)
                 .fixedSize(horizontal: false, vertical: true)
@@ -109,7 +109,7 @@ struct ForecastView: View {
                 .rotationEffect(.degrees(45))
                 .padding(.top, 5)
 
-            Text("Die Prognose kombiniert Open-Meteo-Strahlungsdaten, den lokalen Horizont und deine gemessenen Solar-Erträge. Alles bleibt lokal auf diesem iPhone.")
+            Text("Die Prognose kombiniert Open-Meteo-Strahlungsdaten, Gelände am Stellplatz und deine gemessenen Solar-Erträge. Alles bleibt auf diesem iPhone.")
                 .font(.system(size: 11).italic())
                 .foregroundStyle(Color.boltInkSoft)
                 .fixedSize(horizontal: false, vertical: true)

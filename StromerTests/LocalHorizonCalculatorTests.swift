@@ -53,6 +53,22 @@ final class LocalHorizonCalculatorTests: XCTestCase {
         XCTAssertLessThan(highSunset, flatSunset)
     }
 
+    func testDominantDirectionUsesHighestSample() {
+        let profile = horizonProfile(
+            highestAzimuth: 270,
+            highestAngle: 12,
+            baseAngle: 1
+        )
+
+        XCTAssertEqual(profile.dominantDirection, "Westen")
+    }
+
+    func testDominantObstacleTypeUsesHighestAngle() {
+        XCTAssertEqual(horizonProfile(highestAzimuth: 270, highestAngle: 12).dominantObstacleType, "Berge")
+        XCTAssertEqual(horizonProfile(highestAzimuth: 180, highestAngle: 5).dominantObstacleType, "Hügel")
+        XCTAssertEqual(horizonProfile(highestAzimuth: 90, highestAngle: 2).dominantObstacleType, "Gelände")
+    }
+
     private func makeUTCDate(year: Int, month: Int, day: Int) throws -> Date {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = TimeZone(secondsFromGMT: 0) ?? .gmt
@@ -82,6 +98,27 @@ final class LocalHorizonCalculatorTests: XCTestCase {
                     azimuth: Double($0) * 10,
                     terrainElevation: 0,
                     horizonAngle: angle
+                )
+            },
+            sampleDistanceKm: 5,
+            fetchedAt: Date()
+        )
+    }
+
+    private func horizonProfile(
+        highestAzimuth: Double,
+        highestAngle: Double,
+        baseAngle: Double = 0
+    ) -> ElevationService.HorizonProfile {
+        ElevationService.HorizonProfile(
+            observerElevation: 0,
+            observerEyeHeight: 1.7,
+            samples: (0..<36).map {
+                let azimuth = Double($0) * 10
+                return ElevationService.HorizonProfile.HorizonSample(
+                    azimuth: azimuth,
+                    terrainElevation: 0,
+                    horizonAngle: abs(azimuth - highestAzimuth) < 0.0001 ? highestAngle : baseAngle
                 )
             },
             sampleDistanceKm: 5,

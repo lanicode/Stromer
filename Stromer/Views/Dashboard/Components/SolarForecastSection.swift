@@ -33,7 +33,7 @@ struct SolarForecastSection: View {
         HStack(spacing: 12) {
             ProgressView()
                 .tint(.boltTeal)
-            Text("Berechne Solar-Vorhersage und lokalen Horizont.")
+            Text("Berechne Solar-Vorhersage und Sonnenblick am Stellplatz.")
                 .font(.boltBody)
                 .foregroundStyle(Color.boltInkSoft)
         }
@@ -75,13 +75,10 @@ struct SolarForecastSection: View {
                 .frame(height: 1)
 
             VStack(alignment: .leading, spacing: 8) {
-                forecastFact(
-                    title: "Topographie-Verlust",
-                    value: "\(Int(estimate.horizonLossPercent.rounded())) %"
-                )
+                forecastHint(energyLossText(for: estimate))
 
                 if viewModel.efficiencyFactor == nil {
-                    forecastHint("Vorhersage benötigt mind. 5 Tage Solar-Daten. Bis dahin zeigt Stromer Strahlung und Topographie ohne personalisierten Ertrag.")
+                    forecastHint("Vorhersage benötigt mind. 5 Tage Solar-Daten. Bis dahin zeigt Stromer Strahlung und Gelände-Einfluss ohne personalisierten Ertrag.")
                 }
 
                 if let text = horizonDifferenceText {
@@ -142,32 +139,60 @@ struct SolarForecastSection: View {
         }
     }
 
+    @ViewBuilder
     private func horizonSection(_ profile: ElevationService.HorizonProfile) -> some View {
-        BoltSection(header: "Lokaler Horizont") {
-            VStack(alignment: .leading, spacing: 12) {
-                if let times = viewModel.localHorizonTimes {
-                    horizonRow(
-                        title: "Astro-Sonnenuntergang",
-                        value: formattedTime(times.astronomicalSunset)
-                    )
-                    horizonRow(
-                        title: "Lokal sichtbar bis",
-                        value: formattedTime(times.localSunset)
-                    )
+        if let times = viewModel.localHorizonTimes,
+           hasOpenSunView(times) {
+            openSunViewPill
+        } else {
+            BoltSection(header: "Heute am Stellplatz") {
+                VStack(alignment: .leading, spacing: 14) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        BoltEyebrow("Wann wird's wirklich dunkel", color: .boltTealDeep)
 
-                    if let minutes = times.sunsetDifferenceMinutes, minutes > 0 {
-                        forecastHint("Die Sonne verschwindet lokal etwa \(minutes) Min früher hinter dem Horizont.")
+                        if let times = viewModel.localHorizonTimes {
+                            if let localSunset = times.localSunset {
+                                sunTimeLine(title: "Sonne bis", date: localSunset)
+                            }
+
+                            if let sunsetText = sunsetDifferenceLine(times, profile: profile) {
+                                Text(sunsetText)
+                                    .font(.system(size: 13, weight: .bold))
+                                    .foregroundStyle(Color.boltInk)
+                            }
+
+                            if let sunriseText = sunriseDifferenceLine(times, profile: profile) {
+                                Text(sunriseText)
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundStyle(Color.boltInkSoft)
+                            }
+                        } else {
+                            Text("Stromer berechnet gerade, wie lange dein Stellplatz direkte Sonne hat.")
+                                .font(.boltBody)
+                                .foregroundStyle(Color.boltInkSoft)
+                        }
+                    }
+
+                    if let estimate = viewModel.todayEstimate,
+                       estimate.horizonLossPercent > 0 {
+                        forecastHint(energyLossText(for: estimate))
+                    }
+
+                    HorizonPanoramaView(
+                        profile: profile,
+                        sunAzimuth: nil,
+                        sunAltitude: nil
+                    )
+                    .frame(height: 150)
+
+                    if shouldShowParkingTip {
+                        parkingTip(profile)
+                    } else if (viewModel.todayEstimate?.horizonLossPercent ?? 0) < 5 {
+                        forecastHint("Dein Stellplatz hat freien Blick zur Sonne.")
                     }
                 }
-
-                HorizonPanoramaView(
-                    profile: profile,
-                    sunAzimuth: nil,
-                    sunAltitude: nil
-                )
-                .frame(height: 150)
+                .padding(16)
             }
-            .padding(16)
         }
     }
 
@@ -239,7 +264,7 @@ struct SolarForecastSection: View {
             case "Kein Solar-Regler registriert.":
                 return "Füge einen Solar-Regler hinzu, um Solar-Ertrag vorherzusagen."
             case "Standort nicht verfügbar.":
-                return "Stromer nutzt den Standort nur für Sonnenstand und lokalen Horizont."
+                return "Stromer nutzt den Standort nur für Sonnenstand und Gelände am Stellplatz."
             default:
                 return lastError
             }
@@ -256,32 +281,23 @@ struct SolarForecastSection: View {
     }
 
     private var sunsetText: String? {
-        guard let sunset = viewModel.localHorizonTimes?.astronomicalSunset else {
+        guard let sunset = viewModel.localHorizonTimes?.localSunset ??
+            viewModel.localHorizonTimes?.astronomicalSunset else {
             return nil
         }
-        return "Sonnenuntergang heute: \(formattedTime(sunset))."
+        return "Sonne bis \(formattedTime(sunset))."
     }
 
     private var horizonDifferenceText: String? {
         guard let minutes = viewModel.localHorizonTimes?.sunsetDifferenceMinutes,
-              minutes > 0 else {
+              minutes > 2 else {
             return nil
         }
 
-        return "Berge oder Hügel reduzieren das sichtbare Abendlicht um etwa \(minutes) Min."
-    }
-
-    private func forecastFact(title: String, value: String) -> some View {
-        HStack {
-            Text(title)
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(Color.boltInk)
-            Spacer()
-            Text(value)
-                .font(.boltMono(12))
-                .fontWeight(.bold)
-                .foregroundStyle(Color.boltInk)
+        if let profile = viewModel.horizonProfile {
+            return "\(profile.dominantObstacleType) im \(profile.dominantDirection) nehmen dir abends etwa \(minutes) Min Sonne."
         }
+        return "Berge oder Hügel nehmen dir abends etwa \(minutes) Min Sonne."
     }
 
     private func forecastHint(_ text: String) -> some View {
@@ -299,16 +315,107 @@ struct SolarForecastSection: View {
         }
     }
 
-    private func horizonRow(title: String, value: String) -> some View {
-        HStack {
-            Text(title)
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(Color.boltInk)
-            Spacer()
-            Text(value)
-                .font(.boltMono(12))
-                .foregroundStyle(Color.boltInkSoft)
+    private var openSunViewPill: some View {
+        HStack(spacing: 8) {
+            Rectangle()
+                .fill(Color.boltTeal)
+                .frame(width: 7, height: 7)
+
+            Text("Dein Standort hat freien Sonnenblick.")
+                .font(.system(size: 12, weight: .heavy))
+                .tracking(0.6)
+                .foregroundStyle(Color.boltTealDeep)
         }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 9)
+        .background(Color.boltPaper)
+        .overlay(Rectangle().stroke(Color.boltHair, lineWidth: 1))
+    }
+
+    private func sunTimeLine(title: String, date: Date) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Text("☀️")
+                .font(.system(size: 18))
+            Text("\(title) \(formattedTime(date))")
+                .font(.system(size: 24, weight: .heavy))
+                .monospacedDigit()
+                .foregroundStyle(Color.boltInk)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+        }
+    }
+
+    private func sunsetDifferenceLine(
+        _ times: LocalHorizonTimes,
+        profile: ElevationService.HorizonProfile
+    ) -> String? {
+        guard let minutes = times.sunsetDifferenceMinutes,
+              minutes > 2 else {
+            return nil
+        }
+        return "\(minutes) Min früher als offiziell (\(obstacleDescription(profile)))"
+    }
+
+    private func sunriseDifferenceLine(
+        _ times: LocalHorizonTimes,
+        profile: ElevationService.HorizonProfile
+    ) -> String? {
+        guard let minutes = times.sunriseDifferenceMinutes,
+              minutes > 2 else {
+            return nil
+        }
+        return "Morgens \(minutes) Min später als offiziell (\(obstacleDescription(profile)))"
+    }
+
+    private func hasOpenSunView(_ times: LocalHorizonTimes) -> Bool {
+        abs(times.sunsetDifferenceMinutes ?? 0) < 2 &&
+            abs(times.sunriseDifferenceMinutes ?? 0) < 2
+    }
+
+    private func obstacleDescription(_ profile: ElevationService.HorizonProfile) -> String {
+        let direction = profile.dominantDirection
+        guard !direction.isEmpty else {
+            return profile.dominantObstacleType
+        }
+        return "\(profile.dominantObstacleType) im \(direction)"
+    }
+
+    private func energyLossText(for estimate: YieldEstimate) -> String {
+        let loss = Int(estimate.horizonLossPercent.rounded())
+        guard loss > 0 else {
+            return "Dein Stellplatz hat freien Blick zur Sonne."
+        }
+
+        let obstacle = viewModel.horizonProfile?.dominantObstacleType ?? "Gelände"
+        return "Du verlierst etwa \(loss) % Sonnenenergie durch \(obstacle)."
+    }
+
+    private var shouldShowParkingTip: Bool {
+        (viewModel.todayEstimate?.horizonLossPercent ?? 0) > 10
+    }
+
+    private func parkingTip(_ profile: ElevationService.HorizonProfile) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("💡 Tipp")
+                .font(.system(size: 12, weight: .heavy))
+                .foregroundStyle(Color.boltInk)
+
+            Text(parkingTipText(profile))
+                .font(.boltBody)
+                .foregroundStyle(Color.boltInkSoft)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(12)
+        .background(Color.boltYellow.opacity(0.14))
+        .overlay(Rectangle().stroke(Color.boltYellowDeep.opacity(0.65), lineWidth: 1))
+    }
+
+    private func parkingTipText(_ profile: ElevationService.HorizonProfile) -> String {
+        if let minutes = viewModel.localHorizonTimes?.sunsetDifferenceMinutes,
+           minutes > 2 {
+            return "Wenn du dich auf eine Stelle mit freierem Blick nach \(profile.dominantDirection) stellst, hättest du heute Abend etwa \(minutes) Min mehr Sonne."
+        }
+        return "Eine freiere Stelle kann heute spürbar mehr Sonne bringen."
     }
 
     private func isBestDay(_ estimate: YieldEstimate) -> Bool {
