@@ -63,6 +63,28 @@ final class LocalHorizonCalculatorTests: XCTestCase {
         XCTAssertEqual(profile.dominantDirection, "Westen")
     }
 
+    func testDominantDirectionEastUsesHighestEasternSample() {
+        let profile = horizonProfile(
+            highestAzimuth: 90,
+            highestAngle: 12,
+            baseAngle: 1
+        )
+
+        XCTAssertEqual(profile.dominantDirectionEast, "Osten")
+        XCTAssertEqual(profile.dominantObstacleTypeEast, "Berge")
+    }
+
+    func testDominantDirectionWestUsesHighestWesternSample() {
+        let profile = horizonProfile(
+            highestAzimuth: 270,
+            highestAngle: 12,
+            baseAngle: 1
+        )
+
+        XCTAssertEqual(profile.dominantDirectionWest, "Westen")
+        XCTAssertEqual(profile.dominantObstacleTypeWest, "Berge")
+    }
+
     func testDominantObstacleTypeUsesHighestAngle() {
         XCTAssertEqual(horizonProfile(highestAzimuth: 270, highestAngle: 12).dominantObstacleType, "Berge")
         XCTAssertEqual(horizonProfile(highestAzimuth: 180, highestAngle: 5).dominantObstacleType, "Hügel")

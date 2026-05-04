@@ -94,7 +94,61 @@ extension ElevationService.HorizonProfile {
             return "Gelände"
         }
 
-        switch highest.horizonAngle {
+        return obstacleType(for: highest.horizonAngle)
+    }
+
+    var dominantDirectionEast: String {
+        guard let highest = highestSample(in: .east) else {
+            return ""
+        }
+        return directionName(for: highest.azimuth)
+    }
+
+    var dominantDirectionWest: String {
+        guard let highest = highestSample(in: .west) else {
+            return ""
+        }
+        return directionName(for: highest.azimuth)
+    }
+
+    var dominantObstacleTypeEast: String {
+        guard let highest = highestSample(in: .east) else {
+            return "Gelände"
+        }
+        return obstacleType(for: highest.horizonAngle)
+    }
+
+    var dominantObstacleTypeWest: String {
+        guard let highest = highestSample(in: .west) else {
+            return "Gelände"
+        }
+        return obstacleType(for: highest.horizonAngle)
+    }
+
+    private var highestSample: HorizonSample? {
+        samples.max { $0.horizonAngle < $1.horizonAngle }
+    }
+
+    private enum DayHalf {
+        case east
+        case west
+    }
+
+    private func highestSample(in half: DayHalf) -> HorizonSample? {
+        samples.filter { sample in
+            let azimuth = positiveAzimuth(sample.azimuth)
+            switch half {
+            case .east:
+                return azimuth >= 22.5 && azimuth < 202.5
+            case .west:
+                return azimuth >= 202.5 || azimuth < 22.5
+            }
+        }
+        .max { $0.horizonAngle < $1.horizonAngle }
+    }
+
+    private func obstacleType(for angle: Double) -> String {
+        switch angle {
         case 8...:
             return "Berge"
         case 3..<8:
@@ -104,13 +158,8 @@ extension ElevationService.HorizonProfile {
         }
     }
 
-    private var highestSample: HorizonSample? {
-        samples.max { $0.horizonAngle < $1.horizonAngle }
-    }
-
     private func directionName(for azimuth: Double) -> String {
-        let normalized = azimuth.truncatingRemainder(dividingBy: 360)
-        let positive = normalized < 0 ? normalized + 360 : normalized
+        let positive = positiveAzimuth(azimuth)
 
         switch positive {
         case 337.5..<360, 0..<22.5:
@@ -132,5 +181,10 @@ extension ElevationService.HorizonProfile {
         default:
             return ""
         }
+    }
+
+    private func positiveAzimuth(_ azimuth: Double) -> Double {
+        let normalized = azimuth.truncatingRemainder(dividingBy: 360)
+        return normalized < 0 ? normalized + 360 : normalized
     }
 }

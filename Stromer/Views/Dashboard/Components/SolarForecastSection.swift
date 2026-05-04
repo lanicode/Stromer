@@ -81,7 +81,7 @@ struct SolarForecastSection: View {
                     forecastHint("Vorhersage benötigt mind. 5 Tage Solar-Daten. Bis dahin zeigt Stromer Strahlung und Gelände-Einfluss ohne personalisierten Ertrag.")
                 }
 
-                if let text = horizonDifferenceText {
+                ForEach(horizonDifferenceTexts, id: \.self) { text in
                     forecastHint(text)
                 }
             }
@@ -218,12 +218,12 @@ struct SolarForecastSection: View {
                         .foregroundStyle(Color.boltInk)
 
                     if let date = forecastAvailableDate {
-                        Text("Voraussichtlich verfügbar: \(date.formatted(.dateTime.day().month(.wide)))")
+                        Text("Voraussichtlich verfügbar: \(germanDayMonth(date))")
                             .font(.boltMono(12))
                             .foregroundStyle(Color.boltInkSoft)
                     }
 
-                    if let horizonText = horizonDifferenceText ?? sunsetText {
+                    if !horizonDifferenceTexts.isEmpty || sunsetText != nil {
                         Rectangle()
                             .fill(Color.boltHair2)
                             .frame(height: 1)
@@ -233,7 +233,14 @@ struct SolarForecastSection: View {
                             .font(.system(size: 12, weight: .bold))
                             .foregroundStyle(Color.boltInk)
 
-                        forecastHint(horizonText)
+                        ForEach(horizonDifferenceTexts, id: \.self) { text in
+                            forecastHint(text)
+                        }
+
+                        if horizonDifferenceTexts.isEmpty,
+                           let sunsetText {
+                            forecastHint(sunsetText)
+                        }
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -288,16 +295,24 @@ struct SolarForecastSection: View {
         return "Sonne bis \(formattedTime(sunset))."
     }
 
-    private var horizonDifferenceText: String? {
-        guard let minutes = viewModel.localHorizonTimes?.sunsetDifferenceMinutes,
-              minutes > 2 else {
-            return nil
+    private var horizonDifferenceTexts: [String] {
+        guard let times = viewModel.localHorizonTimes,
+              let profile = viewModel.horizonProfile else {
+            return []
         }
 
-        if let profile = viewModel.horizonProfile {
-            return "\(profile.dominantObstacleType) im \(profile.dominantDirection) nehmen dir abends etwa \(minutes) Min Sonne."
+        var texts: [String] = []
+        if let sunriseMinutes = times.sunriseDifferenceMinutes,
+           sunriseMinutes > 2 {
+            texts.append("\(eastObstacleDescription(profile)) nehmen dir morgens etwa \(sunriseMinutes) Min Sonne.")
         }
-        return "Berge oder Hügel nehmen dir abends etwa \(minutes) Min Sonne."
+
+        if let sunsetMinutes = times.sunsetDifferenceMinutes,
+           sunsetMinutes > 2 {
+            texts.append("\(westObstacleDescription(profile)) nehmen dir abends etwa \(sunsetMinutes) Min Sonne.")
+        }
+
+        return texts
     }
 
     private func forecastHint(_ text: String) -> some View {
@@ -353,7 +368,7 @@ struct SolarForecastSection: View {
               minutes > 2 else {
             return nil
         }
-        return "\(minutes) Min früher als offiziell (\(obstacleDescription(profile)))"
+        return "\(minutes) Min früher als offiziell (\(westObstacleDescription(profile)))"
     }
 
     private func sunriseDifferenceLine(
@@ -364,7 +379,7 @@ struct SolarForecastSection: View {
               minutes > 2 else {
             return nil
         }
-        return "Morgens \(minutes) Min später als offiziell (\(obstacleDescription(profile)))"
+        return "Morgens \(minutes) Min später als offiziell (\(eastObstacleDescription(profile)))"
     }
 
     private func hasOpenSunView(_ times: LocalHorizonTimes) -> Bool {
@@ -372,12 +387,20 @@ struct SolarForecastSection: View {
             abs(times.sunriseDifferenceMinutes ?? 0) < 2
     }
 
-    private func obstacleDescription(_ profile: ElevationService.HorizonProfile) -> String {
-        let direction = profile.dominantDirection
+    private func eastObstacleDescription(_ profile: ElevationService.HorizonProfile) -> String {
+        let direction = profile.dominantDirectionEast
         guard !direction.isEmpty else {
-            return profile.dominantObstacleType
+            return profile.dominantObstacleTypeEast
         }
-        return "\(profile.dominantObstacleType) im \(direction)"
+        return "\(profile.dominantObstacleTypeEast) im \(direction)"
+    }
+
+    private func westObstacleDescription(_ profile: ElevationService.HorizonProfile) -> String {
+        let direction = profile.dominantDirectionWest
+        guard !direction.isEmpty else {
+            return profile.dominantObstacleTypeWest
+        }
+        return "\(profile.dominantObstacleTypeWest) im \(direction)"
     }
 
     private func energyLossText(for estimate: YieldEstimate) -> String {
@@ -413,7 +436,8 @@ struct SolarForecastSection: View {
     private func parkingTipText(_ profile: ElevationService.HorizonProfile) -> String {
         if let minutes = viewModel.localHorizonTimes?.sunsetDifferenceMinutes,
            minutes > 2 {
-            return "Wenn du dich auf eine Stelle mit freierem Blick nach \(profile.dominantDirection) stellst, hättest du heute Abend etwa \(minutes) Min mehr Sonne."
+            let direction = profile.dominantDirectionWest.isEmpty ? profile.dominantDirection : profile.dominantDirectionWest
+            return "Wenn du dich auf eine Stelle mit freierem Blick nach \(direction) stellst, hättest du heute Abend etwa \(minutes) Min mehr Sonne."
         }
         return "Eine freiere Stelle kann heute spürbar mehr Sonne bringen."
     }
@@ -452,5 +476,12 @@ struct SolarForecastSection: View {
             return "--"
         }
         return date.formatted(.dateTime.hour().minute())
+    }
+
+    private func germanDayMonth(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "de_DE")
+        formatter.dateFormat = "d. MMMM"
+        return formatter.string(from: date)
     }
 }
