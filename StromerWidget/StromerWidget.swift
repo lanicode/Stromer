@@ -148,7 +148,7 @@ struct StromerWidgetView: View {
                 connectionStatus: widgetConnectionStatus,
                 lastUpdatedText: widgetLastUpdatedText
             )
-                .padding(14)
+                .padding(12)
         }
     }
 
@@ -353,7 +353,7 @@ private struct MediumHeroWidget: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 6) {
                 BoltWidgetSLockup(size: 18)
                 Text("Stromer".uppercased())
@@ -366,12 +366,12 @@ private struct MediumHeroWidget: View {
 
             HStack(alignment: .lastTextBaseline, spacing: 4) {
                 Text(aggregate.value)
-                    .font(.system(size: 48, weight: .heavy))
+                    .font(.system(size: 40, weight: .heavy))
                     .monospacedDigit()
                     .lineLimit(1)
                     .minimumScaleFactor(0.65)
                 Text(aggregate.unit)
-                    .font(.system(size: 20, weight: .heavy))
+                    .font(.system(size: 18, weight: .heavy))
                     .foregroundStyle(Color.boltTeal)
             }
             .foregroundStyle(Color.boltInk)
@@ -383,7 +383,7 @@ private struct MediumHeroWidget: View {
                 .foregroundStyle(Color.boltInkSoft)
 
             WidgetHorizonLine(marker: aggregate.marker)
-                .frame(height: 14)
+                .frame(height: 10)
 
             HStack(alignment: .top, spacing: 10) {
                 ForEach(devices.prefix(3)) { device in
