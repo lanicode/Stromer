@@ -362,8 +362,6 @@ private struct MediumHeroWidget: View {
                     .foregroundStyle(Color.boltInk)
 
                 Spacer()
-
-                freshnessStrip
             }
 
             HStack(alignment: .lastTextBaseline, spacing: 4) {
@@ -419,17 +417,6 @@ private struct MediumHeroWidget: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .boltWidgetCornerNotch(size: 18)
-    }
-
-    private var freshnessStrip: some View {
-        HStack(spacing: 3) {
-            ForEach(devices.prefix(3)) { device in
-                Rectangle()
-                    .fill(device.freshness.boltWidgetColor)
-                    .frame(width: 6, height: 6)
-            }
-        }
     }
 
     private struct AggregateValue {
@@ -477,7 +464,6 @@ private struct DeviceWidgetTile: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-        .boltWidgetCornerNotch(size: isSolar ? 16 : 0, color: isSolar ? .boltYellow : .clear)
     }
 
     private var header: some View {
