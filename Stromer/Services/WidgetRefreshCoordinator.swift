@@ -11,20 +11,25 @@ final class WidgetRefreshCoordinator {
         case deviceDeleted
     }
 
-    private static let debounceInterval: TimeInterval = 30
     private static let widgetKind = "StromerWidget"
 
     private var lastReloadAt: Date?
     private var pendingReadingReloadTask: Task<Void, Never>?
     private let nowProvider: () -> Date
     private let reloadHandler: @MainActor () -> Void
+    private let readingDebounceInterval: TimeInterval
 
+    /// Creates a coordinator that debounces frequent reading reloads to preserve iOS widget reload budget.
+    /// - Parameters:
+    ///   - readingDebounceInterval: Minimum interval between reading-triggered widget reloads.
     init(
         nowProvider: @escaping () -> Date = Date.init,
-        reloadHandler: @escaping @MainActor () -> Void = WidgetRefreshCoordinator.reloadStromerWidgetTimelines
+        reloadHandler: @escaping @MainActor () -> Void = WidgetRefreshCoordinator.reloadStromerWidgetTimelines,
+        readingDebounceInterval: TimeInterval = 180
     ) {
         self.nowProvider = nowProvider
         self.reloadHandler = reloadHandler
+        self.readingDebounceInterval = readingDebounceInterval
     }
 
     deinit {
@@ -36,8 +41,8 @@ final class WidgetRefreshCoordinator {
         case .reading:
             let now = nowProvider()
             if let lastReloadAt,
-               now.timeIntervalSince(lastReloadAt) < Self.debounceInterval {
-                scheduleTrailingReadingReload(after: Self.debounceInterval - now.timeIntervalSince(lastReloadAt))
+               now.timeIntervalSince(lastReloadAt) < readingDebounceInterval {
+                scheduleTrailingReadingReload(after: readingDebounceInterval - now.timeIntervalSince(lastReloadAt))
                 return
             }
             performReload(at: now)
