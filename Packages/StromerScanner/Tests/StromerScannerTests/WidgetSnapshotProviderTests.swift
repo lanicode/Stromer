@@ -55,9 +55,89 @@ final class WidgetSnapshotProviderTests: XCTestCase {
             maxDevices: 2
         )
 
-        XCTAssertEqual(timeline.entries.count, 1)
+        XCTAssertEqual(timeline.entries.count, StromerWidgetSnapshotProvider.defaultTimelineEntryOffsets.count)
         XCTAssertEqual(timeline.entries.first?.devices.map(\.name), ["MPPT", "SmartShunt"])
         XCTAssertEqual(timeline.reloadAfter, referenceDate.addingTimeInterval(1_800))
+    }
+
+    func testTimelineUsesDefaultEntryOffsets() {
+        let provider = StromerWidgetSnapshotProvider(
+            deviceStore: WidgetDeviceStore([batteryDevice]),
+            readingStore: WidgetReadingStore([batteryReading]),
+            now: { referenceDate }
+        )
+
+        let timeline = provider.timeline(selectedDeviceID: batteryDevice.id)
+
+        XCTAssertEqual(timeline.entries.count, StromerWidgetSnapshotProvider.defaultTimelineEntryOffsets.count)
+    }
+
+    func testTimelineEntryDatesMatchOffsetsAndAreMonotonic() {
+        let provider = StromerWidgetSnapshotProvider(
+            deviceStore: WidgetDeviceStore([batteryDevice]),
+            readingStore: WidgetReadingStore([batteryReading]),
+            now: { referenceDate }
+        )
+
+        let timeline = provider.timeline(selectedDeviceID: batteryDevice.id)
+        let expectedDates = StromerWidgetSnapshotProvider.defaultTimelineEntryOffsets.map {
+            referenceDate.addingTimeInterval($0)
+        }
+        let dates = timeline.entries.map(\.date)
+
+        XCTAssertEqual(dates, expectedDates)
+        for pair in zip(dates, dates.dropFirst()) {
+            XCTAssertLessThan(pair.0, pair.1)
+        }
+    }
+
+    func testTimelineEntriesKeepReadingValuesWhileRelativeTimeAges() throws {
+        let provider = StromerWidgetSnapshotProvider(
+            deviceStore: WidgetDeviceStore([batteryDevice]),
+            readingStore: WidgetReadingStore([batteryReading]),
+            now: { referenceDate }
+        )
+
+        let timeline = provider.timeline(
+            selectedDeviceID: batteryDevice.id,
+            maxDevices: 1
+        )
+        let devices = try timeline.entries.map { entry in
+            try XCTUnwrap(entry.devices.first)
+        }
+
+        XCTAssertEqual(Set(devices.map(\.mainValue)), ["51"])
+        XCTAssertEqual(Set(devices.map(\.mainUnit)), ["%"])
+        XCTAssertEqual(devices.first?.relativeLastUpdated, "gerade eben")
+        XCTAssertEqual(devices.last?.relativeLastUpdated, "vor 30 Min.")
+    }
+
+    func testTimelineEntryOffsetsCanBeOverriddenForSingleEntry() {
+        let provider = StromerWidgetSnapshotProvider(
+            deviceStore: WidgetDeviceStore([batteryDevice]),
+            readingStore: WidgetReadingStore([batteryReading]),
+            now: { referenceDate },
+            entryOffsets: [0]
+        )
+
+        let timeline = provider.timeline(selectedDeviceID: batteryDevice.id)
+
+        XCTAssertEqual(timeline.entries.count, 1)
+        XCTAssertEqual(timeline.entries.first?.date, referenceDate)
+    }
+
+    func testTimelineReloadAfterUsesGenerationReloadInterval() {
+        let provider = StromerWidgetSnapshotProvider(
+            deviceStore: WidgetDeviceStore([batteryDevice]),
+            readingStore: WidgetReadingStore([batteryReading]),
+            now: { referenceDate },
+            reloadInterval: 1_200
+        )
+
+        let timeline = provider.timeline(selectedDeviceID: batteryDevice.id)
+
+        XCTAssertGreaterThanOrEqual(timeline.reloadAfter, referenceDate.addingTimeInterval(1_200))
+        XCTAssertEqual(timeline.reloadAfter, referenceDate.addingTimeInterval(1_200))
     }
 
     func testMediumPreferencesManualOrderDevices() {
