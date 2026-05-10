@@ -1,30 +1,46 @@
 import Foundation
 
 public struct StromerWidgetSnapshotProvider: Sendable {
+    /// Default offsets for widget timeline entries so relative timestamps can age without a fresh reload.
+    public static let defaultTimelineEntryOffsets: [TimeInterval] = [
+        0,
+        5 * 60,
+        10 * 60,
+        20 * 60,
+        30 * 60
+    ]
+
     private let deviceStore: any RegisteredDeviceSnapshotStoring
     private let readingStore: any ReadingStoring
     private let nowProvider: @Sendable () -> Date
     private let reloadInterval: TimeInterval
+    private let entryOffsets: [TimeInterval]
 
+    /// Creates a snapshot provider for widget snapshots and timelines.
     public init(
         deviceStore: any RegisteredDeviceSnapshotStoring,
         readingStore: any ReadingStoring,
         now: @escaping @Sendable () -> Date = Date.init,
-        reloadInterval: TimeInterval = 30 * 60
+        reloadInterval: TimeInterval = 30 * 60,
+        entryOffsets: [TimeInterval] = StromerWidgetSnapshotProvider.defaultTimelineEntryOffsets
     ) {
         self.deviceStore = deviceStore
         self.readingStore = readingStore
         self.nowProvider = now
         self.reloadInterval = reloadInterval
+        self.entryOffsets = entryOffsets.isEmpty ? [0] : entryOffsets
     }
 
+    /// Creates a snapshot provider backed by the shared app group stores.
     public static func appGroup(
-        now: @escaping @Sendable () -> Date = Date.init
+        now: @escaping @Sendable () -> Date = Date.init,
+        entryOffsets: [TimeInterval] = StromerWidgetSnapshotProvider.defaultTimelineEntryOffsets
     ) throws -> StromerWidgetSnapshotProvider {
         try StromerWidgetSnapshotProvider(
             deviceStore: AppGroupDeviceSnapshotStore(),
             readingStore: AppGroupReadingStore(),
-            now: now
+            now: now,
+            entryOffsets: entryOffsets
         )
     }
 
@@ -53,13 +69,11 @@ public struct StromerWidgetSnapshotProvider: Sendable {
         let now = nowProvider()
 
         do {
-            let devices = try deviceStore.loadDeviceSnapshots()
-                .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
-            let readings = try readingStore.loadReadings()
+            let sourceData = try loadSnapshotSourceData()
             return makeSnapshot(
                 date: now,
-                devices: devices,
-                readings: readings,
+                devices: sourceData.devices,
+                readings: sourceData.readings,
                 selectedDeviceID: selectedDeviceID,
                 preferences: preferences,
                 maxDevices: maxDevices
@@ -90,15 +104,68 @@ public struct StromerWidgetSnapshotProvider: Sendable {
         preferences: StromerWidgetPreferences?,
         maxDevices: Int = 2
     ) -> StromerWidgetTimelineSnapshot {
-        let snapshot = snapshot(
-            selectedDeviceID: selectedDeviceID,
-            preferences: preferences,
-            maxDevices: maxDevices
-        )
+        let now = nowProvider()
+        let entries: [StromerWidgetSnapshot]
+
+        do {
+            let sourceData = try loadSnapshotSourceData()
+            entries = makeTimelineEntries(
+                now: now,
+                devices: sourceData.devices,
+                readings: sourceData.readings,
+                selectedDeviceID: selectedDeviceID,
+                preferences: preferences,
+                maxDevices: maxDevices
+            )
+        } catch {
+            entries = entryOffsets.map { offset in
+                StromerWidgetSnapshot(
+                    date: now.addingTimeInterval(offset),
+                    devices: [],
+                    status: .noDevices,
+                    message: "Widget-Daten nicht verfügbar"
+                )
+            }
+        }
+
+        // Keep the reload request anchored to the generation time: later entries only age labels,
+        // while fresh BLE-backed data should still be requested after the configured interval.
         return StromerWidgetTimelineSnapshot(
-            entries: [snapshot],
-            reloadAfter: snapshot.date.addingTimeInterval(reloadInterval)
+            entries: entries,
+            reloadAfter: now.addingTimeInterval(reloadInterval)
         )
+    }
+
+    private struct SnapshotSourceData {
+        let devices: [RegisteredDeviceSnapshot]
+        let readings: [DeviceReading]
+    }
+
+    private func loadSnapshotSourceData() throws -> SnapshotSourceData {
+        let devices = try deviceStore.loadDeviceSnapshots()
+            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+        let readings = try readingStore.loadReadings()
+        return SnapshotSourceData(devices: devices, readings: readings)
+    }
+
+    private func makeTimelineEntries(
+        now: Date,
+        devices: [RegisteredDeviceSnapshot],
+        readings: [DeviceReading],
+        selectedDeviceID: UUID?,
+        preferences: StromerWidgetPreferences?,
+        maxDevices: Int
+    ) -> [StromerWidgetSnapshot] {
+        entryOffsets.map { offset in
+            makeSnapshot(
+                date: now.addingTimeInterval(offset),
+                devices: devices,
+                readings: readings,
+                selectedDeviceID: selectedDeviceID,
+                preferences: preferences,
+                maxDevices: maxDevices
+            )
+        }
     }
 
     private func makeSnapshot(
