@@ -158,4 +158,114 @@ final class WidgetRefreshCoordinatorTests: XCTestCase {
 
         XCTAssertEqual(reloadCount, 5)
     }
+
+    func testBackgroundReloadActivatesShortDebounceWindow() async {
+        let now = Date(timeIntervalSince1970: 0)
+        var reloadCount = 0
+        let coordinator = WidgetRefreshCoordinator(
+            nowProvider: { now },
+            reloadHandler: { reloadCount += 1 },
+            readingDebounceInterval: 5,
+            backgroundGraceDebounceInterval: 0.1,
+            backgroundGraceDuration: 1
+        )
+
+        coordinator.requestReload(reason: .background)
+        XCTAssertEqual(reloadCount, 1)
+
+        coordinator.requestReload(reason: .reading)
+        XCTAssertEqual(reloadCount, 1)
+
+        try? await Task.sleep(for: .milliseconds(180))
+        XCTAssertEqual(reloadCount, 2)
+    }
+
+    func testForegroundEndsBackgroundGraceWindowEarly() async {
+        var now = Date(timeIntervalSince1970: 0)
+        var reloadCount = 0
+        let coordinator = WidgetRefreshCoordinator(
+            nowProvider: { now },
+            reloadHandler: { reloadCount += 1 },
+            readingDebounceInterval: 5,
+            backgroundGraceDebounceInterval: 0.1,
+            backgroundGraceDuration: 1
+        )
+
+        coordinator.requestReload(reason: .background)
+        now = Date(timeIntervalSince1970: 0.05)
+        coordinator.requestReload(reason: .foreground)
+        now = Date(timeIntervalSince1970: 0.1)
+        coordinator.requestReload(reason: .reading)
+
+        XCTAssertEqual(reloadCount, 2)
+
+        try? await Task.sleep(for: .milliseconds(200))
+        XCTAssertEqual(reloadCount, 2)
+    }
+
+    func testBackgroundGraceWindowExpiresAfterDuration() async {
+        var now = Date(timeIntervalSince1970: 0)
+        var reloadCount = 0
+        let coordinator = WidgetRefreshCoordinator(
+            nowProvider: { now },
+            reloadHandler: { reloadCount += 1 },
+            readingDebounceInterval: 5,
+            backgroundGraceDebounceInterval: 0.1,
+            backgroundGraceDuration: 0.1
+        )
+
+        coordinator.requestReload(reason: .background)
+        try? await Task.sleep(for: .milliseconds(250))
+
+        now = Date(timeIntervalSince1970: 0.25)
+        coordinator.requestReload(reason: .reading)
+
+        XCTAssertEqual(reloadCount, 1)
+
+        try? await Task.sleep(for: .milliseconds(200))
+        XCTAssertEqual(reloadCount, 1)
+    }
+
+    func testRepeatedBackgroundRefreshesWindow() async {
+        var now = Date(timeIntervalSince1970: 0)
+        var reloadCount = 0
+        let coordinator = WidgetRefreshCoordinator(
+            nowProvider: { now },
+            reloadHandler: { reloadCount += 1 },
+            readingDebounceInterval: 5,
+            backgroundGraceDebounceInterval: 0.1,
+            backgroundGraceDuration: 0.4
+        )
+
+        coordinator.requestReload(reason: .background)
+        try? await Task.sleep(for: .milliseconds(200))
+
+        now = Date(timeIntervalSince1970: 0.2)
+        coordinator.requestReload(reason: .background)
+
+        XCTAssertEqual(reloadCount, 2)
+
+        try? await Task.sleep(for: .milliseconds(250))
+        now = Date(timeIntervalSince1970: 0.45)
+        coordinator.requestReload(reason: .reading)
+
+        XCTAssertEqual(reloadCount, 3)
+    }
+
+    func testGraceWindowDefaultsMatchSpec() {
+        let coordinator = WidgetRefreshCoordinator(
+            nowProvider: { Date(timeIntervalSince1970: 0) },
+            reloadHandler: {}
+        )
+        let mirror = Mirror(reflecting: coordinator)
+        let backgroundGraceDebounceInterval = mirror.children.first {
+            $0.label == "backgroundGraceDebounceInterval"
+        }?.value as? TimeInterval
+        let backgroundGraceDuration = mirror.children.first {
+            $0.label == "backgroundGraceDuration"
+        }?.value as? TimeInterval
+
+        XCTAssertEqual(backgroundGraceDebounceInterval, 30)
+        XCTAssertEqual(backgroundGraceDuration, 180)
+    }
 }
