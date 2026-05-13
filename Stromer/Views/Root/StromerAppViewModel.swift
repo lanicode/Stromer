@@ -266,7 +266,19 @@ final class StromerAppViewModel {
         )
         let defaults = UserDefaults(suiteName: StromerIdentifiers.appGroup) ?? .standard
         let pipDebugMetrics = PipDebugMetrics(defaults: defaults)
-        let pipLiveDisplayService = PipLiveDisplayService(metrics: pipDebugMetrics)
+        let pipSnapshotProvider: @MainActor () -> StromerWidgetSnapshot?
+        do {
+            let provider = try StromerWidgetSnapshotProvider.appGroup()
+            pipSnapshotProvider = {
+                provider.snapshot(selectedDeviceID: nil, maxDevices: 2)
+            }
+        } catch {
+            pipSnapshotProvider = { nil }
+        }
+        let pipLiveDisplayService = PipLiveDisplayService(
+            metrics: pipDebugMetrics,
+            snapshotProvider: pipSnapshotProvider
+        )
 
         let model = StromerAppViewModel(
             registry: registry,

@@ -2,6 +2,7 @@ import AVFoundation
 import AVKit
 import CoreMedia
 import Observation
+import StromerScanner
 import SwiftUI
 
 @MainActor
@@ -17,6 +18,7 @@ final class PipLiveDisplayService: NSObject {
 
     @ObservationIgnored private let metrics: PipDebugMetrics
     @ObservationIgnored private let frameRenderer: PipFrameRenderer
+    @ObservationIgnored private let snapshotProvider: @MainActor () -> StromerWidgetSnapshot?
     @ObservationIgnored private let supportProvider: () -> Bool
     @ObservationIgnored private let nowProvider: () -> Date
     @ObservationIgnored private(set) var displayLayer: AVSampleBufferDisplayLayer?
@@ -28,11 +30,13 @@ final class PipLiveDisplayService: NSObject {
     init(
         metrics: PipDebugMetrics,
         frameRenderer: PipFrameRenderer? = nil,
+        snapshotProvider: @escaping @MainActor () -> StromerWidgetSnapshot? = { nil },
         supportProvider: @escaping () -> Bool = AVPictureInPictureController.isPictureInPictureSupported,
         nowProvider: @escaping () -> Date = Date.init
     ) {
         self.metrics = metrics
         self.frameRenderer = frameRenderer ?? PipFrameRenderer()
+        self.snapshotProvider = snapshotProvider
         self.supportProvider = supportProvider
         self.nowProvider = nowProvider
     }
@@ -170,8 +174,22 @@ final class PipLiveDisplayService: NSObject {
             return
         }
 
+        let snapshot = snapshotProvider()
+        if snapshot == nil {
+            lastError = "PiP-Snapshot-Provider nicht verfügbar."
+        }
+        let dashboardData = snapshot.map {
+            PipDashboardData.from(snapshot: $0, now: now)
+        } ?? .empty()
         let elapsedSeconds = Int(now.timeIntervalSince(startedAt ?? now))
         let view = PipLiveDashboard(
+            primaryValue: dashboardData.primaryValue,
+            primaryUnit: dashboardData.primaryUnit,
+            primaryLabel: dashboardData.primaryLabel,
+            secondaryValue: dashboardData.secondaryValue,
+            secondaryLabel: dashboardData.secondaryLabel,
+            relativeUpdatedText: dashboardData.relativeUpdatedText,
+            isStale: dashboardData.isStale,
             elapsedSeconds: elapsedSeconds,
             readsTotal: metrics.readsTotal
         )
