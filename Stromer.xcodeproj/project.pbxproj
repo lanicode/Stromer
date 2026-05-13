@@ -134,6 +134,17 @@
 		T4B000000000000000000003 /* AggregationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T4F000000000000000000003 /* AggregationTests.swift */; };
 		T4B000000000000000000004 /* DailyUpsertTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = T4F000000000000000000004 /* DailyUpsertTests.swift */; };
 		C4T000000000000000000001 /* HistoryQueryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4F000000000000000000005 /* HistoryQueryTests.swift */; };
+		G1B000000000000000000001 /* PipLiveDisplayService.swift in Sources */ = {isa = PBXBuildFile; fileRef = G1F000000000000000000001 /* PipLiveDisplayService.swift */; };
+		G1B000000000000000000002 /* PipFrameRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = G1F000000000000000000002 /* PipFrameRenderer.swift */; };
+		G1B000000000000000000003 /* PipDebugMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = G1F000000000000000000003 /* PipDebugMetrics.swift */; };
+		G1B000000000000000000004 /* PipLiveDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = G1F000000000000000000004 /* PipLiveDashboard.swift */; };
+		G1C000000000000000000001 /* PipLiveDisplayService.swift in Sources */ = {isa = PBXBuildFile; fileRef = G1F000000000000000000001 /* PipLiveDisplayService.swift */; };
+		G1C000000000000000000002 /* PipFrameRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = G1F000000000000000000002 /* PipFrameRenderer.swift */; };
+		G1C000000000000000000003 /* PipDebugMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = G1F000000000000000000003 /* PipDebugMetrics.swift */; };
+		G1C000000000000000000004 /* PipLiveDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = G1F000000000000000000004 /* PipLiveDashboard.swift */; };
+		G1T000000000000000000001 /* PipFrameRendererTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = G1F000000000000000000005 /* PipFrameRendererTests.swift */; };
+		G1T000000000000000000002 /* PipDebugMetricsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = G1F000000000000000000006 /* PipDebugMetricsTests.swift */; };
+		G1T000000000000000000003 /* PipLiveDisplayServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = G1F000000000000000000007 /* PipLiveDisplayServiceTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -260,6 +271,13 @@
 		T4F000000000000000000002 /* HistoryStoreDebounceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HistoryStoreDebounceTests.swift; sourceTree = "<group>"; };
 		T4F000000000000000000003 /* AggregationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AggregationTests.swift; sourceTree = "<group>"; };
 		T4F000000000000000000004 /* DailyUpsertTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DailyUpsertTests.swift; sourceTree = "<group>"; };
+		G1F000000000000000000001 /* PipLiveDisplayService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PipLiveDisplayService.swift; sourceTree = "<group>"; };
+		G1F000000000000000000002 /* PipFrameRenderer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PipFrameRenderer.swift; sourceTree = "<group>"; };
+		G1F000000000000000000003 /* PipDebugMetrics.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PipDebugMetrics.swift; sourceTree = "<group>"; };
+		G1F000000000000000000004 /* PipLiveDashboard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PipLiveDashboard.swift; sourceTree = "<group>"; };
+		G1F000000000000000000005 /* PipFrameRendererTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PipFrameRendererTests.swift; sourceTree = "<group>"; };
+		G1F000000000000000000006 /* PipDebugMetricsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PipDebugMetricsTests.swift; sourceTree = "<group>"; };
+		G1F000000000000000000007 /* PipLiveDisplayServiceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PipLiveDisplayServiceTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -355,6 +373,7 @@
 				000000000000000000000008 /* DeviceList */,
 				000000000000000000000009 /* DeviceDetail */,
 				00000000000000000000000A /* DeviceRegistration */,
+				G1G000000000000000000001 /* Pip */,
 				00000000000000000000000B /* Settings */,
 				00000000000000000000000C /* Components */,
 				84553AD0E91CD64A4C024483 /* Onboarding */,
@@ -424,6 +443,9 @@
 			children = (
 				A27C244D05E124D5F669F847 /* WidgetRefreshCoordinator.swift */,
 				D41F00000000000000000001 /* ReceptionStatusObserver.swift */,
+				G1F000000000000000000001 /* PipLiveDisplayService.swift */,
+				G1F000000000000000000002 /* PipFrameRenderer.swift */,
+				G1F000000000000000000003 /* PipDebugMetrics.swift */,
 			);
 			name = Services;
 			path = Services;
@@ -457,6 +479,9 @@
 				P9F00000000000000000000B /* YieldEstimatorTests.swift */,
 				P9F00000000000000000000C /* LocalHorizonCalculatorTests.swift */,
 				D41F00000000000000000002 /* ReceptionStatusObserverTests.swift */,
+				G1F000000000000000000005 /* PipFrameRendererTests.swift */,
+				G1F000000000000000000006 /* PipDebugMetricsTests.swift */,
+				G1F000000000000000000007 /* PipLiveDisplayServiceTests.swift */,
 			);
 			name = StromerTests;
 			path = StromerTests;
@@ -632,6 +657,14 @@
 			);
 			name = Shared;
 			path = Shared;
+			sourceTree = "<group>";
+		};
+		G1G000000000000000000001 /* Pip */ = {
+			isa = PBXGroup;
+			children = (
+				G1F000000000000000000004 /* PipLiveDashboard.swift */,
+			);
+			path = Pip;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -858,6 +891,10 @@
 				P9B000000000000000000007 /* SolarForecastViewModel.swift in Sources */,
 				P9B000000000000000000008 /* SolarForecastSection.swift in Sources */,
 				P9B000000000000000000009 /* HorizonPanoramaView.swift in Sources */,
+				G1B000000000000000000001 /* PipLiveDisplayService.swift in Sources */,
+				G1B000000000000000000002 /* PipFrameRenderer.swift in Sources */,
+				G1B000000000000000000003 /* PipDebugMetrics.swift in Sources */,
+				G1B000000000000000000004 /* PipLiveDashboard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -923,6 +960,13 @@
 				P9C00000000000000000000C /* LocalHorizonCalculatorTests.swift in Sources */,
 				D41C00000000000000000001 /* ReceptionStatusObserver.swift in Sources */,
 				D41C00000000000000000002 /* ReceptionStatusObserverTests.swift in Sources */,
+				G1C000000000000000000001 /* PipLiveDisplayService.swift in Sources */,
+				G1C000000000000000000002 /* PipFrameRenderer.swift in Sources */,
+				G1C000000000000000000003 /* PipDebugMetrics.swift in Sources */,
+				G1C000000000000000000004 /* PipLiveDashboard.swift in Sources */,
+				G1T000000000000000000001 /* PipFrameRendererTests.swift in Sources */,
+				G1T000000000000000000002 /* PipDebugMetricsTests.swift in Sources */,
+				G1T000000000000000000003 /* PipLiveDisplayServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -58,6 +58,9 @@ struct DashboardView: View {
                         BoltSecondary("Geräte öffnen", action: openDevices)
                             .padding(.horizontal, 18)
                     }
+
+                    liveModeDebugControl
+                        .padding(.horizontal, 18)
                 }
                 .padding(.top, 8)
                 .padding(.bottom, 30)
@@ -146,6 +149,52 @@ struct DashboardView: View {
         .padding(14)
         .background(Color.boltPaper)
         .overlay(Rectangle().stroke(Color.boltHair, lineWidth: 1))
+    }
+
+    private var liveModeDebugControl: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Button {
+                if appModel.isLiveModeActive {
+                    appModel.stopLiveMode()
+                } else {
+                    appModel.startLiveMode()
+                }
+            } label: {
+                Text(appModel.isLiveModeActive ? "Live-Modus stoppen" : "Live-Modus starten")
+                    .font(.system(size: 12, weight: .heavy))
+                    .tracking(1.4)
+                    .foregroundStyle(appModel.isLiveModeSupported ? Color.boltCream : Color.boltInkSoft)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 14)
+                    .background(appModel.isLiveModeActive ? Color.boltInk : Color.boltTeal)
+                    .opacity(appModel.isLiveModeSupported ? 1 : 0.45)
+            }
+            .buttonStyle(.plain)
+            .disabled(!appModel.isLiveModeSupported)
+
+            Text(liveModeStatusText)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(Color.boltInkSoft)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(14)
+        .background(Color.boltPaper)
+        .overlay(Rectangle().stroke(Color.boltHair, lineWidth: 1))
+    }
+
+    private var liveModeStatusText: String {
+        if !appModel.isLiveModeSupported {
+            return "PiP nicht unterstützt"
+        }
+
+        if let error = appModel.liveModeErrorMessage {
+            return "Fehler: \(error)"
+        }
+
+        return appModel.isLiveModeActive
+            ? "Live-Modus läuft"
+            : "PiP-Debug-Modus bereit"
     }
 
     private var dashboardConnectionStatus: ReceptionStatusObserver.ConnectionStatus {
