@@ -103,6 +103,8 @@ final class StromerAppViewModel {
     @ObservationIgnored let forecastSettings: ForecastSettings
     @ObservationIgnored let solarForecastViewModel: SolarForecastViewModel
     let receptionStatusObserver: ReceptionStatusObserver
+    @ObservationIgnored let pipLiveDisplayService: PipLiveDisplayService
+    @ObservationIgnored let pipDebugMetrics: PipDebugMetrics
     @ObservationIgnored private let liveActivityService: LiveActivityService<ActivityKitActivityClient>
     @ObservationIgnored let widgetRefreshCoordinator: WidgetRefreshCoordinator
     @ObservationIgnored private let deviceSnapshotStore: (any RegisteredDeviceSnapshotStoring)?
@@ -129,6 +131,8 @@ final class StromerAppViewModel {
         forecastSettings: ForecastSettings,
         solarForecastViewModel: SolarForecastViewModel,
         receptionStatusObserver: ReceptionStatusObserver,
+        pipLiveDisplayService: PipLiveDisplayService,
+        pipDebugMetrics: PipDebugMetrics,
         liveActivityService: LiveActivityService<ActivityKitActivityClient>,
         widgetRefreshCoordinator: WidgetRefreshCoordinator? = nil,
         deviceSnapshotStore: (any RegisteredDeviceSnapshotStoring)?,
@@ -150,6 +154,8 @@ final class StromerAppViewModel {
         self.forecastSettings = forecastSettings
         self.solarForecastViewModel = solarForecastViewModel
         self.receptionStatusObserver = receptionStatusObserver
+        self.pipLiveDisplayService = pipLiveDisplayService
+        self.pipDebugMetrics = pipDebugMetrics
         self.liveActivityService = liveActivityService
         self.widgetRefreshCoordinator = widgetRefreshCoordinator
         self.deviceSnapshotStore = deviceSnapshotStore
@@ -168,6 +174,8 @@ final class StromerAppViewModel {
                 }
             },
             onReadingUpdated: { _ in
+                pipDebugMetrics.incrementReads()
+                pipLiveDisplayService.renderReadingUpdate()
                 widgetRefreshCoordinator.requestReload(reason: .reading)
             }
         )
@@ -257,6 +265,8 @@ final class StromerAppViewModel {
             suiteName: StromerIdentifiers.appGroup
         )
         let defaults = UserDefaults(suiteName: StromerIdentifiers.appGroup) ?? .standard
+        let pipDebugMetrics = PipDebugMetrics(defaults: defaults)
+        let pipLiveDisplayService = PipLiveDisplayService(metrics: pipDebugMetrics)
 
         let model = StromerAppViewModel(
             registry: registry,
@@ -274,6 +284,8 @@ final class StromerAppViewModel {
             forecastSettings: forecastSettings,
             solarForecastViewModel: solarForecastViewModel,
             receptionStatusObserver: receptionStatusObserver,
+            pipLiveDisplayService: pipLiveDisplayService,
+            pipDebugMetrics: pipDebugMetrics,
             liveActivityService: liveActivityService,
             deviceSnapshotStore: deviceSnapshotStore,
             metadataDefaults: defaults,
@@ -361,6 +373,27 @@ final class StromerAppViewModel {
             registeredDevices: registeredDevices,
             latestReadings: latestReadingTimestamps
         )
+    }
+
+    var isLiveModeSupported: Bool {
+        pipLiveDisplayService.isSupported
+    }
+
+    var isLiveModeActive: Bool {
+        pipLiveDisplayService.isPipActive
+    }
+
+    var liveModeErrorMessage: String? {
+        pipLiveDisplayService.lastError
+    }
+
+    func startLiveMode() {
+        pipDebugMetrics.resetSession()
+        pipLiveDisplayService.start()
+    }
+
+    func stopLiveMode() {
+        pipLiveDisplayService.stop()
     }
 
     func registerDevice(
