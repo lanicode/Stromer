@@ -19,7 +19,7 @@ final class PipLiveDisplayService: NSObject {
     @ObservationIgnored private let frameRenderer: PipFrameRenderer
     @ObservationIgnored private let supportProvider: () -> Bool
     @ObservationIgnored private let nowProvider: () -> Date
-    @ObservationIgnored private var displayLayer: AVSampleBufferDisplayLayer?
+    @ObservationIgnored private(set) var displayLayer: AVSampleBufferDisplayLayer?
     @ObservationIgnored private var pipController: AVPictureInPictureController?
     @ObservationIgnored private var frameLoopTask: Task<Void, Never>?
     @ObservationIgnored private var startedAt: Date?
@@ -41,9 +41,21 @@ final class PipLiveDisplayService: NSObject {
         frameLoopTask?.cancel()
     }
 
+    func attachDisplayLayer(_ layer: AVSampleBufferDisplayLayer) {
+        layer.frame = CGRect(origin: .zero, size: renderSize)
+        layer.videoGravity = .resizeAspect
+        displayLayer = layer
+        configurePictureInPictureIfNeeded()
+    }
+
     func start() {
         guard isSupported else {
             lastError = "PiP nicht unterstützt."
+            return
+        }
+
+        guard displayLayer != nil else {
+            lastError = "PiP-Display-Layer nicht verbunden."
             return
         }
 
@@ -100,10 +112,9 @@ final class PipLiveDisplayService: NSObject {
             return
         }
 
-        let displayLayer = AVSampleBufferDisplayLayer()
-        displayLayer.frame = CGRect(origin: .zero, size: renderSize)
-        displayLayer.videoGravity = .resizeAspect
-        self.displayLayer = displayLayer
+        guard let displayLayer else {
+            return
+        }
 
         let contentSource = AVPictureInPictureController.ContentSource(
             sampleBufferDisplayLayer: displayLayer,
