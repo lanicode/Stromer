@@ -27,6 +27,19 @@ final class PipLiveDisplayServiceTests: XCTestCase {
         XCTAssertFalse(service.isPipActive)
     }
 
+    func testStartWithoutAttachedLayerSetsError() throws {
+        let metrics = PipDebugMetrics(defaults: try makeDefaults(), readsKey: "reads")
+        let service = PipLiveDisplayService(
+            metrics: metrics,
+            supportProvider: { true }
+        )
+
+        service.start()
+
+        XCTAssertFalse(service.isPipActive)
+        XCTAssertEqual(service.lastError, "PiP-Display-Layer nicht verbunden.")
+    }
+
     private func makeDefaults() throws -> UserDefaults {
         let suiteName = "com.lanicode.StromerApp.tests.pip-service"
         guard let defaults = UserDefaults(suiteName: suiteName) else {

@@ -61,6 +61,14 @@ struct DashboardView: View {
 
                     liveModeDebugControl
                         .padding(.horizontal, 18)
+
+                    // PiP requires the sample-buffer layer to be mounted in a window-attached view hierarchy.
+                    PipDisplayLayerView { layer in
+                        appModel.pipLiveDisplayService.attachDisplayLayer(layer)
+                    }
+                    .frame(width: 1, height: 1)
+                    .opacity(0.001)
+                    .accessibilityHidden(true)
                 }
                 .padding(.top, 8)
                 .padding(.bottom, 30)
