@@ -8,28 +8,36 @@ import SwiftUI
 final class PipFrameRenderer {
     private(set) var errorMessage: String?
 
+    @ObservationIgnored private let pixelScale: CGFloat
     @ObservationIgnored private var nextPresentationTime = CMTime.zero
     @ObservationIgnored private let frameDuration = CMTime(value: 1, timescale: 30)
+
+    /// Creates a renderer that keeps the SwiftUI layout size stable while rendering denser pixels for sharper enlarged PiP windows.
+    init(pixelScale: CGFloat = 3) {
+        self.pixelScale = pixelScale
+    }
 
     func render<V: View>(_ view: V, size: CGSize) -> CMSampleBuffer? {
         errorMessage = nil
 
-        let width = max(1, Int(size.width.rounded(.toNearestOrAwayFromZero)))
-        let height = max(1, Int(size.height.rounded(.toNearestOrAwayFromZero)))
-        let framedView = view.frame(width: CGFloat(width), height: CGFloat(height))
+        let logicalWidth = max(1, size.width)
+        let logicalHeight = max(1, size.height)
+        let pixelWidth = max(1, Int((logicalWidth * pixelScale).rounded(.toNearestOrAwayFromZero)))
+        let pixelHeight = max(1, Int((logicalHeight * pixelScale).rounded(.toNearestOrAwayFromZero)))
+        let framedView = view.frame(width: logicalWidth, height: logicalHeight)
         let renderer = ImageRenderer(content: framedView)
-        renderer.scale = 1
+        renderer.scale = pixelScale
 
         guard let cgImage = renderer.cgImage else {
             errorMessage = "PiP-Frame konnte nicht gerendert werden."
             return nil
         }
 
-        guard let pixelBuffer = makePixelBuffer(width: width, height: height) else {
+        guard let pixelBuffer = makePixelBuffer(width: pixelWidth, height: pixelHeight) else {
             return nil
         }
 
-        guard draw(cgImage, into: pixelBuffer, width: width, height: height) else {
+        guard draw(cgImage, into: pixelBuffer, width: pixelWidth, height: pixelHeight) else {
             return nil
         }
 

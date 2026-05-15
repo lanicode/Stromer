@@ -22,72 +22,81 @@ struct PipLiveDashboard: View {
                 Spacer(minLength: 4)
 
                 Text("PiP \(formattedElapsed) · Reads \(readsTotal)")
-                    .font(.system(size: 9, weight: .semibold, design: .monospaced))
-                    .foregroundStyle(Color.white.opacity(0.46))
+                    .font(.system(size: 7, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(Color.boltInkFaint)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-            .padding(14)
+            .padding(8)
 
             if isStale {
                 Rectangle()
-                    .fill(Color(red: 1, green: 0.58, blue: 0.17))
-                    .frame(width: 18, height: 5)
-                    .padding(10)
+                    .fill(Color.boltWarn)
+                    .frame(width: 12, height: 3)
+                    .padding(6)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .colorScheme(.light)
     }
 
     private var valueStack: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(alignment: .firstTextBaseline, spacing: 5) {
                 Text(primaryValue)
-                    .font(.system(size: 42, weight: .heavy, design: .rounded))
-                    .foregroundStyle(.white)
+                    .font(.system(size: 26, weight: .heavy, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(Color.boltInk)
                     .lineLimit(1)
                     .minimumScaleFactor(0.45)
 
                 Text(primaryUnit)
-                    .font(.system(size: 20, weight: .bold, design: .rounded))
-                    .foregroundStyle(Color.white.opacity(0.82))
+                    .font(.system(size: 13, weight: .heavy, design: .rounded))
+                    .foregroundStyle(Color.boltTeal)
                     .lineLimit(1)
                     .minimumScaleFactor(0.55)
             }
 
             Text(primaryLabel)
-                .font(.system(size: 10, weight: .heavy))
-                .tracking(1.1)
-                .foregroundStyle(Color.white.opacity(0.62))
+                .font(.system(size: 8, weight: .heavy))
+                .tracking(0.6)
+                .textCase(.uppercase)
+                .foregroundStyle(Color.boltInkSoft)
                 .lineLimit(1)
 
-            HStack(alignment: .firstTextBaseline, spacing: 5) {
-                Text(secondaryValue)
-                    .font(.system(size: 17, weight: .bold, design: .monospaced))
-                    .foregroundStyle(Color.white.opacity(0.9))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.55)
+            if hasSecondaryValues {
+                HStack(alignment: .firstTextBaseline, spacing: 5) {
+                    Text(secondaryValue)
+                        .font(.system(size: 11, weight: .bold, design: .monospaced))
+                        .foregroundStyle(Color.boltInk)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.55)
 
-                Text("· \(secondaryLabel)")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(Color.white.opacity(0.62))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
+                    Text("· \(secondaryLabel)")
+                        .font(.system(size: 8, weight: .semibold))
+                        .foregroundStyle(Color.boltInkSoft)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                }
+                .padding(.top, 8)
             }
-            .padding(.top, 8)
 
             Text(relativeUpdatedText)
-                .font(.system(size: 10, weight: .medium))
-                .foregroundStyle(Color.white.opacity(0.48))
+                .font(.system(size: 8, weight: .medium))
+                .foregroundStyle(Color.boltInkSoft)
                 .lineLimit(1)
                 .padding(.top, 2)
         }
     }
 
+    private var hasSecondaryValues: Bool {
+        secondaryValue != "—" || secondaryLabel != "—"
+    }
+
     private var backgroundGradient: some View {
         LinearGradient(
             colors: [
-                Color(red: 0.02, green: 0.06, blue: 0.08),
-                Color(red: 0.02, green: 0.12, blue: 0.15)
+                Color.boltCream,
+                Color.boltCreamDeep
             ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
