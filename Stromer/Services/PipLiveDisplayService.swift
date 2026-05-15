@@ -10,7 +10,7 @@ import SwiftUI
 final class PipLiveDisplayService: NSObject {
     private(set) var isPipActive = false
     private(set) var lastError: String?
-    private(set) var renderSize = CGSize(width: 320, height: 180)
+    private(set) var renderSize: CGSize = CGSize(width: 320, height: 180)
 
     var isSupported: Bool {
         supportProvider()
@@ -23,9 +23,12 @@ final class PipLiveDisplayService: NSObject {
     @ObservationIgnored private let nowProvider: () -> Date
     @ObservationIgnored private(set) var displayLayer: AVSampleBufferDisplayLayer?
     @ObservationIgnored private var pipController: AVPictureInPictureController?
+    @ObservationIgnored private var warmUpTask: Task<Void, Never>?
     @ObservationIgnored private var frameLoopTask: Task<Void, Never>?
     @ObservationIgnored private var startedAt: Date?
     @ObservationIgnored private var lastFrameRenderedAt: Date?
+
+    private static let snapshotProviderUnavailableError = "PiP-Snapshot-Provider nicht verfügbar."
 
     init(
         metrics: PipDebugMetrics,
@@ -42,6 +45,7 @@ final class PipLiveDisplayService: NSObject {
     }
 
     deinit {
+        warmUpTask?.cancel()
         frameLoopTask?.cancel()
     }
 
@@ -88,10 +92,26 @@ final class PipLiveDisplayService: NSObject {
             return
         }
 
-        pipController.startPictureInPicture()
+        stopWarmUpTask()
+        warmUpTask = Task { @MainActor [weak self] in
+            await self?.enqueueWarmUpFrames()
+            guard !Task.isCancelled,
+                  let self,
+                  let pipController = self.pipController else {
+                return
+            }
+
+            if pipController.isPictureInPictureActive {
+                self.isPipActive = true
+                return
+            }
+
+            pipController.startPictureInPicture()
+        }
     }
 
     func stop() {
+        stopWarmUpTask()
         stopFrameLoop()
 
         if pipController?.isPictureInPictureActive == true {
@@ -109,6 +129,31 @@ final class PipLiveDisplayService: NSObject {
         }
 
         renderFrame(force: false)
+    }
+
+    private func enqueueWarmUpFrames() async {
+        for frameIndex in 0..<3 {
+            guard !Task.isCancelled else {
+                return
+            }
+
+            renderFrame(force: true)
+
+            guard frameIndex < 2 else {
+                continue
+            }
+
+            do {
+                try await Task.sleep(for: .milliseconds(80))
+            } catch {
+                return
+            }
+        }
+    }
+
+    private func stopWarmUpTask() {
+        warmUpTask?.cancel()
+        warmUpTask = nil
     }
 
     private func configurePictureInPictureIfNeeded() {
@@ -175,8 +220,9 @@ final class PipLiveDisplayService: NSObject {
         }
 
         let snapshot = snapshotProvider()
-        if snapshot == nil {
-            lastError = "PiP-Snapshot-Provider nicht verfügbar."
+        if snapshot == nil,
+           lastError == nil || lastError == Self.snapshotProviderUnavailableError {
+            lastError = Self.snapshotProviderUnavailableError
         }
         let dashboardData = snapshot.map {
             PipDashboardData.from(snapshot: $0, now: now)
@@ -236,6 +282,7 @@ extension PipLiveDisplayService: AVPictureInPictureControllerDelegate {
     ) {
         Task { @MainActor [weak self] in
             self?.isPipActive = false
+            self?.stopWarmUpTask()
             self?.stopFrameLoop()
             self?.startedAt = nil
             self?.deactivateAudioSession()
@@ -250,6 +297,7 @@ extension PipLiveDisplayService: AVPictureInPictureControllerDelegate {
         Task { @MainActor [weak self] in
             self?.isPipActive = false
             self?.lastError = "PiP konnte nicht gestartet werden: \(message)"
+            self?.stopWarmUpTask()
             self?.stopFrameLoop()
             self?.deactivateAudioSession()
         }
@@ -280,12 +328,8 @@ extension PipLiveDisplayService: AVPictureInPictureSampleBufferPlaybackDelegate 
         didTransitionToRenderSize newRenderSize: CMVideoDimensions
     ) {
         Task { @MainActor [weak self] in
-            let size = CGSize(
-                width: max(1, Int(newRenderSize.width)),
-                height: max(1, Int(newRenderSize.height))
-            )
-            self?.renderSize = size
-            self?.displayLayer?.frame = CGRect(origin: .zero, size: size)
+            // Keep the custom PiP source fixed at 320x180; iOS scales it through videoGravity.
+            // Changing the source size during PiP resize can produce cropped or black frames.
             self?.renderFrame(force: true)
         }
     }
